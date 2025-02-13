@@ -8,6 +8,8 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
+import { ChartColumnStacked } from 'lucide-react';
+import { Subcategory } from '../src/pages/dashboard/Subcategory'
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -30,16 +32,16 @@ export const routes = [
         element: <Profile />,
       },
       {
-        icon: <TableCellsIcon {...icon} />,
-        name: "tables",
+        icon: <ChartColumnStacked {...icon} />,
+        name: "Category",
         path: "/tables",
         element: <Tables />,
       },
       {
         icon: <InformationCircleIcon {...icon} />,
-        name: "notifications",
-        path: "/notifications",
-        element: <Notifications />,
+        name: "Sub Category",
+        path: "/subcategory",
+        element: <Subcategory />,
       },
     ],
   },
