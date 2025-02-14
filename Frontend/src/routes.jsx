@@ -6,11 +6,12 @@ import {
   ServerStackIcon,
   RectangleStackIcon,
 } from "@heroicons/react/24/solid";
-import { Home, Profile, Tables, Notifications } from "@/pages/dashboard";
+import { Home, Profile, Tables } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
-import { ChartColumnStacked, PackagePlus } from 'lucide-react';
+import { ChartColumnStacked, PackagePlus, ChartBarStacked } from 'lucide-react';
 import { Subcategory } from '../src/pages/dashboard/Subcategory'
 import Newstock from "./pages/dashboard/Newstock";
+import { Category } from "./pages/dashboard/Category";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -35,11 +36,11 @@ export const routes = [
       {
         icon: <ChartColumnStacked {...icon} />,
         name: "Category",
-        path: "/tables",
-        element: <Tables />,
+        path: "/category",
+        element: <Category />,
       },
       {
-        icon: <InformationCircleIcon {...icon} />,
+        icon: <ChartBarStacked {...icon} />,
         name: "Sub Category",
         path: "/subcategory",
         element: <Subcategory />,
