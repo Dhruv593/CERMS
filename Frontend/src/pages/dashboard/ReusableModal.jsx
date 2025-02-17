@@ -44,13 +44,18 @@ export function ReusableModal({
 
   if (!isOpen) return null;
 
+  // Conditionally choose a layout: grid with 2 columns if 5+ fields, otherwise vertical stack.
+  const formWrapperClass =
+    fields.length >= 5 ? "grid grid-cols-2 gap-4" : "space-y-4";
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-lg h-[90vh] relative flex flex-col"
+        // Increased the width by using max-w-2xl instead of max-w-lg.
+        className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] relative flex flex-col"
       >
         {/* Modal Close Button */}
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
@@ -62,82 +67,86 @@ export function ReusableModal({
 
         {/* Form Content */}
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {fields.map((field) => {
-              switch (field.type) {
-                case "text":
-                case "number":
-                case "datetime-local":
-                case "tel":
-                  return (
-                    <div key={field.name}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.label}
-                      </label>
-                      <input
-                        type={field.type}
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={handleChange}
-                        placeholder={field.placeholder}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  );
-                case "textarea":
-                  return (
-                    <div key={field.name}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.label}
-                      </label>
-                      <textarea
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={handleChange}
-                        placeholder={field.placeholder}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      ></textarea>
-                    </div>
-                  );
-                case "select":
-                  return (
-                    <div key={field.name}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.label}
-                      </label>
-                      <select
-                        name={field.name}
-                        value={formData[field.name]}
-                        onChange={handleChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                        {field.options.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
+          <form onSubmit={handleSubmit}>
+            <div className={formWrapperClass}>
+              {fields.map((field) => {
+                switch (field.type) {
+                  case "text":
+                  case "number":
+                  case "datetime-local":
+                  case "tel":
+                    return (
+                      <div key={field.name}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <input
+                          type={field.type}
+                          name={field.name}
+                          value={formData[field.name]}
+                          onChange={handleChange}
+                          placeholder={field.placeholder}
+                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    );
+                  case "textarea":
+                    return (
+                      <div key={field.name}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <textarea
+                          name={field.name}
+                          value={formData[field.name]}
+                          onChange={handleChange}
+                          placeholder={field.placeholder}
+                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        ></textarea>
+                      </div>
+                    );
+                  case "select":
+                    return (
+                      <div key={field.name}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <select
+                          name={field.name}
+                          value={formData[field.name]}
+                          onChange={handleChange}
+                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="">
+                            {field.placeholder || `Select ${field.label}`}
                           </option>
-                        ))}
-                      </select>
-                    </div>
-                  );
-                case "file":
-                  return (
-                    <div key={field.name}>
-                      <label className="block text-sm font-medium text-gray-700">
-                        {field.label}
-                      </label>
-                      <input
-                        type="file"
-                        name={field.name}
-                        onChange={handleFileChange}
-                        className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                      />
-                    </div>
-                  );
-                default:
-                  return null;
-              }
-            })}
+                          {field.options.map((option) => (
+                            <option key={option} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  case "file":
+                    return (
+                      <div key={field.name}>
+                        <label className="block text-sm font-medium text-gray-700">
+                          {field.label}
+                        </label>
+                        <input
+                          type="file"
+                          name={field.name}
+                          onChange={handleFileChange}
+                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    );
+                  default:
+                    return null;
+                }
+              })}
+            </div>
           </form>
         </div>
 

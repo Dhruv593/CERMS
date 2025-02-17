@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Card,
   CardHeader,
@@ -16,6 +16,21 @@ export function Tables({
   tableData = [],        // array of data objects (each row)
   renderRow,             // optional custom function: (row, index) => JSX.Element
 }) {
+  // *** Pagination State and Logic ***
+  const pageSize = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = Math.ceil(tableData.length / pageSize);
+  const startIndex = (currentPage - 1) * pageSize;
+  const currentData = tableData.slice(startIndex, startIndex + pageSize);
+
+  const handlePrevious = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
   return (
     <div className="mt-8">
       <Card className="border border-gray-300 shadow-sm">
@@ -64,7 +79,7 @@ export function Tables({
               </tr>
             </thead>
             <tbody>
-              {tableData.map((row, index) =>
+              {currentData.map((row, index) =>
                 renderRow ? (
                   renderRow(row, index)
                 ) : (
@@ -80,6 +95,26 @@ export function Tables({
             </tbody>
           </table>
         </CardBody>
+        {/* Pagination Controls */}
+        <div className="p-4 flex justify-between items-center">
+          <button
+            onClick={handlePrevious}
+            disabled={currentPage === 1}
+            className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          <Typography variant="small" className="text-gray-700">
+            Page {currentPage} of {totalPages}
+          </Typography>
+          <button
+            onClick={handleNext}
+            disabled={currentPage === totalPages}
+            className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
       </Card>
     </div>
   );

@@ -1,21 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Tables from "./tables";
 import ReusableModal from "./ReusableModal";
 import { categoryFields } from "@/data/category-modal";
-import { categoryData } from "@/data/category-data";
+// import { categoryData } from "@/data/category-data";
+import { addCategory, getCategories } from "@/api/categoryApi";
 
 export function Category() {
   const [isModalOpen, setIsModalOpen] = useState(false);
     const [searchValue, setSearchValue] = useState("");
+    const [categories, setCategories] = useState([]);
+    useEffect(() => {
+      const fetchCategories = async () => {
+        try {
+          const data = await getCategories();
+          setCategories(data);
+        } catch (error) {
+          console.error("Error fetching categories:", error);
+        }
+      };
+      fetchCategories();
+    }, []);
   
-    const filteredData = categoryData.filter((row) =>
+    const filteredData = categories.filter((row) =>
         row.category.toLowerCase().includes(searchValue.toLowerCase())
     );
   
-    const handleSubmit = (data) => {
-      console.log("Subcategory Data Submitted:", data);
-      // Perform further actions (e.g., API call)
+    const handleSubmit = async (data) => {
+      try {
+        const newCategory = await addCategory(data);
+        setCategories([...categories, newCategory]);
+      } catch (error) {
+        console.error("Error adding category:", error);
+      }
     };
+  
   
     // Custom renderRow function for subcategory rows
     const renderSubcategoryRow = (row, index) => (
@@ -50,10 +68,10 @@ export function Category() {
           <ReusableModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          title="Add Subcategory"
+          title="Add Category"
           fields={categoryFields}
           onSubmit={handleSubmit}
-          submitButtonLabel="Add Subcategory"
+          submitButtonLabel="Add Category"
         />
         )}
       </>
