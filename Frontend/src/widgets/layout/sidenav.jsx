@@ -30,7 +30,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
         <Link to="/" className=" px-8 text-center">
           <Typography
             variant="h6"
-            color={sidenavType === "dark" ? "white" : "blue-gray"}
+            color={sidenavType === "dark" ? "gradient" : "outlined"}
             className="text-2xl font-bold text-white"
           >
             {brandName}
@@ -54,8 +54,7 @@ export function Sidenav({ brandImg, brandName, routes }) {
               <li className="mx-3.5 mt-4 mb-2">
                 <Typography
                   variant="small"
-                  color={sidenavType === "dark" ? "white" : "blue-gray"}
-                  className="font-black uppercase opacity-75"
+                  className="font-black uppercase opacity-75 from-pink-400 to-pink-600"
                 >
                   {title}
                 </Typography>

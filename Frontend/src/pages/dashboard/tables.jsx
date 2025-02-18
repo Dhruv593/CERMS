@@ -10,11 +10,11 @@ import { Plus } from "lucide-react";
 export function Tables({
   headerTitle = "",
   buttonLabel = "",
-  onButtonClick,         // optional callback for the header button
-  searchProps,           // optional object: { value, onChange, placeholder }
-  tableHeaders = [],     // array of header strings (e.g., ["Category", "Subcategory", ...])
-  tableData = [],        // array of data objects (each row)
-  renderRow,             // optional custom function: (row, index) => JSX.Element
+  onButtonClick,         
+  searchProps,           
+  tableHeaders = [],     
+  tableData = [],      
+  renderRow,          
 }) {
   // *** Pagination State and Logic ***
   const pageSize = 10;

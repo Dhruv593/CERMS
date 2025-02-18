@@ -1,5 +1,6 @@
 import {
   Card,
+  CardBody,
   Input,
   Checkbox,
   Button,
@@ -7,118 +8,106 @@ import {
 } from "@material-tailwind/react";
 import { Link } from "react-router-dom";
 
-
 export function SignIn() {
   return (
-    <section className="m-8 flex gap-4">
-      <div className="w-full lg:w-3/5 mt-24">
-        <div className="text-center">
-          <Typography variant="h2" className="font-bold mb-4">Sign In</Typography>
-          <Typography variant="paragraph" color="blue-gray" className="text-lg font-normal">Enter your email and password to Sign In.</Typography>
-        </div>
-        <form className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2">
-          <div className="mb-1 flex flex-col gap-6">
-            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
-              Your email
+    <section className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 p-8">
+      <Card className="w-full max-w-4xl rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
+        {/* Sign In Form */}
+        <CardBody className="w-full lg:w-1/2 p-8">
+          <div className="text-center mb-8">
+            <Typography variant="h3" className="font-bold text-gray-800 mb-2">
+              Sign In
             </Typography>
-            <Input
-              size="lg"
-              placeholder="name@mail.com"
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
-            <Typography variant="small" color="blue-gray" className="-mb-3 font-medium">
-              Password
+            <Typography variant="paragraph" className="text-gray-600">
+              Enter your email and password to Sign In.
             </Typography>
-            <Input
-              type="password"
-              size="lg"
-              placeholder="********"
-              className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
-            />
           </div>
-          <Checkbox
-            label={
-              <Typography
-                variant="small"
-                color="gray"
-                className="flex items-center justify-start font-medium"
-              >
-                I agree the&nbsp;
-                <a
-                  href="#"
-                  className="font-normal text-black transition-colors hover:text-gray-900 underline"
-                >
-                  Terms and Conditions
-                </a>
+          <form className="space-y-6">
+            <div>
+              <Typography variant="small" color="blue-gray" className="font-medium mb-1">
+                Your Email
               </Typography>
-            }
-            containerProps={{ className: "-ml-2.5" }}
-          />
-          <Button className="mt-6" fullWidth>
-            Sign In
-          </Button>
-
-          <div className="flex items-center justify-between gap-2 mt-6">
-            <Checkbox
-              label={
-                <Typography
-                  variant="small"
-                  color="gray"
-                  className="flex items-center justify-start font-medium"
+              <Input
+                size="lg"
+                placeholder="name@mail.com"
+                className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              />
+            </div>
+            <div>
+              <Typography variant="small" color="blue-gray" className="font-medium mb-1">
+                Password
+              </Typography>
+              <Input
+                type="password"
+                size="lg"
+                placeholder="********"
+                className="!border-t-blue-gray-200 focus:!border-t-gray-900"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Checkbox
+                label={
+                  <Typography variant="small" color="gray" className="flex items-center">
+                    Subscribe me to newsletter
+                  </Typography>
+                }
+                containerProps={{ className: "-ml-2.5" }}
+              />
+              <Typography variant="small" className="font-medium text-blue-600 hover:underline">
+                <a href="#">Forgot Password?</a>
+              </Typography>
+            </div>
+            <Button size="lg" fullWidth>
+              Sign In
+            </Button>
+            <div className="flex flex-col space-y-4 mt-4">
+              <Button
+                size="lg"
+                color="white"
+                fullWidth
+                className="flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 20 20"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
                 >
-                  Subscribe me to newsletter
-                </Typography>
-              }
-              containerProps={{ className: "-ml-2.5" }}
-            />
-            <Typography variant="small" className="font-medium text-gray-900">
-              <a href="#">
-                Forgot Password
-              </a>
+                  <path d="M19.6 10.23c0-.68-.06-1.35-.18-2H10v3.8h5.4a4.62 4.62 0 01-2 3.03v2.5h3.22c1.88-1.73 2.98-4.28 2.98-7.36z" fill="#4285F4" />
+                  <path d="M10 20c2.7 0 4.97-.9 6.63-2.43l-3.22-2.5c-.89.6-2.03.95-3.41.95-2.62 0-4.83-1.77-5.62-4.15H1.02v2.6A10 10 0 0010 20z" fill="#34A853" />
+                  <path d="M4.38 9.53a5.99 5.99 0 010-3.77V5.02H1.02a10.01 10.01 0 000 9.96l3.36-2.59z" fill="#FBBC04" />
+                  <path d="M10 4.01c1.47 0 2.8.51 3.84 1.51l2.88-2.88C14.96 1.13 12.7 0 10 0A10 10 0 001.02 5.02l3.36 2.6A5.99 5.99 0 0110 4.01z" fill="#EA4335" />
+                </svg>
+                <span>Sign in With Google</span>
+              </Button>
+              <Button
+                size="lg"
+                color="white"
+                fullWidth
+                className="flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400"
+              >
+                <img src="/img/twitter-logo.svg" alt="Twitter Logo" className="w-5 h-5" />
+                <span>Sign in With Twitter</span>
+              </Button>
+            </div>
+            <Typography variant="paragraph" className="text-center text-gray-600 font-medium mt-4">
+              Not registered?{" "}
+              <Link to="/auth/sign-up" className="text-blue-600 hover:underline">
+                Create account
+              </Link>
             </Typography>
-          </div>
-          <div className="space-y-4 mt-8">
-            <Button size="lg" color="white" className="flex items-center gap-2 justify-center shadow-md" fullWidth>
-              <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <g clipPath="url(#clip0_1156_824)">
-                  <path d="M16.3442 8.18429C16.3442 7.64047 16.3001 7.09371 16.206 6.55872H8.66016V9.63937H12.9813C12.802 10.6329 12.2258 11.5119 11.3822 12.0704V14.0693H13.9602C15.4741 12.6759 16.3442 10.6182 16.3442 8.18429Z" fill="#4285F4" />
-                  <path d="M8.65974 16.0006C10.8174 16.0006 12.637 15.2922 13.9627 14.0693L11.3847 12.0704C10.6675 12.5584 9.7415 12.8347 8.66268 12.8347C6.5756 12.8347 4.80598 11.4266 4.17104 9.53357H1.51074V11.5942C2.86882 14.2956 5.63494 16.0006 8.65974 16.0006Z" fill="#34A853" />
-                  <path d="M4.16852 9.53356C3.83341 8.53999 3.83341 7.46411 4.16852 6.47054V4.40991H1.51116C0.376489 6.67043 0.376489 9.33367 1.51116 11.5942L4.16852 9.53356Z" fill="#FBBC04" />
-                  <path d="M8.65974 3.16644C9.80029 3.1488 10.9026 3.57798 11.7286 4.36578L14.0127 2.08174C12.5664 0.72367 10.6469 -0.0229773 8.65974 0.000539111C5.63494 0.000539111 2.86882 1.70548 1.51074 4.40987L4.1681 6.4705C4.8001 4.57449 6.57266 3.16644 8.65974 3.16644Z" fill="#EA4335" />
-                </g>
-                <defs>
-                  <clipPath id="clip0_1156_824">
-                    <rect width="16" height="16" fill="white" transform="translate(0.5)" />
-                  </clipPath>
-                </defs>
-              </svg>
-              <span>Sign in With Google</span>
-            </Button>
-            <Button size="lg" color="white" className="flex items-center gap-2 justify-center shadow-md" fullWidth>
-              <img src="/img/twitter-logo.svg" height={24} width={24} alt="" />
-              <span>Sign in With Twitter</span>
-            </Button>
-          </div>
-          <Typography variant="paragraph" className="text-center text-blue-gray-500 font-medium mt-4">
-            Not registered?
-            <Link to="/auth/sign-up" className="text-gray-900 ml-1">Create account</Link>
-          </Typography>
-        </form>
-
-      </div>
-      <div className="w-2/5 h-full hidden lg:block">
-        <img
-          src="/img/pattern.png"
-          className="h-full w-full object-cover rounded-3xl"
-        />
-      </div>
-
+          </form>
+        </CardBody>
+        {/* Sign In Image (visible on large screens) */}
+        <div className="hidden lg:block lg:w-1/2">
+          <img
+            src="/img/pattern.png"
+            alt="Sign in Visual"
+            className="h-full w-full object-cover"
+          />
+        </div>
+      </Card>
     </section>
   );
 }

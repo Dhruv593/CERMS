@@ -5,6 +5,7 @@ export function Home() {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
         <DashboardCard
           icon={<Package className="text-blue-500 w-8 h-8" />}
           title="Total Category"
