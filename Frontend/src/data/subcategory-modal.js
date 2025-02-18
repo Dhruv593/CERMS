@@ -1,3 +1,16 @@
+// const db = require("../config/db");
+
+// exports.getCategories = (req, res) => {
+//   const query = "SELECT categoryName FROM category"; // Select only categoryName column
+//   db.query(query, (err, results) => {
+//     if (err) {
+//       return res.status(500).json({ error: err.message });
+//     }
+//     const categoryNames = results.map((row) => row.categoryName); // Extract category names
+//     res.json(categoryNames);
+//   });
+// };
+
 export const subcategoryFields = [
     {
       name: "category",
