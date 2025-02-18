@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express');
 const router = express.Router();
 const upload = require('../middleware/uploadMiddleware');
@@ -10,3 +11,13 @@ router.get('/', subcategoryController.getSubcategories);
 router.post('/', upload.single('image'), subcategoryController.createSubcategory);
 
 module.exports = router;
+=======
+const express = require("express");
+const { getSubCategories, addSubCategory } = require("../controllers/subcategoryController");
+const router = express.Router();
+
+router.get("/", getSubCategories);
+router.post("/add", addSubCategory);
+
+module.exports = router;
+>>>>>>> 709db8077004780322f76bbe9403f380aa921e6d
