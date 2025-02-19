@@ -100,7 +100,7 @@ export function Tables({
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-200 text-gray-700 hover:bg-gray-400 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Previous
           </button>
@@ -110,7 +110,7 @@ export function Tables({
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className="bg-gray-200 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gray-200 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Next
           </button>
