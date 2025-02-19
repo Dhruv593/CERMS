@@ -3,11 +3,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth.routes');
 const categoryRoutes = require('./routes/category.routes');
-const subcategoryRoutes = require('./routes/subcategory.routes')
+const subcategoryRoutes = require('./routes/subcategory.routes');
 const db = require('./config/db');
 const path = require('path');
   
-const subcategoryRoutes = require('./routes/subcategory.routes');
+// const subcategoryRoutes = require('./routes/subcategory.routes');
 
 dotenv.config();
 
@@ -24,7 +24,9 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
-app.use('/api/subcategories', subcategoryRoutes);
+// app.use("/uploads", express.static("uploads"));
+app.use("/api/subcategories", subcategoryRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 

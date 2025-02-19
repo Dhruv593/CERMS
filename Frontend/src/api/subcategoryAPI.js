@@ -1,25 +1,31 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/subcategories"; // Adjust based on your backend
+const API_URL = import.meta.env.VITE_API_URL;
 
-// Fetch all categories
-export const getSubCategories = async () => {
+export const getSubcategories = async () => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(`${API_URL}/subcategories`);
     return response.data;
   } catch (error) {
     console.error("Error fetching subcategories:", error);
-    return [];
   }
 };
 
-// Add a new Subcategory
-export const addSubCategory = async (categoryData) => {
+export const addSubcategory = async (data) => {
+  const formData = new FormData();
+  formData.append("category", data.category);
+  formData.append("subcategory", data.subcategory);
+  formData.append("description", data.description);
+  if (data.image) {
+    formData.append("image", data.image);
+  }
+
   try {
-    const response = await axios.post(`${API_URL}/subcategories/add`, categoryData);
+    const response = await axios.post(`${API_URL}/subcategories/add`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   } catch (error) {
     console.error("Error adding subcategory:", error);
-    return null;
   }
 };
