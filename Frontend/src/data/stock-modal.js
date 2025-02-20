@@ -1,16 +1,17 @@
+
 export const stockFields = [
     {
       name: "category",
       label: "Select Category",
       type: "select",
-      options: ["Category 1", "Category 2"],
+      options: [], // dynamically populated
       placeholder: "Select Category",
     },
     {
       name: "subcategory",
       label: "Select Subcategory",
       type: "select",
-      options: ["Subcategory 1", "Subcategory 2"],
+      options: [], // dynamically populated
       placeholder: "Select Subcategory",
     },
     { name: "partyName", label: "Party Name", type: "text", placeholder: "Party Name" },
