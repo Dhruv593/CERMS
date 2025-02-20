@@ -33,8 +33,18 @@ export function ReusableModal({
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: files[0] }));
+    if (files.length > 0) {
+      const file = files[0];
+      const folderName = "uploads"; 
+      const imagePath = `${folderName}/${file.name}`; 
+  
+      setFormData((prev) => ({
+        ...prev,
+        [name]: imagePath, 
+      }));
+    }
   };
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();

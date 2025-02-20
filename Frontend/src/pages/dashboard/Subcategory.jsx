@@ -42,6 +42,7 @@ export function Subcategory() {
 
   // Handle form submission
   const handleSubmit = async (data) => {
+    console.log('checkdata',data)
     const response = await addSubcategory(data);
     if (response) {
       loadSubcategories();
