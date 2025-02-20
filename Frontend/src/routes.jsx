@@ -8,10 +8,11 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
-import { ChartColumnStacked, PackagePlus, ChartBarStacked } from 'lucide-react';
+import { ChartColumnStacked, PackagePlus, ChartBarStacked, HandCoins } from 'lucide-react';
 import { Subcategory } from '../src/pages/dashboard/Subcategory'
 import Newstock from "./pages/dashboard/Newstock";
 import { Category } from "./pages/dashboard/Category";
+import {Deposit} from "./pages/dashboard/Deposit"
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -50,6 +51,12 @@ export const routes = [
         name: "New Stock",
         path: "/newStock",
         element: <Newstock />,
+      },
+      {
+        icon: <HandCoins  {...icon} />,
+        name: "Deposit",
+        path: "/deposit",
+        element: <Deposit />,
       },
     ],
   },
