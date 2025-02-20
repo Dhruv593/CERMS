@@ -4,8 +4,6 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth.routes');
 const categoryRoutes = require('./routes/category.routes');
 const subcategoryRoutes = require('./routes/subcategory.routes');
-const newStockRoutes = require('./routes/newStock.routes');
-const depositRoutes = require("./routes/deposit.routes");
 const rentRoutes = require('./routes/rent.routes');
 const db = require('./config/db');
 const path = require('path');
@@ -29,8 +27,6 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 // app.use("/uploads", express.static("uploads"));
 app.use("/api/subcategories", subcategoryRoutes);
-app.use("/api/stockdata",newStockRoutes);
-app.use("/api/deposits", depositRoutes);
 app.use("/api/rents", rentRoutes);
 
 

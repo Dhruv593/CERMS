@@ -8,12 +8,12 @@ import {
 } from "@heroicons/react/24/solid";
 import { Home, Profile, Tables } from "@/pages/dashboard";
 import { SignIn, SignUp } from "@/pages/auth";
-import { ChartColumnStacked, PackagePlus, ChartBarStacked, HandCoins, IndianRupee, Landmark } from 'lucide-react';
+import { ChartColumnStacked, PackagePlus, ChartBarStacked, IndianRupee,Landmark } from 'lucide-react';
 import { Subcategory } from '../src/pages/dashboard/Subcategory'
 import Newstock from "./pages/dashboard/Newstock";
 import { Category } from "./pages/dashboard/Category";
-import {Deposit} from "./pages/dashboard/Deposit"
 import Rent from "./pages/dashboard/Rent";
+import Deposit from "./pages/dashboard/Deposit";
 
 const icon = {
   className: "w-5 h-5 text-inherit",
@@ -54,8 +54,6 @@ export const routes = [
         element: <Newstock />,
       },
       {
-        // icon: <HandCoins  {...icon} />,
-        // name: "Deposit",
         icon: <IndianRupee {...icon} />,
         name: "Rent",
         path: "/rent",
