@@ -1,16 +1,17 @@
+
 export const depositFields = [
     {
       name: "category",
       label: "Select Category",
       type: "select",
-      options: ["Category 1", "Category 2"],
+      options: [],
       placeholder: "Select Category",
     },
     {
       name: "subcategory",
       label: "Select Subcategory",
       type: "select",
-      options: ["Subcategory 1", "Subcategory 2"],
+      options: [],
       placeholder: "Select Subcategory",
     },
     { name: "deposit", label: "Deposit", type: "text", placeholder: "Deposit" },
