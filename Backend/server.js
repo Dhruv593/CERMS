@@ -5,6 +5,8 @@ const authRoutes = require('./routes/auth.routes');
 const categoryRoutes = require('./routes/category.routes');
 const subcategoryRoutes = require('./routes/subcategory.routes');
 const rentRoutes = require('./routes/rent.routes');
+const newStockRoutes = require('./routes/newStock.routes');
+const depositRoutes = require('./routes/deposit.routes');
 const db = require('./config/db');
 const path = require('path');
   
@@ -28,6 +30,8 @@ app.use('/api/categories', categoryRoutes);
 // app.use("/uploads", express.static("uploads"));
 app.use("/api/subcategories", subcategoryRoutes);
 app.use("/api/rents", rentRoutes);
+app.use("/api/stockdata",newStockRoutes);
+app.use("/api/deposits", depositRoutes);
 
 
 const PORT = process.env.PORT || 5000;
