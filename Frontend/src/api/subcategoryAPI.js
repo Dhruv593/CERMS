@@ -11,6 +11,17 @@ export const getSubcategories = async () => {
   }
 };
 
+export const getSubcategoriesByCategory = async (category) => {
+  try {
+    const response = await axios.get(`${API_URL}/subcategories/${category}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching subcategories by category:", error);
+    return [];
+  }
+};
+
+
 export const addSubcategory = async (data) => {
   const formData = new FormData();
   formData.append("category", data.category);
@@ -34,9 +45,6 @@ export const addSubcategory = async (data) => {
     console.error("Error adding subcategory:", error.response?.data || error);
   }
 };
-
-
-
 
 
 // export const addSubcategory = async (data) => {

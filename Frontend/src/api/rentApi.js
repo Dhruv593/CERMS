@@ -21,3 +21,23 @@ export const getRents = async () => {
       return null;
     }
   };
+
+  export const updateRent = async (id, data) => {
+    try {
+      const response = await axios.put(`${API_URL}/rents/edit/${id}`, data); // ✅ Corrected path
+      return response.data;
+    } catch (error) {
+      console.error("Error updating rent:", error.response?.data || error);
+      return null;
+    }
+};
+
+export const deleteRent = async (id) => {
+    try {
+      const response = await axios.delete(`${API_URL}/rents/delete/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting rent:", error.response?.data || error);
+      return null;
+    }
+};

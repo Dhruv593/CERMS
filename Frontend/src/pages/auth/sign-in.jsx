@@ -1,114 +1,59 @@
-import {
-  Card,
-  CardBody,
-  Input,
-  Checkbox,
-  Button,
-  Typography,
-} from "@material-tailwind/react";
-import { Link } from "react-router-dom";
+import { Card, CardBody, Input, Button, Typography } from "@material-tailwind/react";
 
 export function SignIn() {
   return (
-    <section className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-50 to-indigo-50 p-8">
-      <Card className="w-full max-w-4xl rounded-xl shadow-lg overflow-hidden flex flex-col lg:flex-row">
-        {/* Sign In Form */}
-        <CardBody className="w-full lg:w-1/2 p-8">
-          <div className="text-center mb-8">
-            <Typography variant="h3" className="font-bold text-gray-800 mb-2">
-              Sign In
-            </Typography>
-            <Typography variant="paragraph" className="text-gray-600">
-              Enter your email and password to Sign In.
-            </Typography>
-          </div>
-          <form className="space-y-6">
-            <div>
-              <Typography variant="small" color="blue-gray" className="font-medium mb-1">
-                Your Email
+    <>
+    
+
+      <section className="min-h-screen flex items-center justify-center bg-gray-100 p-6">
+        <Card className="w-96 p-6 rounded-lg shadow-lg bg-white border border-gray-300">
+          <CardBody>
+            {/* Title */}
+            <div className="text-center mb-6">
+              <Typography variant="h4" className="font-bold text-gray-800">
+                Equipment Rental Login
               </Typography>
-              <Input
-                size="lg"
-                placeholder="name@mail.com"
-                className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              />
-            </div>
-            <div>
-              <Typography variant="small" color="blue-gray" className="font-medium mb-1">
-                Password
-              </Typography>
-              <Input
-                type="password"
-                size="lg"
-                placeholder="********"
-                className="!border-t-blue-gray-200 focus:!border-t-gray-900"
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Checkbox
-                label={
-                  <Typography variant="small" color="gray" className="flex items-center">
-                    Subscribe me to newsletter
-                  </Typography>
-                }
-                containerProps={{ className: "-ml-2.5" }}
-              />
-              <Typography variant="small" className="font-medium text-blue-600 hover:underline">
-                <a href="#">Forgot Password?</a>
+              <Typography variant="paragraph" className="text-sm text-gray-600">
+                Manage rentals, track inventory, and more.
               </Typography>
             </div>
-            <Button size="lg" fullWidth>
-              Sign In
-            </Button>
-            <div className="flex flex-col space-y-4 mt-4">
-              <Button
-                size="lg"
-                color="white"
-                fullWidth
-                className="flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400"
-              >
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M19.6 10.23c0-.68-.06-1.35-.18-2H10v3.8h5.4a4.62 4.62 0 01-2 3.03v2.5h3.22c1.88-1.73 2.98-4.28 2.98-7.36z" fill="#4285F4" />
-                  <path d="M10 20c2.7 0 4.97-.9 6.63-2.43l-3.22-2.5c-.89.6-2.03.95-3.41.95-2.62 0-4.83-1.77-5.62-4.15H1.02v2.6A10 10 0 0010 20z" fill="#34A853" />
-                  <path d="M4.38 9.53a5.99 5.99 0 010-3.77V5.02H1.02a10.01 10.01 0 000 9.96l3.36-2.59z" fill="#FBBC04" />
-                  <path d="M10 4.01c1.47 0 2.8.51 3.84 1.51l2.88-2.88C14.96 1.13 12.7 0 10 0A10 10 0 001.02 5.02l3.36 2.6A5.99 5.99 0 0110 4.01z" fill="#EA4335" />
-                </svg>
-                <span>Sign in With Google</span>
+
+            {/* Sign In Form */}
+            <form className="space-y-4">
+              {/* Username Field */}
+              <div>
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Username
+                </Typography>
+                <Input
+                  size="lg"
+                  placeholder="Enter your username"
+                  className="w-full border border-gray-400 rounded-md"
+                />
+              </div>
+
+              {/* Password Field */}
+              <div>
+                <Typography variant="small" className="font-medium text-gray-700">
+                  Password
+                </Typography>
+                <Input
+                  type="password"
+                  size="lg"
+                  placeholder="********"
+                  className="w-full border border-gray-400 rounded-md"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button size="lg" fullWidth className="mt-4 bg-yellow-600 text-white hover:bg-yellow-700">
+                Sign In
               </Button>
-              <Button
-                size="lg"
-                color="white"
-                fullWidth
-                className="flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400"
-              >
-                <img src="/img/twitter-logo.svg" alt="Twitter Logo" className="w-5 h-5" />
-                <span>Sign in With Twitter</span>
-              </Button>
-            </div>
-            <Typography variant="paragraph" className="text-center text-gray-600 font-medium mt-4">
-              Not registered?{" "}
-              <Link to="/auth/sign-up" className="text-blue-600 hover:underline">
-                Create account
-              </Link>
-            </Typography>
-          </form>
-        </CardBody>
-        {/* Sign In Image (visible on large screens) */}
-        <div className="hidden lg:block lg:w-1/2">
-          <img
-            src="/img/pattern.png"
-            alt="Sign in Visual"
-            className="h-full w-full object-cover"
-          />
-        </div>
-      </Card>
-    </section>
+            </form>
+          </CardBody>
+        </Card>
+      </section>
+    </>
   );
 }
 

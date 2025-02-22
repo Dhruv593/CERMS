@@ -1,25 +1,28 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Tables from "./tables";
 import ReusableModal from "./ReusableModal";
-import { depositFields as initialDepositFields } from "@/data/deposit-modal";
-import { addDeposit, getDeposits } from "@/api/depositAPI"; // Ensure these API functions exist
+import DeletePopUp from "./DeletePopUp";
+import { addDeposit, getDeposits, updateDeposit, deleteDeposit } from "@/api/depositAPI";
 import { getCategories } from "@/api/categoryApi";
-import { getSubcategories } from "@/api/subcategoryAPI";
+import { getSubcategoriesByCategory } from "@/api/subcategoryAPI";
+import { depositFields } from "@/data/deposit-modal";
+import { Trash2, Edit } from "lucide-react";
 
 function Deposit() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const [depositData, setDepositData] = useState([]);
-  const [depositFields, setDepositFields] = useState(initialDepositFields);
+  const [subcategories, setSubcategories] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState(null);
 
-  // Load data when component mounts
   useEffect(() => {
     loadDepositData();
     fetchCategories();
-    fetchSubcategories();
   }, []);
 
-  // Fetch deposit data from DB
   const loadDepositData = async () => {
     try {
       const data = await getDeposits();
@@ -29,62 +32,68 @@ function Deposit() {
     }
   };
 
-  // Fetch and update category options
   const fetchCategories = async () => {
     try {
-      const categories = await getCategories();
-      const categoryOptions = categories.map((cat) => cat.category);
-      setDepositFields((prevFields) =>
-        prevFields.map((field) =>
-          field.name === "category" ? { ...field, options: categoryOptions } : field
-        )
-      );
+      const categoriesData = await getCategories();
+      setCategories(categoriesData.map((cat) => cat.category));
     } catch (error) {
       console.error("Error fetching categories:", error);
     }
   };
 
-  // Fetch and update subcategory options
-  const fetchSubcategories = async () => {
+  const handleCategoryChange = async (selectedCategory) => {
     try {
-      const subcategories = await getSubcategories();
-      const subcategoryOptions = subcategories.map((sub) => sub.subcategory);
-      setDepositFields((prevFields) =>
-        prevFields.map((field) =>
-          field.name === "subcategory" ? { ...field, options: subcategoryOptions } : field
-        )
-      );
+      const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
+      setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
     } catch (error) {
       console.error("Error fetching subcategories:", error);
+      setSubcategories([]);
     }
   };
 
-  // Handle form submission
+  const handleEditClick = (e, rowData) => {
+    e.stopPropagation();
+    setSelectedRowData(rowData);
+    setIsModalOpen(true);
+  };
+
+  const handleDeleteClick = (e, rowData) => {
+    e.stopPropagation();
+    setRowToDelete(rowData);
+    setIsDeletePopupOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteDeposit(rowToDelete.id);
+      loadDepositData();
+      setIsDeletePopupOpen(false);
+    } catch (error) {
+      console.error("Error deleting deposit:", error);
+    }
+  };
+
   const handleSubmit = async (data) => {
     try {
-      await addDeposit(data);
-      console.log(data);
-      loadDepositData(); // Refresh table after submission
+      if (selectedRowData) {
+        await updateDeposit(selectedRowData.id, data);
+      } else {
+        await addDeposit(data);
+      }
+      loadDepositData();
       setIsModalOpen(false);
+      setSelectedRowData(null);
     } catch (error) {
-      console.error("Failed to add deposit:", error);
+      console.error("Error saving deposit:", error);
     }
   };
 
-  // Modal controls
   const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const handleCloseModal = () => {
+    setSelectedRowData(null);
+    setIsModalOpen(false);
+  };
 
-  // Render table rows
-  const renderDepositRow = (row, index) => (
-    <tr key={index} className="border-b hover:bg-gray-100 transition">
-      <td className="px-2 py-2">{row.category}</td>
-      <td className="px-2 py-2">{row.subcategory}</td>
-      <td className="px-2 py-2">{row.deposit}</td>
-    </tr>
-  );
-
-  // Filter data based on search input
   const filteredData = depositData.filter(
     (row) =>
       row.category.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -102,19 +111,53 @@ function Deposit() {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: "Search Deposit...",
         }}
-        tableHeaders={["Category", "Subcategory", "Deposit"]}
+        tableHeaders={["Category", "Subcategory", "Deposit", "Actions"]}
         tableData={filteredData}
-        renderRow={renderDepositRow}
+        renderRow={(row, index) => (
+          <tr key={index} className="border-b hover:bg-gray-100 transition">
+            <td className="px-2 py-2">{row.category}</td>
+            <td className="px-2 py-2">{row.subcategory}</td>
+            <td className="px-2 py-2">{row.deposit}</td>
+            <td className="px-2 py-2 flex gap-2">
+              <button
+                onClick={(e) => handleEditClick(e, row)}
+                className="text-white bg-blue-600 hover:bg-blue-700 flex items-center gap-1 p-2 rounded-lg"
+              >
+                <Edit size={18} /> Edit
+              </button>
+              <button
+                onClick={(e) => handleDeleteClick(e, row)}
+                className="text-white bg-red-600 hover:bg-red-700 flex items-center gap-1 p-2 rounded-lg"
+              >
+                <Trash2 size={18} /> Delete
+              </button>
+            </td>
+          </tr>
+        )}
       />
 
       {isModalOpen && (
         <ReusableModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          title="Add Deposit"
-          fields={depositFields}
+          title={selectedRowData ? "Edit Deposit" : "Add Deposit"}
+          fields={depositFields(categories, subcategories)}
+          initialFormData={selectedRowData}
           onSubmit={handleSubmit}
-          submitButtonLabel="Add Deposit"
+          submitButtonLabel={selectedRowData ? "Update Deposit" : "Add Deposit"}
+          onCategoryChange={handleCategoryChange}
+        />
+      )}
+
+      {isDeletePopupOpen && (
+        <DeletePopUp
+          isOpen={isDeletePopupOpen}
+          onClose={() => setIsDeletePopupOpen(false)}
+          onConfirm={confirmDelete}
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this deposit entry?"
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
         />
       )}
     </>
@@ -122,4 +165,3 @@ function Deposit() {
 }
 
 export default Deposit;
-

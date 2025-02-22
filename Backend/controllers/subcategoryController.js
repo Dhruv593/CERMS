@@ -11,11 +11,25 @@ exports.getSubcategories = (req, res) => {
   });
 };
 
+exports.getSubcategoriesByCategory = (req, res) => {
+  const category = req.params.category;
+
+  if (!category) {
+    return res.status(400).json({ error: "Category is required" });
+  }
+
+  const query = "SELECT subcategory FROM subcategory WHERE category = ?";
+  db.query(query, [category], (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+};
+
 exports.addSubcategory = (req, res) => {
   upload.single("image")(req, res, (err) => {
-    // if (err) {
-    //   return res.status(400).json({ error: "Error uploading image" });
-    // }
+    
 
     const { category, subcategory, description } = req.body;
     const image_path = req.file ? `/uploads/${req.file.filename}` : null;

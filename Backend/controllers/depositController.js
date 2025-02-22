@@ -2,13 +2,9 @@ const db = require("../config/db");
 
 // Get Deposits with Category and Subcategory Names
 exports.getDeposits = (req, res) => {
-    const sql = `
-        SELECT d.id, c.category, s.subcategory, d.deposit
-        FROM deposit d
-        JOIN category c ON d.category_id = c.id
-        JOIN subcategory s ON d.subcategory_id = s.id
-        ORDER BY d.id DESC
-    `;
+    const sql = 
+        "SELECT * FROM deposit"
+    ;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json(results);
@@ -17,34 +13,76 @@ exports.getDeposits = (req, res) => {
 
 // Add Deposit
 exports.addDeposit = (req, res) => {
-  const { category, subcategory, deposit } = req.body;
+    const { category, subcategory, deposit } = req.body;
 
-  // Find category ID based on category name
-  const categoryQuery = `SELECT id FROM category WHERE category = ?`;
-  db.query(categoryQuery, [category], (err, categoryResult) => {
-      if (err || categoryResult.length === 0) {
-          return res.status(400).json({ error: "Invalid category." });
-      }
+    if (!category || !subcategory || !deposit) {
+        return res.status(400).json({ error: "All fields are required" }); // ✅ Ensure all fields exist
+    }
 
-      const category_id = categoryResult[0].id;
+    const getCategoryQuery = `SELECT category FROM category WHERE category = ?`;
 
-      // Find subcategory ID based on subcategory name
-      const subcategoryQuery = `SELECT id FROM subcategory WHERE subcategory = ?`;
-      db.query(subcategoryQuery, [subcategory], (err, subcategoryResult) => {
-          if (err || subcategoryResult.length === 0) {
-              return res.status(400).json({ error: "Invalid subcategory." });
-          }
+    db.query(getCategoryQuery, [category], (err, categoryResult) => {
+        if (err || categoryResult.length === 0) {
+            return res.status(400).json({ error: "Invalid category" });
+        }
 
-          const subcategory_id = subcategoryResult[0].id;
+        const getSubcategoryQuery = `SELECT subcategory FROM subcategory WHERE subcategory = ?`;
 
-          // Insert deposit with IDs
-          const insertQuery = `INSERT INTO deposit (category_id, subcategory_id, deposit) VALUES (?, ?, ?)`;
-          db.query(insertQuery, [category_id, subcategory_id, deposit], (err, result) => {
-              if (err) {
-                  return res.status(500).json({ error: err.message });
-              }
-              res.json({ message: "Deposit added successfully", id: result.insertId });
-          });
-      });
-  });
+        db.query(getSubcategoryQuery, [subcategory], (err, subcategoryResult) => {
+            if (err || subcategoryResult.length === 0) {
+                return res.status(400).json({ error: "Invalid subcategory" });
+            }
+
+            const insertQuery = `INSERT INTO deposit (category, subcategory, deposit) VALUES (?, ?, ?)`;
+
+            db.query(insertQuery, [category, subcategory, deposit], (err, result) => {
+                if (err) {
+                    return res.status(500).json({ error: err.message });
+                }
+                res.json({ message: "Deposit added successfully", id: result.insertId });
+            });
+        });
+    });
+};
+
+
+exports.editDeposit = (req, res) => {
+    const { id } = req.params;
+    const { category, subcategory, deposit } = req.body;
+
+    if (!category || !subcategory || !deposit) {
+        return res.status(400).json({ error: "All fields are required" });
+    }
+
+    const updateDepositQuery = "UPDATE deposit SET category = ?, subcategory = ?, deposit = ? WHERE id = ?";
+    db.query(updateDepositQuery, [category, subcategory, deposit, id], (err, result) => {
+        if (err) {
+            console.error("Error updating deposit:", err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Deposit entry not found" });
+        }
+
+        res.json({ message: "Deposit updated successfully" });
+    });
+};
+
+exports.deleteDeposit = (req, res) => {
+    const { id } = req.params;
+
+    const deleteDepositQuery = "DELETE FROM deposit WHERE id = ?";
+    db.query(deleteDepositQuery, [id], (err, result) => {
+        if (err) {
+            console.error("Error deleting deposit:", err);
+            return res.status(500).json({ error: err.message });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({ error: "Deposit entry not found" });
+        }
+
+        res.json({ message: "Deposit deleted successfully" });
+    });
 };
