@@ -5,7 +5,7 @@ import {
   CardBody,
   Typography,
 } from "@material-tailwind/react";
-import { Plus } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
 
 export function Tables({
   headerTitle = "",
@@ -29,6 +29,13 @@ export function Tables({
 
   const handleNext = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
+
+  const handlePageChange = (e) => {
+    let page = parseInt(e.target.value, 10);
+    if (!isNaN(page) && page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   return (
@@ -96,23 +103,37 @@ export function Tables({
           </table>
         </CardBody>
         {/* Pagination Controls */}
-        <div className="p-4 flex justify-between items-center">
+        <div className="p-4 flex justify-center items-center gap-4 border-t border-gray-300 bg-gray-50">
           <button
             onClick={handlePrevious}
             disabled={currentPage === 1}
-            className="bg-gray-200 text-gray-700 hover:bg-gray-400 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
-            Previous
+            <ChevronLeft size={18} className="mr-1" />
+            
           </button>
-          <Typography variant="small" className="text-gray-700">
-            Page {currentPage} of {totalPages}
-          </Typography>
+
+          <div className="flex items-center gap-2">
+            <Typography variant="small" className="text-gray-700">
+              Page
+            </Typography>
+            <input
+              type="number"
+              value={currentPage}
+              onChange={handlePageChange}
+              className="w-14 px-2 py-1 text-center border border-gray-300 rounded-md focus:ring focus:ring-blue-300"
+            />
+            <Typography variant="small" className="text-gray-700">
+              of {totalPages}
+            </Typography>
+          </div>
+
           <button
             onClick={handleNext}
             disabled={currentPage === totalPages}
-            className="bg-gray-200 hover:bg-gray-400 text-gray-700 px-3 py-1 rounded disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-2 py-2 rounded-md border border-gray-300 bg-white text-gray-700 hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
-            Next
+            <ChevronRight size={18} className="ml-1" />
           </button>
         </div>
       </Card>
