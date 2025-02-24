@@ -14,6 +14,7 @@ export const getCategories = async () => {
 
 export const addCategory = async (data) => {
   try {
+    console.log(data);
     const response = await axios.post(`${API_URL}/categories/add`, data);
     return response.data;
   } catch (error) {
