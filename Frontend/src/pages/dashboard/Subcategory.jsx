@@ -91,7 +91,7 @@ export function Subcategory() {
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           title="Add Subcategory"
-          fields={subcategoryFields} // Use dynamically updated fields
+          fields={subcategoryFields} 
           onSubmit={handleSubmit}
           submitButtonLabel="Add Subcategory"
         />

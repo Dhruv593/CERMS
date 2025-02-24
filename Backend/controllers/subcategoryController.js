@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const upload = require("../middleware/uploadMiddleware");
 
+// Get all subcategories
 exports.getSubcategories = (req, res) => {
   const query = "SELECT * FROM subcategory";
   db.query(query, (err, results) => {
@@ -11,9 +12,9 @@ exports.getSubcategories = (req, res) => {
   });
 };
 
+// Get subcategories by category
 exports.getSubcategoriesByCategory = (req, res) => {
   const category = req.params.category;
-
   if (!category) {
     return res.status(400).json({ error: "Category is required" });
   }
@@ -27,12 +28,20 @@ exports.getSubcategoriesByCategory = (req, res) => {
   });
 };
 
+// Add subcategory with image upload
 exports.addSubcategory = (req, res) => {
   upload.single("image")(req, res, (err) => {
-    
+    if (err) {
+      console.error("Multer error:", err);
+      return res.status(500).json({ error: "File upload error" });
+    }
 
     const { category, subcategory, description } = req.body;
     const image_path = req.file ? `/uploads/${req.file.filename}` : null;
+
+    if (!category || !subcategory || !description) {
+      return res.status(400).json({ error: "All fields are required" });
+    }
 
     const query =
       "INSERT INTO subcategory (category, subcategory, description, image_path) VALUES (?, ?, ?, ?)";
@@ -40,9 +49,15 @@ exports.addSubcategory = (req, res) => {
 
     db.query(query, values, (error, results) => {
       if (error) {
+        console.error("Error adding subcategory:", error);
         return res.status(500).json({ error: "Error adding subcategory" });
       }
-      res.json({ message: "Subcategory added successfully", id: results.insertId });
+
+      res.json({
+        message: "Subcategory added successfully",
+        id: results.insertId,
+        imagePath: image_path,
+      });
     });
   });
 };

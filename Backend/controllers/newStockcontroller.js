@@ -92,8 +92,7 @@ exports.addStock = (req, res) => {
 };
 
 exports.editStock = (req, res) => {
-  // Here we assume similar structure to addStock.
-  // You may need to handle file updates similarly.
+  
   const { id } = req.params;
   const {
     category,
@@ -108,7 +107,6 @@ exports.editStock = (req, res) => {
     remarks,
   } = req.body;
 
-  // Determine file paths if new files are provided.
   const stockPhotoPath = req.files && req.files.stockPhoto 
     ? `/uploads/${req.files.stockPhoto[0].filename}` 
     : null;
@@ -116,7 +114,6 @@ exports.editStock = (req, res) => {
     ? `/uploads/${req.files.billPhoto[0].filename}` 
     : null;
 
-  // Prepare the SQL update statement. Here we update file paths only if new files are provided.
   let sql = `
     UPDATE stockdata 
     SET 

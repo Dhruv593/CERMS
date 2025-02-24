@@ -121,7 +121,7 @@ function Deposit() {
             <td className="px-2 py-2 flex gap-2">
               <button
                 onClick={(e) => handleEditClick(e, row)}
-                className="text-white bg-blue-600 hover:bg-blue-700 flex items-center gap-1 p-2 rounded-lg"
+                className="text-white bg-green-400 hover:bg-green-500 flex items-center gap-1 p-2 rounded-lg"
               >
                 <Edit size={18} /> Edit
               </button>

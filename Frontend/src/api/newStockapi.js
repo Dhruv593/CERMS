@@ -44,7 +44,6 @@ export const addStock = async (data) => {
 };
 
 export const updateStock = async (id, data) => {
-  // Similar to addStock, you may need to build a FormData if file uploads are supported.
   const formData = new FormData();
   formData.append("category", data.category);
   formData.append("subcategory", data.subcategory);

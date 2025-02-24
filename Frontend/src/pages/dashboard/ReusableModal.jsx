@@ -80,7 +80,7 @@ export function ReusableModal({
 
         {/* Form Content */}
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} enctype="multipart/form-data">
             <div className={formWrapperClass}>
               {fields.map((field) => {
                 switch (field.type) {
