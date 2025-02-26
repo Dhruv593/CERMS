@@ -34,21 +34,14 @@ export function ReusableModal({
       onCategoryChange(value);
     }
   };
-
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length > 0) {
       const file = files[0];
-      const folderName = "uploads"; 
-      const imagePath = `${folderName}/${file.name}`; 
-  
-      setFormData((prev) => ({
-        ...prev,
-        [name]: imagePath, 
-      }));
+      setFormData((prev) => ({ ...prev, [name]: file })); // Store the actual file object
     }
   };
-
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(formData);

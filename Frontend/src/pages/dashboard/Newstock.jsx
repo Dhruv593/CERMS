@@ -128,8 +128,8 @@ function Newstock() {
       <td className="px-2 py-2">
         {row.stockPhoto && (
           <img
-            src={row.stockPhoto}
-            alt="Stock"
+            src={`http://localhost:5000${row.stockPhoto}`}
+            alt={row.stockPhoto}
             className="h-8 w-8 object-cover cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
@@ -141,8 +141,8 @@ function Newstock() {
       <td className="px-2 py-2">
         {row.billPhoto && (
           <img
-            src={row.billPhoto}
-            alt="Bill"
+            src={`http://localhost:5000${row.billPhoto}`}
+            alt={row.billPhoto} 
             className="h-8 w-8 object-cover cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
@@ -168,6 +168,7 @@ function Newstock() {
       </td>
     </tr>
   );
+
 
   const filteredData = stockData.filter((row) =>
     (row.category?.toLowerCase() || "").includes(searchValue.toLowerCase()) ||

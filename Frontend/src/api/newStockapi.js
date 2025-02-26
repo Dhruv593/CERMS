@@ -24,13 +24,9 @@ export const addStock = async (data) => {
   formData.append("paymentMode", data.paymentMode);
   formData.append("transportInclude", data.transportInclude);
   formData.append("remarks", data.remarks);
-
-  if (data.stockPhoto) {
-    formData.append("stockPhoto", data.stockPhoto);
-  }
-  if (data.billPhoto) {
-    formData.append("billPhoto", data.billPhoto);
-  }
+  formData.append("stockPhoto", data.stockPhoto);
+  formData.append("billPhoto", data.billPhoto);
+  
 
   try {
     const response = await axios.post(`${API_URL}/stockdata/add`, formData, {

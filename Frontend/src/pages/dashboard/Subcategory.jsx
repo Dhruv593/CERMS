@@ -50,6 +50,9 @@ export function Subcategory() {
     }
   };
 
+
+  
+
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
@@ -78,8 +81,8 @@ export function Subcategory() {
             <td className="px-2 py-2">{row.description}</td>
             <td className="px-2 py-2">
               <img
-                src={row.image}
-                alt={row.subcategory}
+                src={`http://localhost:5000${row.image_path}`}
+                alt={row.image_path}
                 className="h-8 w-8 object-cover"
               />
             </td>
