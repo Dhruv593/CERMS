@@ -6,52 +6,80 @@ export function ReusableModal({
   isOpen,
   onClose,
   title,
-  fields, 
-  onSubmit, 
+  fields,
+  onSubmit,
   submitButtonLabel = "Submit",
   onCategoryChange,
-  initialFormData = null, 
+  initialFormData = null,
 }) {
-
   const initialState = fields.reduce((acc, field) => {
     acc[field.name] = field.initialValue || (field.type === "file" ? null : "");
     return acc;
   }, {});
 
   const [formData, setFormData] = useState(initialState);
+  const [errors, setErrors] = useState({}); // ✅ Validation State
 
   useEffect(() => {
     if (isOpen) {
       setFormData(initialFormData ? { ...initialFormData } : initialState);
+      setErrors({}); // ✅ Reset errors on modal open
     }
   }, [isOpen, initialFormData]);
+
+  const validateField = (name, value) => {
+    let error = "";
+
+    // ✅ **Category & Subcategory Validation (Only Alphabets & Spaces)**
+    if ((name === "category" || name === "subcategory") && !/^[A-Za-z\s]+$/.test(value)) {
+      error = `${name} must contain only letters.`;
+    }
+
+    // ✅ **Numerical Fields Validation (Deposit, Rent, Quantity)**
+    if ((name.includes("deposit") || name.includes("rent") || name.includes("quantity")) && !/^\d+$/.test(value)) {
+      error = `${name} must be a valid number.`;
+    }
+
+    // ✅ **File Upload Validation**
+    if (name.includes("Photo") && !value) {
+      error = "Please upload an image.";
+    }
+
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
+    validateField(name, value); // ✅ Validate on change
+
     if (name === "category" && onCategoryChange) {
       onCategoryChange(value);
     }
   };
+
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length > 0) {
-      const file = files[0];
-      setFormData((prev) => ({ ...prev, [name]: file })); // Store the actual file object
+      setFormData((prev) => ({ ...prev, [name]: files[0] })); // Store the actual file object
+      validateField(name, files[0]); // ✅ Validate File Input
     }
   };
-  
+
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    // ✅ **Check for errors before submitting**
+    if (Object.values(errors).some((err) => err)) return;
+
     onSubmit(formData);
     onClose();
   };
 
   if (!isOpen) return null;
 
-  const formWrapperClass =
-    fields.length >= 5 ? "grid grid-cols-2 gap-4" : "space-y-4";
+  const formWrapperClass = fields.length >= 5 ? "grid grid-cols-2 gap-4" : "space-y-4";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
@@ -69,11 +97,9 @@ export function ReusableModal({
         {/* Modal Title */}
         <h3 className="text-lg font-semibold mb-4">{title}</h3>
 
-        
-
         {/* Form Content */}
         <div className="flex-1 overflow-y-auto">
-          <form onSubmit={handleSubmit} enctype="multipart/form-data">
+          <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className={formWrapperClass}>
               {fields.map((field) => {
                 switch (field.type) {
@@ -92,8 +118,13 @@ export function ReusableModal({
                           value={formData[field.name]}
                           onChange={handleChange}
                           placeholder={field.placeholder}
-                          className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+                          className={`w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+                            errors[field.name] ? "border-red-500" : ""
+                          }`} // ✅ Red border for errors
                         />
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">{errors[field.name]}</p>
+                        )}
                       </div>
                     );
                   case "textarea":
@@ -144,6 +175,9 @@ export function ReusableModal({
                           onChange={handleFileChange}
                           className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
                         />
+                        {errors[field.name] && (
+                          <p className="text-red-500 text-sm">{errors[field.name]}</p>
+                        )}
                       </div>
                     );
                   default:
@@ -158,7 +192,12 @@ export function ReusableModal({
         <div className="p-4 border-t flex justify-end">
           <button
             onClick={handleSubmit}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition"
+            disabled={Object.values(errors).some((err) => err)} // ✅ **Disable button if errors exist**
+            className={`px-4 py-2 rounded-md transition ${
+              Object.values(errors).some((err) => err)
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
           >
             {submitButtonLabel}
           </button>

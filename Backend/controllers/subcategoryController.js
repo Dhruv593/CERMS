@@ -31,7 +31,7 @@ exports.getSubcategoriesByCategory = (req, res) => {
 // Add subcategory with image upload
 exports.addSubcategory = (req, res) => {
   const { category, subcategory, description } = req.body;
-  const image_path = req.file ? `/uploads/subcategories/${req.file.filename}` : null;
+  const image_path = req.file ? `uploads/subcategories/${req.file.filename}` : null;
 
   if (!category || !subcategory || !description) {
     return res.status(400).json({ error: "All fields are required" });

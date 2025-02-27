@@ -20,10 +20,10 @@ function Newstock() {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
-  // << NEW: Add state for editing and deletion
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
-  // >> NEW
+  const IMG_URL = import.meta.env.VITE_IMG_URL;
+
 
   useEffect(() => {
     loadStockData();
@@ -128,7 +128,7 @@ function Newstock() {
       <td className="px-2 py-2">
         {row.stockPhoto && (
           <img
-            src={`http://localhost:5000${row.stockPhoto}`}
+            src={`${IMG_URL}/${row.stockPhoto}`}
             alt={row.stockPhoto}
             className="h-8 w-8 object-cover cursor-pointer"
             onClick={(e) => {
@@ -141,7 +141,7 @@ function Newstock() {
       <td className="px-2 py-2">
         {row.billPhoto && (
           <img
-            src={`http://localhost:5000${row.billPhoto}`}
+            src={`${IMG_URL}/${row.billPhoto}`}
             alt={row.billPhoto} 
             className="h-8 w-8 object-cover cursor-pointer"
             onClick={(e) => {

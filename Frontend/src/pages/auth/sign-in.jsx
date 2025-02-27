@@ -2,6 +2,7 @@ import { Card, CardBody, Input, Button, Typography } from "@material-tailwind/re
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export function SignIn() {
   const [username, setUsername] = useState("");
@@ -20,10 +21,23 @@ export function SignIn() {
     try {
       const res = await axios.post("http://localhost:5000/api/auth/login", { username, password });
       localStorage.setItem("token", res.data.token);
-      alert(res.data.message);
+      // alert(res.data.message);
+      Swal.fire({
+        title: "Login Successful!",
+        text: "You are being redirected to the dashboard.",
+        icon: "success",
+        timer: 1500,
+        showConfirmButton: false
+      });
       navigate("/dashboard/home");
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed!");
+      // alert(error.response?.data?.message || "Login failed!");
+      Swal.fire({
+        title: "Login Failed!",
+        text: error.response?.data?.message || "Invalid credentials.",
+        icon: "error",
+        confirmButtonText: "Try Again",
+      });
     }
   };
 

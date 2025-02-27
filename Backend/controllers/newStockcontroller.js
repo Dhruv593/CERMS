@@ -50,11 +50,11 @@ exports.addStock = (req, res) => {
   } = req.body;
 
   const stockPhoto = req.files?.stockPhoto
-    ? `/uploads/stock/stock/${req.files.stockPhoto[0].filename}`
+    ? `uploads/stock/stock/${req.files.stockPhoto[0].filename}`
     : null;
   
   const billPhoto = req.files?.billPhoto
-    ? `/uploads/stock/bill/${req.files.billPhoto[0].filename}`
+    ? `uploads/stock/bill/${req.files.billPhoto[0].filename}`
     : null;
 
   const sql = `
@@ -113,11 +113,11 @@ exports.editStock = (req, res) => {
   } = req.body;
 
   const stockPhoto = req.files?.stockPhoto
-    ? `/uploads/stock/${req.files.stockPhoto[0].filename}`
+    ? `uploads/stock/stock/${req.files.stockPhoto[0].filename}`
     : null;
   
   const billPhoto = req.files?.billPhoto
-    ? `/uploads/bill/${req.files.billPhoto[0].filename}`
+    ? `uploads/stock/bill/${req.files.billPhoto[0].filename}`
     : null;
 
   let sql = `

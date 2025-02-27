@@ -7,6 +7,7 @@ const subcategoryRoutes = require('./routes/subcategory.routes');
 const rentRoutes = require('./routes/rent.routes');
 const newStockRoutes = require('./routes/newStock.routes');
 const depositRoutes = require('./routes/deposit.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 const db = require('./config/db');
 const path = require('path');
   
@@ -32,6 +33,7 @@ app.use("/api/subcategories", subcategoryRoutes);
 app.use("/api/rents", rentRoutes);
 app.use("/api/stockdata",newStockRoutes);
 app.use("/api/deposits", depositRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 
 const PORT = process.env.PORT || 5000;
