@@ -38,7 +38,8 @@ export function DashboardNavbar() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/auth/sign-in", { replace: true });
+   navigate("/auth/sign-in", { replace: true });
+   window.location.reload();
   };
 
   return (

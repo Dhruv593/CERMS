@@ -1,5 +1,5 @@
 import { Card, CardBody, Input, Button, Typography } from "@material-tailwind/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
@@ -9,6 +9,7 @@ export function SignIn() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log("Checking token:", localStorage.getItem("token"));
     if (localStorage.getItem("token")) {
       navigate("/dashboard/home");
     }
