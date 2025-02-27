@@ -67,18 +67,6 @@ export const routes = [
       },
     ],
   },
-  {
-    title: "auth pages",
-    layout: "auth",
-    pages: [
-      {
-        icon: <ServerStackIcon {...icon} />,
-        name: "sign in",
-        path: "/sign-in",
-        element: <SignIn />,
-      }
-    ],
-  },
 ];
 
 export default routes;

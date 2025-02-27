@@ -49,11 +49,12 @@ exports.addStock = (req, res) => {
     remarks,
   } = req.body;
 
-  const stockPhotoPath = req.files && req.files.stockPhoto 
-    ? `/uploads/${req.files.stockPhoto[0].filename}` 
+  const stockPhoto = req.files?.stockPhoto
+    ? `/uploads/stock/stock/${req.files.stockPhoto[0].filename}`
     : null;
-  const billPhotoPath = req.files && req.files.billPhoto 
-    ? `/uploads/${req.files.billPhoto[0].filename}` 
+  
+  const billPhoto = req.files?.billPhoto
+    ? `/uploads/stock/bill/${req.files.billPhoto[0].filename}`
     : null;
 
   const sql = `
@@ -77,17 +78,21 @@ exports.addStock = (req, res) => {
     purchaseQuantity,
     paymentMode,
     transportInclude,
-    stockPhotoPath,
-    billPhotoPath,
+    stockPhoto,
+    billPhoto,
     remarks,
   ];
 
   db.query(sql, values, (err, result) => {
     if (err) {
       console.error("Database Error:", err);
+      if (req.file) {
+        const fs = require("fs");
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(500).json({ error: err.message });
     }
-    res.json({ message: "Stock added successfully", id: result.insertId });
+    res.json({ message: "Stock added successfully", id: result.insertId, stockPhoto, billPhoto });
   });
 };
 
@@ -107,11 +112,12 @@ exports.editStock = (req, res) => {
     remarks,
   } = req.body;
 
-  const stockPhotoPath = req.files && req.files.stockPhoto 
-    ? `/uploads/${req.files.stockPhoto[0].filename}` 
+  const stockPhoto = req.files?.stockPhoto
+    ? `/uploads/stock/${req.files.stockPhoto[0].filename}`
     : null;
-  const billPhotoPath = req.files && req.files.billPhoto 
-    ? `/uploads/${req.files.billPhoto[0].filename}` 
+  
+  const billPhoto = req.files?.billPhoto
+    ? `/uploads/bill/${req.files.billPhoto[0].filename}`
     : null;
 
   let sql = `
@@ -142,14 +148,14 @@ exports.editStock = (req, res) => {
     remarks,
   ];
 
-  if (stockPhotoPath) {
+  if (stockPhoto) {
     sql += `, stockPhoto = ?`;
-    values.push(stockPhotoPath);
+    values.push(stockPhoto);
   }
 
-  if (billPhotoPath) {
+  if (billPhoto) {
     sql += `, billPhoto = ?`;
-    values.push(billPhotoPath);
+    values.push(billPhoto);
   }
 
   sql += ` WHERE id = ?`;
@@ -242,10 +248,10 @@ exports.deleteStock = (req, res) => {
 //   } = req.body;
 
 //   // Get file paths if files are uploaded. Expecting two files: stockPhoto and billPhoto.
-//   const stockPhotoPath = req.files && req.files.stockPhoto 
+//   const stockPhoto = req.files && req.files.stockPhoto 
 //     ? `/uploads/${req.files.stockPhoto[0].filename}` 
 //     : null;
-//   const billPhotoPath = req.files && req.files.billPhoto 
+//   const billPhoto = req.files && req.files.billPhoto 
 //     ? `/uploads/${req.files.billPhoto[0].filename}` 
 //     : null;
 
@@ -271,8 +277,8 @@ exports.deleteStock = (req, res) => {
 //     purchaseQuantity,
 //     paymentMode,
 //     transportInclude,
-//     stockPhotoPath,
-//     billPhotoPath,
+//     stockPhoto,
+//     billPhoto,
 //     remarks
 //   ];
 
