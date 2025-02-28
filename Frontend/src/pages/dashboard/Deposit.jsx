@@ -7,6 +7,7 @@ import { getCategories } from "@/api/categoryApi";
 import { getSubcategoriesByCategory } from "@/api/subcategoryAPI";
 import { depositFields } from "@/data/deposit-modal";
 import { Trash2, Edit } from "lucide-react";
+import { showSuccessAlert } from "@/utils/AlertService";
 
 function Deposit() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -68,6 +69,7 @@ function Deposit() {
       await deleteDeposit(rowToDelete.id);
       loadDepositData();
       setIsDeletePopupOpen(false);
+      showSuccessAlert("Deposit deleted successfully!");
     } catch (error) {
       console.error("Error deleting deposit:", error);
     }
@@ -77,14 +79,17 @@ function Deposit() {
     try {
       if (selectedRowData) {
         await updateDeposit(selectedRowData.id, data);
+        showSuccessAlert("Deposit updated successfully!");
       } else {
         await addDeposit(data);
+        showSuccessAlert("Deposit added successfully!");
       }
       loadDepositData();
       setIsModalOpen(false);
       setSelectedRowData(null);
     } catch (error) {
       console.error("Error saving deposit:", error);
+      showWarningAlert("Error saving deposit. Please try again.");
     }
   };
 

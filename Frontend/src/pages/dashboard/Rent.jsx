@@ -7,6 +7,7 @@ import { getCategories } from "@/api/categoryApi";
 import { getSubcategoriesByCategory } from "@/api/subcategoryAPI";
 import { rentFields } from "@/data/rent-modal";
 import { Trash2, Edit } from "lucide-react";
+import { showSuccessAlert, showErrorAlert } from "@/utils/AlertService";
 
 function Rent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -71,8 +72,10 @@ function Rent() {
       await deleteRent(rowToDelete.id);
       fetchRents(); // Refresh table after delete
       setIsDeletePopupOpen(false);
+      showSuccessAlert("Rent Deleted Successfully");
     } catch (error) {
       console.error("Error deleting rent:", error);
+      showErrorAlert("Error deleting rent");
     }
   };
 
@@ -80,14 +83,17 @@ function Rent() {
     try {
       if (selectedRowData) {
         await updateRent(selectedRowData.id, data);
+        showSuccessAlert("Rent Update Successfully");
       } else {
         await addRent(data);
+        showSuccessAlert("Rent Added Successfully");
       }
       fetchRents();
       setIsModalOpen(false);
       setSelectedRowData(null);
     } catch (error) {
       console.error("Error saving rent:", error);
+      showErrorAlert("Error saving rent");
     }
   };
 

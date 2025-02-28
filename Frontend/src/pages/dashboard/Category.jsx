@@ -4,6 +4,7 @@ import ReusableModal from "./ReusableModal";
 import { categoryFields } from "@/data/category-modal";
 // import { categoryData } from "@/data/category-data";
 import { addCategory, getCategories } from "@/api/categoryApi";
+import { showSuccessAlert, showErrorAlert } from "@/utils/AlertService";
 
 export function Category() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,6 +15,7 @@ export function Category() {
         try {
           const data = await getCategories();
           setCategories(data);
+
         } catch (error) {
           console.error("Error fetching categories:", error);
         }
@@ -29,8 +31,10 @@ export function Category() {
       try {
         const newCategory = await addCategory(data);
         setCategories([...categories, newCategory]);
+        showSuccessAlert("Category Added Successfully");
       } catch (error) {
         console.error("Error adding category:", error);
+        showErrorAlert("Error Adding Category");
       }
     };
   

@@ -16,7 +16,7 @@ export function ReusableModal({
     acc[field.name] = field.initialValue || (field.type === "file" ? null : "");
     return acc;
   }, {});
-
+console.log("initialFormData",initialFormData)
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({}); // ✅ Validation State
 
@@ -30,17 +30,36 @@ export function ReusableModal({
   const validateField = (name, value) => {
     let error = "";
 
-    // ✅ **Category & Subcategory Validation (Only Alphabets & Spaces)**
-    if ((name === "category" || name === "subcategory") && !/^[A-Za-z\s]+$/.test(value)) {
-      error = `${name} must contain only letters.`;
+    if (name === "category" || name === "subcategory") {
+      if (!/^[A-Za-z\s]+$/.test(value)) {
+        error = `${name} must contain only letters and spaces.`;
+      }
+    }
+    
+    if (name === "partyName") {
+      if (!/^[A-Za-z\s]+$/.test(value)) {
+        error = `Party Name must contain only letters and spaces.`;
+      }
+    }
+    
+    if (name === "partyContact") {
+      if (!/^\d{10}$/.test(value)) {
+        error = "Contact number must be exactly 10 digits.";
+      }
     }
 
-    // ✅ **Numerical Fields Validation (Deposit, Rent, Quantity)**
-    if ((name.includes("deposit") || name.includes("rent") || name.includes("quantity")) && !/^\d+$/.test(value)) {
-      error = `${name} must be a valid number.`;
+    if (name.includes("deposit") || name.includes("rent") || name.includes("purchaseQuantity")) {
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+        error = `${name} must be a valid number.`;
+      }
     }
 
-    // ✅ **File Upload Validation**
+    if (name.includes("purchaseQuantity")) {
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+        error = `Purchase Quantity must be a valid number.`;
+      }
+    }
+
     if (name.includes("Photo") && !value) {
       error = "Please upload an image.";
     }
@@ -52,7 +71,7 @@ export function ReusableModal({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    validateField(name, value); // ✅ Validate on change
+    validateField(name, value); 
 
     if (name === "category" && onCategoryChange) {
       onCategoryChange(value);
@@ -62,15 +81,14 @@ export function ReusableModal({
   const handleFileChange = (e) => {
     const { name, files } = e.target;
     if (files.length > 0) {
-      setFormData((prev) => ({ ...prev, [name]: files[0] })); // Store the actual file object
-      validateField(name, files[0]); // ✅ Validate File Input
+      setFormData((prev) => ({ ...prev, [name]: files[0] })); 
+      validateField(name, files[0]); 
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // ✅ **Check for errors before submitting**
     if (Object.values(errors).some((err) => err)) return;
 
     onSubmit(formData);

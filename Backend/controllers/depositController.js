@@ -3,7 +3,7 @@ const db = require("../config/db");
 // Get Deposits with Category and Subcategory Names
 exports.getDeposits = (req, res) => {
     const sql = 
-        "SELECT * FROM deposit"
+        "SELECT * FROM deposit ORDER BY id DESC"
     ;
     db.query(sql, (err, results) => {
         if (err) return res.status(500).json({ error: err.message });

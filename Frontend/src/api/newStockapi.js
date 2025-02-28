@@ -17,9 +17,9 @@ export const addStock = async (data) => {
   formData.append("category", data.category);
   formData.append("subcategory", data.subcategory);
   formData.append("partyName", data.partyName);
-  formData.append("partyContact", data.contactNumber);
+  formData.append("partyContact", data.partyContact);
   formData.append("purchaseFrom", data.purchaseFrom);
-  formData.append("purchaseDateTime", data.purchaseDate);
+  formData.append("purchaseDateTime", data.purchaseDateTime);
   formData.append("purchaseQuantity", data.purchaseQuantity);
   formData.append("paymentMode", data.paymentMode);
   formData.append("transportInclude", data.transportInclude);
@@ -44,9 +44,9 @@ export const updateStock = async (id, data) => {
   formData.append("category", data.category);
   formData.append("subcategory", data.subcategory);
   formData.append("partyName", data.partyName);
-  formData.append("partyContact", data.contactNumber);
+  formData.append("partyContact", data.partyContact);
   formData.append("purchaseFrom", data.purchaseFrom);
-  formData.append("purchaseDateTime", data.purchaseDate);
+  formData.append("purchaseDateTime", data.purchaseDateTime);
   formData.append("purchaseQuantity", data.purchaseQuantity);
   formData.append("paymentMode", data.paymentMode);
   formData.append("transportInclude", data.transportInclude);

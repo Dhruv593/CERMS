@@ -4,6 +4,7 @@ import { getSubcategories, addSubcategory } from "@/api/subcategoryAPI";
 import { getCategories } from "@/api/categoryApi";
 import ReusableModal from "./ReusableModal";
 import { subcategoryFields as initialSubcategoryFields } from "@/data/subcategory-modal";
+import { showSuccessAlert } from "@/utils/AlertService";
 
 export function Subcategory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,6 +49,7 @@ export function Subcategory() {
     if (response) {
       loadSubcategories();
       setIsModalOpen(false);
+      showSuccessAlert("Subcategory added successfully");
     }
   };
 

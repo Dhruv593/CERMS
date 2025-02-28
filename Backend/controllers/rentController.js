@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 exports.getRents = (req, res) => {
-    const query = "SELECT * FROM rent";
+    const query = "SELECT * FROM rent ORDER BY id DESC";
     db.query(query, (err, results) => {
         if (err) {
             return res.status(500).json({ error: err.message });

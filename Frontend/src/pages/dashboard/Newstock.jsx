@@ -8,6 +8,7 @@ import { getSubcategoriesByCategory } from "@/api/subcategoryAPI";
 import { stockFields } from "../../data/stock-modal"; // ✅ Importing dynamic fields function
 import { Trash2, Edit } from "lucide-react";
 import ReusablePopUp from "./ReusablePopUp";
+import { showErrorAlert, showSuccessAlert } from "@/utils/AlertService";
 
 function Newstock() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -51,36 +52,48 @@ function Newstock() {
   };
 
   const handleCategoryChange = async (selectedCategory) => {
-    try {
-      const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
-      console.log("Fetched Subcategories:", subcategoryList);
-      setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
-    } catch (error) {
-      console.error("Error fetching subcategories:", error);
-      setSubcategories([]);
-    }
-  };
+      try {
+        const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
+        setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
+      } catch (error) {
+        console.error("Error fetching subcategories:", error);
+        setSubcategories([]);
+      }
+    };
 
   const handleSubmit = async (data) => {
     try {
+      console.log("Submitting data:", data);
       if (selectedRowData) {
         // Update stock if a row is selected for editing
         await updateStock(selectedRowData.id, data);
+        showSuccessAlert("Stock updated successfully!");
       } else {
         // Otherwise, add new stock
         await addStock(data);
+        showSuccessAlert("Stock added successfully!");
       }
       loadStockData();
       setIsModalOpen(false);
       setSelectedRowData(null);
     } catch (error) {
       console.error("Error submitting stock data:", error);
+      showErrorAlert("Error submitting stock data!");
     }
   };
 
   const handleEditClick = (e, rowData) => {
+    console.log('checkdata',rowData)
+    console.log('eefsmadfkl',e)
     e.stopPropagation();
-    setSelectedRowData(rowData);
+    const formattedDateTime = rowData.purchaseDateTime
+    ? new Date(rowData.purchaseDateTime).toISOString().slice(0, 16)
+    : "";
+
+    setSelectedRowData({
+        ...rowData,
+        purchaseDateTime: formattedDateTime, 
+    });    
     setIsModalOpen(true);
   };
 
@@ -121,6 +134,8 @@ function Newstock() {
       <td className="px-2 py-2">{row.category}</td>
       <td className="px-2 py-2">{row.subcategory}</td>
       <td className="px-2 py-2">{row.partyName}</td>
+      <td className="px-2 py-2">{row.partyContact || "N/A"}</td>
+      <td className="px-2 py-2">{row.purchaseFrom}</td>
       <td className="px-2 py-2">{row.purchaseDateTime}</td>
       <td className="px-2 py-2">{row.purchaseQuantity}</td>
       <td className="px-2 py-2">{row.paymentMode}</td>
@@ -191,6 +206,8 @@ function Newstock() {
           "Category",
           "Sub Category",
           "Party Name",
+          "Party Contact",
+          "Purchase From",
           "Purchase Date & Time",
           "Quantity",
           "Payment Mode",
@@ -231,6 +248,12 @@ function Newstock() {
             </p>
             <p>
               <strong>Party Name:</strong> {selectedRow.partyName}
+            </p>
+            <p>
+              <strong>Party Contact:</strong> {selectedRow.partyContact}
+            </p>
+            <p>
+              <strong>Purchase From</strong> {selectedRow.purchaseFrom}
             </p>
             <p>
               <strong>Purchase Date & Time:</strong> {selectedRow.purchaseDateTime}

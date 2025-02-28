@@ -3,7 +3,7 @@ const upload = require("../middleware/uploadMiddleware");
 
 // Get all subcategories
 exports.getSubcategories = (req, res) => {
-  const query = "SELECT * FROM subcategory";
+  const query = "SELECT * FROM subcategory ORDER BY id DESC";
   db.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });

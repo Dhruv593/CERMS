@@ -14,9 +14,9 @@ export const stockFields = (categories, subcategories) => [
     placeholder: "Select Subcategory",
   },
   { name: "partyName", label: "Party Name", type: "text", placeholder: "Party Name" },
-  { name: "contactNumber", label: "Party Contact Number", type: "tel", placeholder: "Contact Number" },
+  { name: "partyContact", label: "Party Contact Number", type: "tel", placeholder: "Contact Number" },
   { name: "purchaseFrom", label: "Purchase From", type: "text", placeholder: "Purchased From" },
-  { name: "purchaseDate", label: "Purchase Date & Time", type: "datetime-local" },
+  { name: "purchaseDateTime", label: "Purchase Date & Time", type: "datetime-local" },
   {
     name: "purchaseQuantity",
     label: "Purchase Quantity",
