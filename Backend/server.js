@@ -16,8 +16,14 @@ const path = require('path');
 dotenv.config();
 
 const app = express();
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL, 
+  process.env.LOCALHOST_URL, 
+];
+
 app.use(cors({
-    origin: ["http://localhost:5173", "https://cerms.vercel.app"],
+    origin: allowedOrigins,
     credentials: true
   }));
 app.use(express.json());
