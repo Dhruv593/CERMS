@@ -7,6 +7,7 @@ export function SignIn() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     console.log("Checking token:", localStorage.getItem("token"));
@@ -18,7 +19,7 @@ export function SignIn() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", { username, password });
+      const res = await axios.post(`${API_URL}/auth/login`, { username, password });
       localStorage.setItem("token", res.data.token);
       // alert(res.data.message);
       showSuccessAlert("Login Successful!", "You are being redirected to the dashboard.");
