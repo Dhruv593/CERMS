@@ -12,7 +12,7 @@ import {
   MenuItem,
   Avatar,
 } from "@material-tailwind/react";
-import { User } from "lucide-react";
+import { User, Menu } from "lucide-react";
 import { useEffect, useState } from "react";
 import {
   useMaterialTailwindController,
@@ -94,7 +94,7 @@ export function DashboardNavbar() {
             className="grid xl:hidden"
             onClick={() => setOpenSidenav(dispatch, !openSidenav)}
           >
-            <User strokeWidth={2.5} className="h-6 w-6 text-blue-gray-500" />
+            <Menu strokeWidth={2.5} className="h-6 w-6 text-blue-gray-500" />
           </IconButton>
 
           {/* User Profile Dropdown */}
