@@ -125,7 +125,7 @@ function Newstock() {
   };
 
   const openImageModal = (imageUrl) => {
-    setSelectedImage(imageUrl);
+    setSelectedImage(`${IMG_URL}/${imageUrl}`);
     setIsImageModalOpen(true);
   };
 
@@ -274,7 +274,7 @@ function Newstock() {
               <strong>Stock Photo:</strong>{" "}
               {selectedRow.stockPhoto && (
                 <img
-                  src={selectedRow.stockPhoto}
+                  src={`${IMG_URL}/${selectedRow.stockPhoto}`}
                   alt="Stock"
                   className="h-16 w-16 object-cover cursor-pointer"
                   onClick={(e) => {
@@ -288,7 +288,7 @@ function Newstock() {
               <strong>Bill Photo:</strong>{" "}
               {selectedRow.billPhoto && (
                 <img
-                  src={selectedRow.billPhoto}
+                  src={`${IMG_URL}/${selectedRow.billPhoto}`}
                   alt="Bill"
                   className="h-16 w-16 object-cover cursor-pointer"
                   onClick={(e) => {

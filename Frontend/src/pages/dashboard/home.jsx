@@ -24,19 +24,19 @@ export function Home() {
         icon={<Package className="text-blue-500 w-8 h-8" />}
         title="Total Categories"
         value={stats.totalCategories}
-        navigateTo="/category"
+        navigateTo="/dashboard/category"
       />
       <DashboardCard
         icon={<Layers className="text-green-500 w-8 h-8" />}
         title="Total Subcategories"
         value={stats.totalSubcategories}
-        navigateTo="/subcategory"
+        navigateTo="/dashboard/subcategory"
       />
       <DashboardCard
         icon={<Warehouse className="text-yellow-500 w-8 h-8" />}
         title="Total Stock Quantity"
         value={stats.totalStock}
-        navigateTo="/stock"
+        navigateTo="/dashboard/newStock"
       />
       <DashboardCard
         icon={<ShoppingCart className="text-orange-500 w-8 h-8" />}

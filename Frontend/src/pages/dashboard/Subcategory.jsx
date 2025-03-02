@@ -11,6 +11,8 @@ export function Subcategory() {
   const [searchValue, setSearchValue] = useState("");
   const [subcategoryData, setSubcategoryData] = useState([]);
   const [subcategoryFields, setSubcategoryFields] = useState(initialSubcategoryFields);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export function Subcategory() {
   // Fetch categories dynamically
   const fetchCategories = async () => {
     try {
-      const categories = await getCategories(); // Assume API returns [{ id: 1, category: "Category 1" }, { id: 2, category: "Category 2" }]
+      const categories = await getCategories();
       const categoryOptions = categories.map((cat) => cat.category);
 
       setSubcategoryFields((prevFields) =>
@@ -44,7 +46,7 @@ export function Subcategory() {
 
   // Handle form submission
   const handleSubmit = async (data) => {
-    console.log('checkdata',data)
+    console.log("Submitting data:", data);
     const response = await addSubcategory(data);
     if (response) {
       loadSubcategories();
@@ -53,11 +55,13 @@ export function Subcategory() {
     }
   };
 
-
-  
-
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
+
+  const openImageModal = (imageUrl) => {
+    setSelectedImage(`${IMG_URL}/${imageUrl}`);
+    setIsImageModalOpen(true);
+  };
 
   return (
     <>
@@ -70,12 +74,7 @@ export function Subcategory() {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: "Search Subcategory...",
         }}
-        tableHeaders={[
-          "Category",
-          "Subcategory",
-          "Description",
-          "Item image",
-        ]}
+        tableHeaders={["Category", "Subcategory", "Description", "Item Image"]}
         tableData={subcategoryData}
         renderRow={(row, index) => (
           <tr key={index} className="border-b hover:bg-gray-100 transition">
@@ -83,28 +82,45 @@ export function Subcategory() {
             <td className="px-2 py-2">{row.subcategory}</td>
             <td className="px-2 py-2">{row.description}</td>
             <td className="px-2 py-2">
-              <img
-                src={`${IMG_URL}/${row.image_path}`}
-                alt={row.image_path}
-                className="h-8 w-8 object-cover"
-              />
+              {row.image_path && (
+                <img
+                  src={`${IMG_URL}/${row.image_path}`}
+                  alt={row.subcategory}
+                  className="h-8 w-8 object-cover cursor-pointer"
+                  onClick={() => openImageModal(row.image_path)}
+                />
+              )}
             </td>
           </tr>
         )}
       />
+
       {isModalOpen && (
         <ReusableModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
           title="Add Subcategory"
-          fields={subcategoryFields} 
+          fields={subcategoryFields}
           onSubmit={handleSubmit}
           submitButtonLabel="Add Subcategory"
         />
+      )}
+
+      {isImageModalOpen && selectedImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+          onClick={() => setIsImageModalOpen(false)}
+        >
+          <img
+            src={selectedImage}
+            alt="Preview"
+            className="max-w-full max-h-full cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
       )}
     </>
   );
 }
 
 export default Subcategory;
-

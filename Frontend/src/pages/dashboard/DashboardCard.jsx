@@ -7,7 +7,7 @@ const DashboardCard = ({ icon, title, value, navigateTo }) => {
   const handleNavigation = (event) => {
     event.stopPropagation(); // ✅ Prevents parent event issues
     if (navigateTo) {
-      navigate(navigateTo); // ✅ Navigates without refresh
+      navigate(navigateTo); 
     }
   };
 
