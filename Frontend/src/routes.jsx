@@ -1,82 +1,112 @@
-import {
-  HomeIcon,
-  UserCircleIcon,
-  TableCellsIcon,
-  InformationCircleIcon,
-  ServerStackIcon,
-  RectangleStackIcon,
-} from "@heroicons/react/24/solid";
-import { Home, Profile, Tables } from "@/pages/dashboard";
-import { SignIn, SignUp } from "@/pages/auth";
-import { ChartColumnStacked, PackagePlus, ChartBarStacked, IndianRupee,Landmark } from 'lucide-react';
-import { Subcategory } from '../src/pages/dashboard/Subcategory'
-import Newstock from "./pages/dashboard/Newstock";
-import { Category } from "./pages/dashboard/Category";
-import Rent from "./pages/dashboard/Rent";
-import Deposit from "./pages/dashboard/Deposit";
+import React, { Suspense, Fragment, lazy } from 'react';
+import { Routes, Navigate, Route } from 'react-router-dom';
 
-const icon = {
-  className: "w-5 h-5 text-inherit",
-};
+// project import
+import Loader from './components/Loader/Loader';
+import AdminLayout from './layouts/AdminLayout';
+
+import { BASE_URL } from './config/constant';
+
+// ==============================|| ROUTES ||============================== //
+
+const renderRoutes = (routes = []) => (
+  <Suspense fallback={<Loader />}>
+    <Routes>
+      {routes.map((route, i) => {
+        const Guard = route.guard || Fragment;
+        const Layout = route.layout || Fragment;
+        const Element = route.element;
+
+        return (
+          <Route
+            key={i}
+            path={route.path}
+            exact={route.exact}
+            element={
+              <Guard>
+                <Layout>{route.routes ? renderRoutes(route.routes) : <Element props={true} />}</Layout>
+              </Guard>
+            }
+          />
+        );
+      })}
+    </Routes>
+  </Suspense>
+);
 
 export const routes = [
   {
-    layout: "dashboard",
-    pages: [
-      {
-        icon: <HomeIcon {...icon} />,
-        name: "dashboard",
-        path: "/home",
-        element: <Home />,
-      },
-      // {
-      //   icon: <UserCircleIcon {...icon} />,
-      //   name: "profile",
-      //   path: "/profile",
-      //   element: <Profile />,
-      // },
-      {
-        icon: <ChartColumnStacked {...icon} />,
-        name: "Category",
-        path: "/category",
-        element: <Category />,
-      },
-      {
-        icon: <ChartBarStacked {...icon} />,
-        name: "Sub Category",
-        path: "/subcategory",
-        element: <Subcategory />,
-      },
-      {
-        icon: <PackagePlus {...icon} />,
-        name: "New Stock",
-        path: "/newStock",
-        element: <Newstock />,
-      },
-      {
-        icon: <IndianRupee {...icon} />,
-        name: "Rent",
-        path: "/rent",
-        element: <Rent />,
-      },
-      {
-        icon: <Landmark {...icon} />,
-        name: "deposit",
-        path: "/deposit",
-        element: <Deposit />,
-      },
-    ],
+    exact: 'true',
+    path: '/auth/signup-1',
+    element: lazy(() => import('./views/auth/signup/SignUp1'))
   },
   {
-    layout: "auth",
-    pages: [
+    exact: 'true',
+    path: '/auth/signin-1',
+    element: lazy(() => import('./views/auth/signin/SignIn1'))
+  },
+  {
+    exact: 'true',
+    path: '/auth/reset-password-1',
+    element: lazy(() => import('./views/auth/reset-password/ResetPassword1'))
+  },
+  {
+    path: '*',
+    layout: AdminLayout,
+    routes: [
       {
-        name: "Login",
-        path: "sign-in",
-        element: <SignIn />,
+        exact: 'true',
+        path: '/app/dashboard/analytics',
+        element: lazy(() => import('./views/dashboard'))
+      },
+      {
+        exact: 'true',
+        path: '/master/category',
+        element: lazy(() => import('./views/master/Category'))
+      },
+      {
+        exact: 'true',
+        path: '/master/subcategory',
+        element: lazy(() => import('./views/master/Subcategory'))
+      },
+      {
+        exact: 'true',
+        path: '/master/stock',
+        element: lazy(() => import('./views/master/Stock'))
+      },
+      {
+        exact: 'true',
+        path: '/master/rent',
+        element: lazy(() => import('./views/master/Rent'))
+      },
+
+      {
+        exact: 'true',
+        path: '/master/deposit',
+        element: lazy(() => import('./views/master/Deposit'))
+      },
+      {
+        exact: 'true',
+        path: '/basic/tooltip-popovers',
+        element: lazy(() => import('./views/ui-elements/BasicTooltipsPopovers'))
+      },
+      {
+        exact: 'true',
+        path: '/sample-page',
+        element: lazy(() => import('./views/extra/SamplePage'))
+      },
+      {
+        exact: 'true',
+        path: '/sidebartest',
+        element: lazy(() => import('./views/extra/Sidebartest'))
+      },
+      {
+        path: '*',
+        exact: 'true',
+        element: () => <Navigate to={BASE_URL} />
       }
-    ],
+    ]
   }
 ];
 
-export default routes;
+export default renderRoutes;

@@ -1,27 +1,13 @@
-import { Routes, Route, Navigate } from "react-router-dom";
-import { Dashboard, Auth } from "@/layouts";
-import { SignIn } from "./pages/auth/sign-in";
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
-function PrivateRoute({ children }) {
-    const token = localStorage.getItem("token");
-  
-    if (!token) {
-      return <Navigate to="/auth/sign-in" replace />;
-    }
-  
-    return children;
-  
-}
+// project-import
+import renderRoutes, { routes } from './routes';
 
-function App() {
-  return (
-    <Routes>
-      <Route path="/auth/*" element={<Auth />} />
-      {/* <Route path="sign-in" element={<SignIn/>}/> */}
-      <Route path="/dashboard/*" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-      <Route path="*" element={<Navigate to="/auth/sign-in" replace />} />
-    </Routes>
-  );
-}
+// ==============================|| APP ||============================== //
+
+const App = () => {
+  return <BrowserRouter basename={import.meta.env.VITE_APP_BASE_NAME}>{renderRoutes(routes)}</BrowserRouter>;
+};
 
 export default App;

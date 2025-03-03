@@ -19,7 +19,8 @@ const app = express();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL, 
-  process.env.LOCALHOST_URL, 
+  process.env.LOCALHOST_URL,
+  "http://localhost:3000", 
 ];
 
 app.use(cors({
