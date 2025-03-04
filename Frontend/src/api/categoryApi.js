@@ -22,3 +22,23 @@ export const addCategory = async (data) => {
     return null;
   }
 };
+
+export const updateCategory = async (id, data) => {
+  try {
+    const response = await axios.put(`${API_URL}/categories/edit/${id}`, data); // ✅ Corrected path
+    return response.data;
+  } catch (error) {
+    console.error("Error updating category:", error.response?.data || error);
+    return null;
+  }
+};
+
+export const deleteCategory = async (id) => {
+  try {
+    const response = await axios.delete(`${API_URL}/categories/delete/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting category:", error.response?.data || error);
+    return null;
+  }
+};

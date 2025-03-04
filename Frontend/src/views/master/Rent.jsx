@@ -53,7 +53,7 @@ function Rent() {
   };
 
   const handleEditClick = (e, rowData) => {
-    e.stopPropagation(); // Prevent row click from triggering
+    e.stopPropagation(); 
     setSelectedRowData(rowData);
     setIsModalOpen(true);
   };
@@ -62,7 +62,7 @@ function Rent() {
   
 
   const handleDeleteClick = (e, rowData) => {
-    e.stopPropagation(); // Prevent row click from triggering
+    e.stopPropagation(); 
     setRowToDelete(rowData);
     setIsDeletePopupOpen(true);
   };
@@ -123,7 +123,7 @@ function Rent() {
         tableHeaders={["Category", "Sub Category", "Rent", "Actions"]}
         tableData={filteredData}
         renderRow={(row, index) => (
-          <tr key={index} className="border-bottom text-center">
+          <tr key={index} className="border-b hover:bg-gray-100 transition">
             <td className="p-2">{row.category}</td>
             <td className="p-2">{row.subcategory}</td>
             <td className="p-2">{row.rent}</td>

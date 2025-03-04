@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import Table from "@/components/Table/Table";
 import { categoryFields } from "@/data/category-modal";
 import ReusableModal from "@/components/Modal/ReusableModal";
-import { addCategory, getCategories } from "@/api/categoryApi";
+import DeletePopUp from "@/components/PopUp/DeletePopUp"; 
+import { addCategory, getCategories, updateCategory, deleteCategory } from "@/api/categoryApi";
 import { showSuccessAlert, showErrorAlert } from "@/utils/AlertService";
 import { Edit, Trash2 } from "lucide-react";
 
@@ -11,8 +12,8 @@ const Category = () => {
   const [searchValue, setSearchValue] = useState("");
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10; // Rows per page
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false); 
+  const [rowToDelete, setRowToDelete] = useState(null); 
 
   useEffect(() => {
     fetchCategories();
@@ -30,36 +31,43 @@ const Category = () => {
   const handleSubmit = async (data) => {
     try {
       if (selectedCategory) {
+        await updateCategory(selectedCategory.id, data);
         showSuccessAlert("Category Updated Successfully");
       } else {
-        const newCategory = await addCategory(data);
-        setCategories([...categories, newCategory]);
+        await addCategory(data);
         showSuccessAlert("Category Added Successfully");
       }
+      fetchCategories(); // Refresh table
       setIsModalOpen(false);
       setSelectedCategory(null);
     } catch (error) {
-      console.error("Error adding/updating category:", error);
+      console.error("Error processing category:", error);
       showErrorAlert("Error Processing Category");
     }
   };
 
-  const handleEdit = (category) => {
-    setSelectedCategory(category);
+  const handleEditClick = (e, row) => {
+    e.stopPropagation(); 
+    setSelectedCategory(row);
     setIsModalOpen(true);
   };
 
-  const handleDelete = (categoryId) => {
-    // Implement deleteCategory API call
-    showSuccessAlert("Category Deleted Successfully");
-  };
-
-  const handleEditClick = (e, row) => {
-    handleEdit(row);
-  };
-
   const handleDeleteClick = (e, row) => {
-    handleDelete(row.id); // Assuming row.id exists
+    e.stopPropagation();
+    setRowToDelete(row);
+    setIsDeletePopupOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await deleteCategory(rowToDelete.id); 
+      fetchCategories(); 
+      setIsDeletePopupOpen(false);
+      showSuccessAlert("Category Deleted Successfully");
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      showErrorAlert("Error deleting category");
+    }
   };
 
   // Filter Data for Search
@@ -67,13 +75,9 @@ const Category = () => {
     row.category.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  // Pagination Logic
-  const startIndex = (currentPage - 1) * pageSize;
-
   // Render Category Row
   const renderCategoryRow = (row, index) => (
-    <tr key={index} className="border-b hover:bg-gray-100 transition">
-      <td className="p-2 text-center">{startIndex + index + 1}</td>
+    <tr key={index} className="border-b hover:bg-gray-100 transition ">
       <td className="p-2">{row.category}</td>
       <td className="p-2">{row.description}</td>
       <td className="p-2 d-flex justify-content-center gap-2">
@@ -103,10 +107,11 @@ const Category = () => {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: "Search Category...",
         }}
-        tableHeaders={["#", "Category", "Description", "Actions"]}
+        tableHeaders={["Category", "Description", "Actions"]}
         tableData={filteredData}
         renderRow={renderCategoryRow}
       />
+
       {isModalOpen && (
         <ReusableModal
           isOpen={isModalOpen}
@@ -119,6 +124,18 @@ const Category = () => {
           initialFormData={selectedCategory}
           onSubmit={handleSubmit}
           submitButtonLabel={selectedCategory ? "Update Category" : "Add Category"}
+        />
+      )}
+
+      {isDeletePopupOpen && (
+        <DeletePopUp
+          isOpen={isDeletePopupOpen}
+          onClose={() => setIsDeletePopupOpen(false)}
+          onConfirm={confirmDelete}
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this category?"
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
         />
       )}
     </>

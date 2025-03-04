@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Button, Form } from "react-bootstrap";
+import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 
 export function ReusableModal({
   isOpen,
@@ -81,43 +81,46 @@ export function ReusableModal({
 
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          {fields.map((field) => (
-            <Form.Group key={field.name} className="mb-3">
-              <Form.Label className="fw-medium">{field.label}</Form.Label>
-              {field.type === "text" || field.type === "number" || field.type === "datetime-local" || field.type === "tel" ? (
-                <Form.Control
-                  type={field.type}
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  placeholder={field.placeholder}
-                  className={errors[field.name] ? "is-invalid" : ""}
-                />
-              ) : field.type === "textarea" ? (
-                <Form.Control
-                  as="textarea"
-                  name={field.name}
-                  value={formData[field.name]}
-                  onChange={handleChange}
-                  placeholder={field.placeholder}
-                  className={errors[field.name] ? "is-invalid" : ""}
-                />
-              ) : field.type === "select" ? (
-                <Form.Select name={field.name} value={formData[field.name]} onChange={handleChange}>
-                  <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                  {field.options.map((option, index) => (
-                    <option key={index} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </Form.Select>
-              ) : field.type === "file" ? (
-                <Form.Control type="file" name={field.name} onChange={handleFileChange} />
-              ) : null}
-
-              {errors[field.name] && <Form.Text className="text-danger">{errors[field.name]}</Form.Text>}
-            </Form.Group>
-          ))}
+          <Row>
+            {fields.map((field, index) => (
+              <Col md={fields.length > 5 ? 6 : 12} key={field.name} className="mb-3">
+                <Form.Group>
+                  <Form.Label className="fw-medium">{field.label}</Form.Label>
+                  {field.type === "text" || field.type === "number" || field.type === "datetime-local" || field.type === "tel" ? (
+                    <Form.Control
+                      type={field.type}
+                      name={field.name}
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      placeholder={field.placeholder}
+                      className={errors[field.name] ? "is-invalid" : ""}
+                    />
+                  ) : field.type === "textarea" ? (
+                    <Form.Control
+                      as="textarea"
+                      name={field.name}
+                      value={formData[field.name]}
+                      onChange={handleChange}
+                      placeholder={field.placeholder}
+                      className={errors[field.name] ? "is-invalid" : ""}
+                    />
+                  ) : field.type === "select" ? (
+                    <Form.Select name={field.name} value={formData[field.name]} onChange={handleChange}>
+                      <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                      {field.options.map((option, index) => (
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  ) : field.type === "file" ? (
+                    <Form.Control type="file" name={field.name} onChange={handleFileChange} />
+                  ) : null}
+                  {errors[field.name] && <Form.Text className="text-danger">{errors[field.name]}</Form.Text>}
+                </Form.Group>
+              </Col>
+            ))}
+          </Row>
         </Form>
       </Modal.Body>
 

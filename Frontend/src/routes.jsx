@@ -37,19 +37,10 @@ const renderRoutes = (routes = []) => (
 export const routes = [
   {
     exact: 'true',
-    path: '/auth/signup-1',
-    element: lazy(() => import('./views/auth/signup/SignUp1'))
-  },
-  {
-    exact: 'true',
     path: '/auth/signin-1',
     element: lazy(() => import('./views/auth/signin/SignIn1'))
   },
-  {
-    exact: 'true',
-    path: '/auth/reset-password-1',
-    element: lazy(() => import('./views/auth/reset-password/ResetPassword1'))
-  },
+  
   {
     path: '*',
     layout: AdminLayout,

@@ -125,11 +125,10 @@ const Subcategory = () => {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: 'Search Subcategory...'
         }}
-        tableHeaders={['#', 'Category', 'Subcategory', 'Description', 'Item Image', 'Actions']}
+        tableHeaders={['Category', 'Subcategory', 'Description', 'Item Image', 'Actions']}
         tableData={subcategoryData}
         renderRow={(row, index) => (
           <tr key={index} className="border-b hover:bg-gray-100 transition">
-            <td className="px-2 py-2 text-center">{startIndex + index + 1}</td>
             <td className="px-2 py-2">{row.category}</td>
             <td className="px-2 py-2">{row.subcategory}</td>
             <td className="px-2 py-2">{row.description}</td>
@@ -138,7 +137,7 @@ const Subcategory = () => {
                 <img
                   src={`${IMG_URL}/${row.image_path}`}
                   alt={row.subcategory}
-                  style={{ width: '130px', height: '130px', objectFit: 'contain', cursor: 'pointer' }}
+                  style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
                   onClick={() => openImageModal(row.image_path)}
                 />
               )}
@@ -184,12 +183,17 @@ const Subcategory = () => {
 
       {isImageModalOpen && selectedImage && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75"
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75"
+          style={{ zIndex: 1050 }}
           onClick={() => setIsImageModalOpen(false)}
         >
-          <div className="bg-white p-2 rounded" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '90%', maxHeight: '90%' }}>
-            <img src={selectedImage} alt="Preview" className="max-w-full max-h-full cursor-pointer" style={{ maxHeight: '80vh' }} />
-          </div>
+          <img
+            src={selectedImage}
+            alt="Preview"
+            className="img-fluid cursor-pointer"
+            style={{ maxWidth: '100%', maxHeight: '100%' }}
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </>

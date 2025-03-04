@@ -1,19 +1,12 @@
-import React, { useState } from "react";
-import { Plus, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState } from 'react';
+import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 
-export function Table({
-  buttonLabel = "",
-  onButtonClick,
-  searchProps,
-  tableHeaders = [],
-  tableData = [],
-  renderRow,
-}) {
+export function Table({ buttonLabel = '', onButtonClick, searchProps, tableHeaders = [], tableData = [], renderRow }) {
   const pageSize = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const totalPages = Math.ceil(tableData.length / pageSize);
   const startIndex = (currentPage - 1) * pageSize;
-  const currentData = tableData.slice(startIndex, startIndex + pageSize);
+  const currentData = tableData.slice(startIndex, startIndex + pageSize) || [];
 
   const handlePrevious = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
@@ -34,17 +27,15 @@ export function Table({
     <div className="shadow-sm border-0 rounded-lg">
       <div className="border ">
         {/* Search Bar & Button Row */}
-        <div className="card-header d-flex justify-content-end align-items-center bg-light py-3">
+        <div className="card-header d-flex flex-column flex-sm-row justify-content-end align-items-center bg-light py-3 gap-2">
           {searchProps && (
             <input
               type="text"
               value={searchProps.value}
               onChange={searchProps.onChange}
-              placeholder={searchProps.placeholder || "Search..."}
-              className="form-control w-auto me-3 border shadow-sm"
-              style={{
-                maxWidth: "200px", // Adjust this value as needed
-              }}
+              placeholder={searchProps.placeholder || 'Search...'}
+              className="form-control w-100 w-sm-auto border shadow-sm"
+              style={{ maxWidth: '200px' }}
             />
           )}
           {onButtonClick && (
@@ -61,7 +52,9 @@ export function Table({
             <thead className="table-primary text-center">
               <tr>
                 {tableHeaders.map((col, index) => (
-                  <th key={index} className="fw-semibold text-uppercase">{col}</th>
+                  <th key={index} className="fw-semibold text-uppercase">
+                    {col}
+                  </th>
                 ))}
               </tr>
             </thead>
@@ -74,24 +67,24 @@ export function Table({
                     <tr key={index}>
                       {tableHeaders.map((col, j) => (
                         <td key={j} className="text-center">
-                        {col.toLowerCase().includes("image") ? (
-                          <img
-                            src={row[col.toLowerCase()]}
-                            alt="Table Image"
-                            className="table-img img-fluid rounded"
-                            style={{ width: "50px", height: "50px", objectFit: "cover" }}
-                          />
-                        ) : (
-                          row[col.toLowerCase()]
-                        )}
-                      </td>
-    ))}
+                          {col.toLowerCase().includes('image') ? (
+                            <img
+                              src={row[col.toLowerCase()]}
+                              alt="Table Image"
+                              className="table-img img-fluid rounded"
+                              style={{ width: '50px', height: '50px', objectFit: 'cover' }}
+                            />
+                          ) : (
+                            row[col.toLowerCase()]
+                          )}
+                        </td>
+                      ))}
                     </tr>
                   )
                 )
               ) : (
                 <tr>
-                  <td colSpan={tableHeaders.length} className="text-center text-muted">
+                  <td colSpan={tableHeaders.length + 1} className="text-center text-muted">
                     No records found
                   </td>
                 </tr>
@@ -112,7 +105,7 @@ export function Table({
               value={currentPage}
               onChange={handlePageChange}
               className="form-control text-center border rounded-pill shadow-sm"
-              style={{ width: "50px" }}
+              style={{ width: '50px' }}
             />
             <span className="text-muted">of {totalPages}</span>
           </div>
