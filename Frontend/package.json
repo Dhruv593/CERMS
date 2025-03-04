@@ -32,7 +32,6 @@
     "vite": "^5.2.11",
     "vite-jsconfig-paths": "^2.0.1",
     "web-vitals": "^3.5.2",
-    "yarn": "^1.22.22",
     "yup": "^1.4.0"
   },
   "resolutions": {
