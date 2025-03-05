@@ -6,9 +6,8 @@ import { addStock, getStockData, updateStock, deleteStock } from '@/api/newStock
 import { getCategories } from '@/api/categoryApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 import { stockFields } from '../../data/stock-modal';
-import { Trash2, Edit } from 'lucide-react';
-import ReusablePopUp from '@/components/PopUp/ReusablePopUp';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
+import moment from 'moment';
 
 function Stock() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,10 +16,6 @@ function Stock() {
   const [stockData, setStockData] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [selectedRow, setSelectedRow] = useState(null);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
   const IMG_URL = import.meta.env.VITE_IMG_URL;
@@ -64,11 +59,9 @@ function Stock() {
     try {
       console.log('Submitting data:', data);
       if (selectedRowData) {
-        // Update stock if a row is selected for editing
         await updateStock(selectedRowData.id, data);
         showSuccessAlert('Stock updated successfully!');
       } else {
-        // Otherwise, add new stock
         await addStock(data);
         showSuccessAlert('Stock added successfully!');
       }
@@ -81,111 +74,72 @@ function Stock() {
     }
   };
 
-  const handleEditClick = (e, rowData) => {
-    console.log('checkdata', rowData);
-    console.log('eefsmadfkl', e);
-    e.stopPropagation();
-    const formattedDateTime = rowData.purchaseDateTime ? new Date(rowData.purchaseDateTime).toISOString().slice(0, 16) : '';
+  const handleEditClick = (row) => {
+    if (!row || !row.id) {
+      showErrorAlert('Invalid stock item selected for editing.');
+      return;
+    }
+
+    console.log('Editing row:', row);
+
+    // Convert date-time to required format
+    const formattedDateTime = row.purchaseDateTime
+      ? moment(row.purchaseDateTime).format('YYYY-MM-DDTHH:mm') // Required format for input[type="datetime-local"]
+      : '';
 
     setSelectedRowData({
-      ...rowData,
-      purchaseDateTime: formattedDateTime
+      ...row,
+      purchaseDateTime: formattedDateTime,
     });
+
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (e, rowData) => {
-    e.stopPropagation();
-    setRowToDelete(rowData);
+  const handleDeleteClick = (row) => {
+    if (!row || !row.id) {
+      showErrorAlert('Invalid stock item selected for deletion.');
+      return;
+    }
+    setRowToDelete(row);
     setIsDeletePopupOpen(true);
   };
 
   const confirmDelete = async () => {
+    if (!rowToDelete || !rowToDelete.id) {
+      showErrorAlert('Error deleting stock. Invalid item selected.');
+      return;
+    }
     try {
       await deleteStock(rowToDelete.id);
       loadStockData();
       setIsDeletePopupOpen(false);
+      showSuccessAlert('Stock Deleted Successfully');
     } catch (error) {
       console.error('Error deleting stock:', error);
+      showErrorAlert('Error deleting stock');
     }
   };
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedRowData(null);
-  };
-
-  const handleRowClick = (row) => {
-    setSelectedRow(row);
-    setIsViewModalOpen(true);
-  };
-
-  const openImageModal = (imageUrl) => {
-    setSelectedImage(`${IMG_URL}/${imageUrl}`);
-    setIsImageModalOpen(true);
-  };
-
-  // const renderStockRow = (row, index) => (
-  //   <tr key={index} className="border-b hover:bg-gray-100 transition" onClick={() => handleRowClick(row)}>
-  //     <td className="p-2">{row.category}</td>
-  //     <td className="p-2">{row.subcategory}</td>
-  //     <td className="p-2">{row.partyName}</td>
-  //     <td className="p-2">{row.partyContact || 'N/A'}</td>
-  //     <td className="p-2">{row.purchaseFrom}</td>
-  //     <td className="p-2">{row.purchaseDateTime}</td>
-  //     <td className="p-2">{row.purchaseQuantity}</td>
-  //     <td className="p-2">{row.paymentMode}</td>
-  //     <td className="p-2">{row.transportInclude}</td>
-  //     <td className="p-2">
-  //       {row.stockPhoto && (
-  //         <img
-  //           src={`${IMG_URL}/${row.stockPhoto}`}
-  //           alt={row.stockPhoto}
-  //           style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
-  //           onClick={(e) => {
-  //             e.stopPropagation();
-  //             openImageModal(row.stockPhoto);
-  //           }}
-  //         />
-  //       )}
-  //     </td>
-  //     <td className="p-2">
-  //       {row.billPhoto && (
-  //         <img
-  //           src={`${IMG_URL}/${row.billPhoto}`}
-  //           alt={row.billPhoto}
-  //           style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
-  //           onClick={(e) => {
-  //             e.stopPropagation();
-  //             openImageModal(row.billPhoto);
-  //           }}
-  //         />
-  //       )}
-  //     </td>
-  //     <td className="p-2">{row.remarks}</td>
-  //     <td className="p-3 d-flex justify-content-center gap-2">
-  //       <button onClick={(e) => handleEditClick(e, row)} className="btn btn-sm btn-success d-flex align-items-center gap-1">
-  //         <Edit size={16} />
-  //       </button>
-  //       <button onClick={(e) => handleDeleteClick(e, row)} className="btn btn-sm btn-danger d-flex align-items-center gap-1">
-  //         <Trash2 size={16} />
-  //       </button>
-  //     </td>
-  //   </tr>
-  // );
-
-  const filteredData = stockData.filter(
-    (row) =>
-      (row.category?.toLowerCase() || '').includes(searchValue.toLowerCase()) ||
-      (row.subcategory?.toLowerCase() || '').includes(searchValue.toLowerCase()) ||
-      (row.partyName?.toLowerCase() || '').includes(searchValue.toLowerCase())
-  );
+  const tableData = stockData.map((row) => ({
+    id: row.id, // Ensure ID is included
+    category: row.category || '—',
+    subcategory: row.subcategory || '—',
+    party_name: row.partyName || '—',
+    party_contact: row.partyContact || '—',
+    purchase_from: row.purchaseFrom || '—',
+    purchase_date_time: row.purchaseDateTime ? moment(row.purchaseDateTime).format('YYYY-MM-DD HH:mm:ss') : '—',
+    quantity: row.purchaseQuantity || '—',
+    payment_mode: row.paymentMode || '—',
+    transport: row.transportInclude || '—',
+    stock_photo: row.stockPhoto ? `${IMG_URL}/${row.stockPhoto}` : 'N/A',
+    bill_photo: row.billPhoto ? `${IMG_URL}/${row.billPhoto}` : 'N/A',
+    remarks: row.remarks || '—'
+  }));
 
   return (
     <>
       <Table
-        onButtonClick={handleOpenModal}
+        onButtonClick={() => setIsModalOpen(true)}
         headerTitle="Stock"
         buttonLabel="Add New Stock"
         searchProps={{
@@ -196,7 +150,7 @@ function Stock() {
         tableHeaders={[
           'Category',
           'Subcategory',
-          'PartyName',
+          'Party Name',
           'Party Contact',
           'Purchase From',
           'Purchase Date & Time',
@@ -205,111 +159,39 @@ function Stock() {
           'Transport',
           'Stock Photo',
           'Bill Photo',
-          'Remarks',
+          'Remarks'
         ]}
-        tableData={stockData}
-        // renderRow={renderStockRow}
+        tableData={tableData}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteClick}
       />
 
       {isModalOpen && (
         <ReusableModal
           isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          title={selectedRowData ? 'Edit Stock' : 'Add New Stock'}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedRowData(null);
+          }}
+          title={selectedRowData ? 'Edit Stock' : 'Add Stock'}
           fields={stockFields(categories, subcategories)}
-          initialFormData={selectedRowData} // Pre-populate the modal when editing
+          initialFormData={selectedRowData || {}} 
           onSubmit={handleSubmit}
           submitButtonLabel={selectedRowData ? 'Update Stock' : 'Add Stock'}
           onCategoryChange={handleCategoryChange}
         />
       )}
-      {isViewModalOpen && selectedRow && (
-        <ReusablePopUp isOpen={isViewModalOpen} onClose={() => setIsViewModalOpen(false)} title="Stock Details">
-          <div className="space-y-4">
-            <p>
-              <strong>Category:</strong> {selectedRow.category}
-            </p>
-            <p>
-              <strong>Sub Category:</strong> {selectedRow.subcategory}
-            </p>
-            <p>
-              <strong>Party Name:</strong> {selectedRow.partyName}
-            </p>
-            <p>
-              <strong>Party Contact:</strong> {selectedRow.partyContact}
-            </p>
-            <p>
-              <strong>Purchase From</strong> {selectedRow.purchaseFrom}
-            </p>
-            <p>
-              <strong>Purchase Date & Time:</strong> {selectedRow.purchaseDateTime}
-            </p>
-            <p>
-              <strong>Quantity:</strong> {selectedRow.purchaseQuantity}
-            </p>
-            <p>
-              <strong>Payment Mode:</strong> {selectedRow.paymentMode}
-            </p>
-            <p>
-              <strong>Transport:</strong> {selectedRow.transportInclude}
-            </p>
-            <p>
-              <strong>Remarks:</strong> {selectedRow.remarks}
-            </p>
-            <p>
-              <strong>Stock Photo:</strong>{' '}
-              {selectedRow.stockPhoto && (
-                <img
-                  src={`${IMG_URL}/${selectedRow.stockPhoto}`}
-                  alt="Stock"
-                  style={{ width: '50px', height: '50px', objectFit: 'cover', cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openImageModal(selectedRow.stockPhoto);
-                  }}
-                />
-              )}
-            </p>
-            <p>
-              <strong>Bill Photo:</strong>{' '}
-              {selectedRow.billPhoto && (
-                <img
-                  src={`${IMG_URL}/${selectedRow.billPhoto}`}
-                  alt="Bill"
-                  style={{ width: '50px', height: '50px', objectFit: 'cover', cursor: 'pointer' }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    openImageModal(selectedRow.billPhoto);
-                  }}
-                />
-              )}
-            </p>
-          </div>
-        </ReusablePopUp>
-      )}
+
       {isDeletePopupOpen && (
         <DeletePopUp
           isOpen={isDeletePopupOpen}
           onClose={() => setIsDeletePopupOpen(false)}
           onConfirm={confirmDelete}
-          title = "Confirm Delete"
+          title="Confirm Deletion"
           message="Are you sure you want to delete this stock?"
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
         />
-      )}
-      {isImageModalOpen && selectedImage && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-75"
-          style={{ zIndex: 1050 }}
-          onClick={() => setIsImageModalOpen(false)}
-        >
-          <img
-            src={selectedImage}
-            alt="Preview"
-            className="img-fluid cursor-pointer"
-            style={{ maxWidth: '100%', maxHeight: '100%' }}
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
       )}
     </>
   );

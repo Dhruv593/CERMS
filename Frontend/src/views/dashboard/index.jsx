@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import OrderCard from '@/components/Widgets/Statistic/OrderCard';
 import { fetchDashboardStats } from '@/api/dashboardApi';
@@ -23,6 +23,30 @@ const DashAnalytics = () => {
 
   return (
     <React.Fragment>
+      {/* Rental Action Section */}
+      <Row className="mb-4 text-center">
+        
+        <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+          <Button
+            variant="success"
+            className="fw-bold px-5 py-3 fs-5 shadow-md"
+            onClick={() => navigate('/rentals/in')}
+          >
+            🚛 IN - Incoming Rentals
+          </Button>
+        </Col>
+        <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+          <Button
+            variant="danger"
+            className="fw-bold px-5 py-3 fs-5 shadow-md"
+            onClick={() => navigate('/rentals/out')}
+          >
+            📦 OUT - Outgoing Rentals
+          </Button>
+        </Col>
+      </Row>
+
+      {/* Order Cards Section */}
       <Row>
         <Col md={6} xl={3}>
           <div onClick={() => navigate('/master/category')} style={{ cursor: 'pointer' }}>

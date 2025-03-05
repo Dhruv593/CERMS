@@ -1,103 +1,160 @@
-import React, { useState } from 'react';
-import DataTable from 'react-data-table-component';
-import { Button, Form } from 'react-bootstrap';
-import { Plus, Edit, Trash2 } from 'lucide-react';
+import React, { useState } from "react";
+import DataTable from "react-data-table-component";
+import { Button, Form } from "react-bootstrap";
+import { Plus, Edit, Trash2 } from "lucide-react";
 
-export function Table({ buttonLabel = '', onButtonClick, tableData = [], onEdit, onDelete }) {
-  const [searchValue, setSearchValue] = useState('');
+export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tableData = [], onEdit, onDelete }) {
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
   // Normalize table headers to match data keys
-  const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, '_');
+  const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, "_");
 
-  // Add "Actions" field to each row dynamically
-  const processedTableData = tableData.map((row, index) => ({
-    ...row,
-    actions: (
+  // Process table data
+  const processedTableData = tableData.map((row) => {
+    let filteredRow = {};
+    tableHeaders.forEach((header) => {
+      const key = normalizeKey(header);
+      filteredRow[key] = row[key] !== undefined && row[key] !== null && row[key] !== "" ? row[key] : "—";
+    });
+
+    // Ensure images load properly
+    if (row.stockPhoto) {
+      filteredRow.stock_photo = (
+        <img
+          src={`${IMG_URL}/${row.stockPhoto}`}
+          alt="Stock"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
+    }
+    if (row.billPhoto) {
+      filteredRow.bill_photo = (
+        <img
+          src={`${IMG_URL}/${row.billPhoto}`}
+          alt="Bill"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
+    }
+
+    // Action buttons
+    filteredRow.actions = (
       <div className="d-flex justify-content-center gap-2">
-        <Button variant="success" size="sm" onClick={() => onEdit(row)} className="d-flex align-items-center gap-1">
+        <Button
+          variant="success"
+          size="sm"
+          onClick={() => onEdit(row)}
+          className="d-flex align-items-center"
+        >
           <Edit size={16} />
         </Button>
-        <Button variant="danger" size="sm" onClick={() => onDelete(row)} className="d-flex align-items-center gap-1">
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => onDelete(row)}
+          className="d-flex align-items-center"
+        >
           <Trash2 size={16} />
         </Button>
       </div>
-    )
-  }));
+    );
 
-  // Define columns dynamically based on data keys
-// Define columns dynamically based on data keys
-const columns = [
-  {
-    name: '#',
-    selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1,
-    sortable: false,
-    width: '80px',
-    center: true
-  },
-  ...(processedTableData.length > 0 ? 
-    Object.keys(processedTableData[0]).filter(key => key !== 'actions').map((key) => ({
-      name: key.replace(/_/g, ' ').replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase()))),
-      selector: (row) => row[key],
+    return filteredRow;
+  });
+
+  // Define columns dynamically
+  const columns = [
+    { name: "#", selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: "80px", center: true },
+    ...tableHeaders.map((header) => ({
+      name: (
+        <span style={{ color: "#ffffff", fontWeight: "bold" }}>
+          {header}
+        </span>
+      ),
+      selector: (row) => row[normalizeKey(header)] || "—",
       sortable: true,
       cell: (row) =>
-        key.includes('photo') || key.includes('image') ? (
-          <img
-            src={row[key]}
-            alt="Table"
-            className="img-fluid rounded"
-            style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-          />
+        normalizeKey(header).includes("photo") || normalizeKey(header).includes("image") ? (
+          <img src={row[normalizeKey(header)]} alt="Preview" className="rounded shadow-sm" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
         ) : (
-          row[key] || 'N/A'
-        )
-    })) : []),
-  {
-    name: 'Actions',
-    selector: (row) => row.actions,
-    center: true,
-    width: '180px'
-  }
-];
+          row[normalizeKey(header)] || "—"
+        ),
+    })),
+    { name: "Actions", selector: (row) => row.actions, center: true, width: "180px" },
+  ];
 
-
-  // Filter table data based on search input
   const filteredData = processedTableData.filter((row) =>
     Object.values(row).some((value) => String(value).toLowerCase().includes(searchValue.toLowerCase()))
   );
 
   return (
-    <div className="shadow-sm border-0 rounded-lg p-3">
+    <div className="shadow-sm rounded-lg border p-3 bg-white">
       {/* Search Bar & Button */}
-      <div className="card-header d-flex flex-column flex-sm-row justify-content-end align-items-center bg-light py-3 gap-2">
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3">
         <Form.Control
           type="text"
           placeholder="Search..."
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          className="w-50 border shadow-sm"
+          className="border shadow-sm w-100 w-md-50"
+          style={{ maxWidth: "400px" }}
         />
-
         {onButtonClick && (
-          <Button onClick={onButtonClick} variant="primary" className="d-flex align-items-center fw-bold">
-            <Plus className="me-1" size={16} />
-            {buttonLabel}
+          <Button
+            onClick={onButtonClick}
+            variant="primary"
+            className="d-flex align-items-center fw-bold shadow-sm"
+            style={{
+              minWidth: "150px",
+              padding: "10px 15px",
+              fontSize: "14px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Plus className="me-1" size={16} /> {buttonLabel}
           </Button>
         )}
       </div>
 
       {/* Data Table */}
-      <DataTable
-        columns={columns}
-        data={filteredData}
-        pagination
-        highlightOnHover
-        responsive
-        striped
-        paginationPerPage={itemsPerPage}
-        onChangePage={(page) => setCurrentPage(page)}
-      />
+      <div className="rounded overflow-hidden border shadow-sm">
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          responsive
+          striped
+          paginationPerPage={itemsPerPage}
+          onChangePage={(page) => setCurrentPage(page)}
+          className="border rounded"
+          customStyles={{
+            headRow: {
+              style: {
+                backgroundColor: "#4a9eff",
+                color: "#ffffff",
+                fontSize: "14px",
+              },
+            },
+            headCells: {
+              style: {
+                fontWeight: "bold",
+              },
+            },
+            rows: {
+              style: {
+                fontSize: "14px",
+              },
+            },
+          }}
+        />
+      </div>
     </div>
   );
 }

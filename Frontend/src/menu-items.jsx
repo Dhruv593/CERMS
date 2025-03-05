@@ -57,6 +57,12 @@ const menuItems = {
               type: 'item',
               url: '/master/deposit'
             },
+            {
+              id: 'custoomer',
+              title: 'Customer',
+              type: 'item',
+              url: '/master/customer'
+            },
           ]
         }
       ]
