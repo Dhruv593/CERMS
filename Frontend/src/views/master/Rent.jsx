@@ -120,7 +120,7 @@ function Rent() {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: "Search...",
         }}
-        tableHeaders={["Category", "Sub Category", "Rent", "Actions"]}
+        tableHeaders={["Category", "Subcategory", "Rent", "Actions"]}
         tableData={filteredData}
         renderRow={(row, index) => (
           <tr key={index} className="border-b hover:bg-gray-100 transition">

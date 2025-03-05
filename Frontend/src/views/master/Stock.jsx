@@ -126,54 +126,54 @@ function Stock() {
     setIsImageModalOpen(true);
   };
 
-  const renderStockRow = (row, index) => (
-    <tr key={index} className="border-b hover:bg-gray-100 transition" onClick={() => handleRowClick(row)}>
-      <td className="p-2">{row.category}</td>
-      <td className="p-2">{row.subcategory}</td>
-      <td className="p-2">{row.partyName}</td>
-      <td className="p-2">{row.partyContact || 'N/A'}</td>
-      <td className="p-2">{row.purchaseFrom}</td>
-      <td className="p-2">{row.purchaseDateTime}</td>
-      <td className="p-2">{row.purchaseQuantity}</td>
-      <td className="p-2">{row.paymentMode}</td>
-      <td className="p-2">{row.transportInclude}</td>
-      <td className="p-2">
-        {row.stockPhoto && (
-          <img
-            src={`${IMG_URL}/${row.stockPhoto}`}
-            alt={row.stockPhoto}
-            style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              openImageModal(row.stockPhoto);
-            }}
-          />
-        )}
-      </td>
-      <td className="p-2">
-        {row.billPhoto && (
-          <img
-            src={`${IMG_URL}/${row.billPhoto}`}
-            alt={row.billPhoto}
-            style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              openImageModal(row.billPhoto);
-            }}
-          />
-        )}
-      </td>
-      <td className="p-2">{row.remarks}</td>
-      <td className="p-3 d-flex justify-content-center gap-2">
-        <button onClick={(e) => handleEditClick(e, row)} className="btn btn-sm btn-success d-flex align-items-center gap-1">
-          <Edit size={16} />
-        </button>
-        <button onClick={(e) => handleDeleteClick(e, row)} className="btn btn-sm btn-danger d-flex align-items-center gap-1">
-          <Trash2 size={16} />
-        </button>
-      </td>
-    </tr>
-  );
+  // const renderStockRow = (row, index) => (
+  //   <tr key={index} className="border-b hover:bg-gray-100 transition" onClick={() => handleRowClick(row)}>
+  //     <td className="p-2">{row.category}</td>
+  //     <td className="p-2">{row.subcategory}</td>
+  //     <td className="p-2">{row.partyName}</td>
+  //     <td className="p-2">{row.partyContact || 'N/A'}</td>
+  //     <td className="p-2">{row.purchaseFrom}</td>
+  //     <td className="p-2">{row.purchaseDateTime}</td>
+  //     <td className="p-2">{row.purchaseQuantity}</td>
+  //     <td className="p-2">{row.paymentMode}</td>
+  //     <td className="p-2">{row.transportInclude}</td>
+  //     <td className="p-2">
+  //       {row.stockPhoto && (
+  //         <img
+  //           src={`${IMG_URL}/${row.stockPhoto}`}
+  //           alt={row.stockPhoto}
+  //           style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             openImageModal(row.stockPhoto);
+  //           }}
+  //         />
+  //       )}
+  //     </td>
+  //     <td className="p-2">
+  //       {row.billPhoto && (
+  //         <img
+  //           src={`${IMG_URL}/${row.billPhoto}`}
+  //           alt={row.billPhoto}
+  //           style={{ width: '30px', height: '30px', objectFit: 'cover', cursor: 'pointer' }}
+  //           onClick={(e) => {
+  //             e.stopPropagation();
+  //             openImageModal(row.billPhoto);
+  //           }}
+  //         />
+  //       )}
+  //     </td>
+  //     <td className="p-2">{row.remarks}</td>
+  //     <td className="p-3 d-flex justify-content-center gap-2">
+  //       <button onClick={(e) => handleEditClick(e, row)} className="btn btn-sm btn-success d-flex align-items-center gap-1">
+  //         <Edit size={16} />
+  //       </button>
+  //       <button onClick={(e) => handleDeleteClick(e, row)} className="btn btn-sm btn-danger d-flex align-items-center gap-1">
+  //         <Trash2 size={16} />
+  //       </button>
+  //     </td>
+  //   </tr>
+  // );
 
   const filteredData = stockData.filter(
     (row) =>
@@ -195,8 +195,8 @@ function Stock() {
         }}
         tableHeaders={[
           'Category',
-          'Sub Category',
-          'Party Name',
+          'Subcategory',
+          'PartyName',
           'Party Contact',
           'Purchase From',
           'Purchase Date & Time',
@@ -206,10 +206,9 @@ function Stock() {
           'Stock Photo',
           'Bill Photo',
           'Remarks',
-          'Actions'
         ]}
-        tableData={filteredData}
-        renderRow={renderStockRow}
+        tableData={stockData}
+        // renderRow={renderStockRow}
       />
 
       {isModalOpen && (
