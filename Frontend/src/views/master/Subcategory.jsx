@@ -125,10 +125,11 @@ const Subcategory = () => {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: 'Search Subcategory...'
         }}
-        tableHeaders={['Category', 'Subcategory', 'Description', 'Item Image', 'Actions']}
+        tableHeaders={['Id','Category', 'Subcategory', 'Description', 'Item Image', 'Actions']}
         tableData={subcategoryData}
         renderRow={(row, index) => (
           <tr key={index} className="border-b hover:bg-gray-100 transition">
+            <td className="p-2 text-center">{startIndex + index + 1}</td>
             <td className="px-2 py-2">{row.category}</td>
             <td className="px-2 py-2">{row.subcategory}</td>
             <td className="px-2 py-2">{row.description}</td>

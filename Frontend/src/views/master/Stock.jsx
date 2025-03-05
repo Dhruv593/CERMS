@@ -23,6 +23,8 @@ function Stock() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
@@ -126,8 +128,12 @@ function Stock() {
     setIsImageModalOpen(true);
   };
 
+  // Pagination Logic
+  const startIndex = (currentPage - 1) * pageSize;
+
   const renderStockRow = (row, index) => (
     <tr key={index} className="border-b hover:bg-gray-100 transition" onClick={() => handleRowClick(row)}>
+      <td className="p-2 text-center">{startIndex + index + 1}</td>
       <td className="p-2">{row.category}</td>
       <td className="p-2">{row.subcategory}</td>
       <td className="p-2">{row.partyName}</td>
@@ -194,6 +200,7 @@ function Stock() {
           placeholder: 'Search Stock...'
         }}
         tableHeaders={[
+          'Id',
           'Category',
           'Sub Category',
           'Party Name',
