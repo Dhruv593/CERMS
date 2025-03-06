@@ -90,6 +90,48 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
+        <Col md={6} xl={3}>
+          <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
+            <OrderCard
+              params={{
+                title: 'Avilable Stock',
+                class: 'bg-c-red',
+                icon: 'feather icon-box',
+                primaryText: "545",
+                secondaryText: 'In Inventory',
+                extraText: ''
+              }}
+            />
+          </div>
+        </Col>
+        <Col md={6} xl={3}>
+          <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
+            <OrderCard
+              params={{
+                title: 'Rented Stock',
+                class: 'bg-c-yellow',
+                icon: 'feather icon-box',
+                primaryText: "876",
+                secondaryText: 'Customer Inventory',
+                extraText: ''
+              }}
+            />
+          </div>
+        </Col>
+        <Col md={6} xl={3}>
+          <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
+            <OrderCard
+              params={{
+                title: 'Pending Payments',
+                class: 'bg-c-red',
+                icon: 'feather icon-box',
+                primaryText: "₹1,23,456",
+                secondaryText: 'Customer Payments',
+                extraText: ''
+              }}
+            />
+          </div>
+        </Col>
       </Row>
     </React.Fragment>
   );

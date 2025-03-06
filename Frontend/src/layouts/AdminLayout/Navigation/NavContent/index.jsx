@@ -8,7 +8,7 @@ import { ListGroup } from 'react-bootstrap';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
 // project import
-import NavCard from './NavCard';
+// import NavCard from './NavCard';
 import NavGroup from './NavGroup';
 import { ConfigContext } from '../../../../contexts/ConfigContext';
 import * as actionType from '../../../../store/actions';
@@ -116,7 +116,7 @@ const NavContent = ({ navigation }) => {
           <ListGroup variant="flush" as="ul" bsPrefix=" " className="nav pcoded-inner-navbar" id="nav-ps-next">
             {navItems}
           </ListGroup>
-          <NavCard />
+          {/* <NavCard /> */}
         </PerfectScrollbar>
       </div>
     );

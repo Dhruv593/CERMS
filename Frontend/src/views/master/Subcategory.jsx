@@ -48,21 +48,29 @@
     // Handle Add / Update Subcategory
     const handleSubmit = async (data) => {
       try {
-        if (selectedRowData) {
-          await updateSubcategory(selectedRowData.id, data);
-          showSuccessAlert('Subcategory updated successfully');
-        } else {
-          await addSubcategory(data);
-          showSuccessAlert('Subcategory added successfully');
+        let updatedData = { ...data };
+    
+        if (!data.image_path && selectedRowData?.image_path) {
+          updatedData.image_path = selectedRowData.image_path;
         }
+    
+        if (selectedRowData) {
+          await updateSubcategory(selectedRowData.id, updatedData);
+          showSuccessAlert("Subcategory updated successfully");
+        } else {
+          await addSubcategory(updatedData);
+          showSuccessAlert("Subcategory added successfully");
+        }
+    
         loadSubcategories();
         setIsModalOpen(false);
         setSelectedRowData(null);
       } catch (error) {
-        console.error('Error saving subcategory:', error);
-        showErrorAlert('Error saving subcategory');
+        console.error("Error saving subcategory:", error);
+        showErrorAlert("Error saving subcategory");
       }
     };
+    
 
     // Edit Subcategory
     const handleEditClick = (row) => {
