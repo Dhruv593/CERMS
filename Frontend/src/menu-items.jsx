@@ -77,12 +77,14 @@ const menuItems = {
               id: 'button',
               title: 'IN',
               type: 'item',
+              icon: 'feather icon-log-in',
               url: '/rentals/in'
             },
             {
               id: 'badges',
               title: 'OUT',
               type: 'item',
+              icon: 'feather icon-log-out',
               url: '/rentals/out'
             }
           ]

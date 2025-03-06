@@ -7,6 +7,8 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const IMG_URL = import.meta.env.VITE_IMG_URL;
+
 
   // Normalize table headers to match data keys
   const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, "_");
@@ -35,6 +37,26 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
         <img
           src={`${IMG_URL}/${row.billPhoto}`}
           alt="Bill"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
+    }
+    if (row.aadharPhoto) {
+      filteredRow.aadharPhoto = (
+        <img
+          src={`${IMG_URL}/${row.aadharPhoto}`}
+          alt="aadhar"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
+    }
+    if (row.other_proof) {
+      filteredRow.other_proof = (
+        <img
+          src={`${IMG_URL}/${row.other_proof}`}
+          alt="other"
           className="rounded shadow-sm"
           style={{ width: "50px", height: "50px", objectFit: "cover" }}
         />
