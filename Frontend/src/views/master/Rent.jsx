@@ -18,6 +18,8 @@ function Rent() {
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     fetchRents();
@@ -109,6 +111,9 @@ function Rent() {
     (row) =>
       row.category.toLowerCase().includes(searchValue.toLowerCase()) || row.subcategory.toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  // Pagination Logic
+  const startIndex = (currentPage - 1) * pageSize;
 
   return (
     <>

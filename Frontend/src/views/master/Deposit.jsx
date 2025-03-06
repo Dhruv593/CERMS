@@ -11,13 +11,15 @@ import { showSuccessAlert, showErrorAlert } from "@/utils/AlertService";
 
 function Deposit() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const [searchValue, setSearchValue] = useState('');
   const [depositData, setDepositData] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
 
   useEffect(() => {
     loadDepositData();
@@ -29,7 +31,7 @@ function Deposit() {
       const data = await getDeposits();
       setDepositData(data);
     } catch (error) {
-      console.error("Error loading deposit data:", error);
+      console.error('Error loading deposit data:', error);
     }
   };
 
@@ -38,7 +40,7 @@ function Deposit() {
       const categoriesData = await getCategories();
       setCategories(categoriesData.map((cat) => cat.category));
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -47,7 +49,7 @@ function Deposit() {
       const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
       setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
     } catch (error) {
-      console.error("Error fetching subcategories:", error);
+      console.error('Error fetching subcategories:', error);
       setSubcategories([]);
     }
   };
@@ -73,7 +75,7 @@ function Deposit() {
       await deleteDeposit(rowToDelete.id);
       loadDepositData();
       setIsDeletePopupOpen(false);
-      showSuccessAlert("Deposit deleted successfully!");
+      showSuccessAlert('Deposit deleted successfully!');
     } catch (error) {
       console.error("Error deleting deposit:", error);
       showErrorAlert("Error deleting deposit.");
@@ -84,10 +86,10 @@ function Deposit() {
     try {
       if (selectedRowData) {
         await updateDeposit(selectedRowData.id, data);
-        showSuccessAlert("Deposit updated successfully!");
+        showSuccessAlert('Deposit updated successfully!');
       } else {
         await addDeposit(data);
-        showSuccessAlert("Deposit added successfully!");
+        showSuccessAlert('Deposit added successfully!');
       }
       loadDepositData();
       setIsModalOpen(false);
@@ -106,9 +108,11 @@ function Deposit() {
 
   const filteredData = depositData.filter(
     (row) =>
-      row.category.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.subcategory.toLowerCase().includes(searchValue.toLowerCase())
+      row.category.toLowerCase().includes(searchValue.toLowerCase()) || row.subcategory.toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  // Pagination Logic
+  const startIndex = (currentPage - 1) * pageSize;
 
   return (
     <>
@@ -119,7 +123,7 @@ function Deposit() {
         searchProps={{
           value: searchValue,
           onChange: (e) => setSearchValue(e.target.value),
-          placeholder: "Search Deposit...",
+          placeholder: 'Search Deposit...'
         }}
         tableHeaders={["Category", "Subcategory", "Deposit"]}
         tableData={filteredData}
@@ -152,11 +156,11 @@ function Deposit() {
         <ReusableModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
-          title={selectedRowData ? "Edit Deposit" : "Add Deposit"}
+          title={selectedRowData ? 'Edit Deposit' : 'Add Deposit'}
           fields={depositFields(categories, subcategories)}
           initialFormData={selectedRowData || {}} // Ensure data pre-fills modal
           onSubmit={handleSubmit}
-          submitButtonLabel={selectedRowData ? "Update Deposit" : "Add Deposit"}
+          submitButtonLabel={selectedRowData ? 'Update Deposit' : 'Add Deposit'}
           onCategoryChange={handleCategoryChange}
         />
       )}

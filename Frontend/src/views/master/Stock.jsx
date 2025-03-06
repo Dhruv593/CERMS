@@ -18,6 +18,8 @@ function Stock() {
   const [categories, setCategories] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
@@ -148,6 +150,7 @@ function Stock() {
           placeholder: 'Search Stock...'
         }}
         tableHeaders={[
+          'Id',
           'Category',
           'Subcategory',
           'Party Name',
