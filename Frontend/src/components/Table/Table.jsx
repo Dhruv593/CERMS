@@ -1,118 +1,159 @@
-import React, { useState } from 'react';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import React, { useState } from "react";
+import DataTable from "react-data-table-component";
+import { Button, Form } from "react-bootstrap";
+import { Plus, Edit, Trash2 } from "lucide-react";
 
-export function Table({ buttonLabel = '', onButtonClick, searchProps, tableHeaders = [], tableData = [], renderRow }) {
-  const pageSize = 10;
+export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tableData = [], onEdit, onDelete }) {
+  const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages = Math.ceil(tableData.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const currentData = tableData.slice(startIndex, startIndex + pageSize) || [];
+  const itemsPerPage = 10;
 
-  const handlePrevious = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
+  // Normalize table headers to match data keys
+  const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, "_");
 
-  const handleNext = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
+  // Process table data
+  const processedTableData = tableData.map((row) => {
+    let filteredRow = {};
+    tableHeaders.forEach((header) => {
+      const key = normalizeKey(header);
+      filteredRow[key] = row[key] !== undefined && row[key] !== null && row[key] !== "" ? row[key] : "—";
+    });
 
-  const handlePageChange = (e) => {
-    let page = parseInt(e.target.value, 10);
-    if (!isNaN(page) && page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
+    // Ensure images load properly
+    if (row.stockPhoto) {
+      filteredRow.stock_photo = (
+        <img
+          src={`${IMG_URL}/${row.stockPhoto}`}
+          alt="Stock"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
     }
-  };
+    if (row.billPhoto) {
+      filteredRow.bill_photo = (
+        <img
+          src={`${IMG_URL}/${row.billPhoto}`}
+          alt="Bill"
+          className="rounded shadow-sm"
+          style={{ width: "50px", height: "50px", objectFit: "cover" }}
+        />
+      );
+    }
+
+    // Action buttons
+    filteredRow.actions = (
+      <div className="d-flex justify-content-center gap-2">
+        <Button
+          variant="success"
+          size="sm"
+          onClick={() => onEdit(row)}
+          className="d-flex align-items-center"
+        >
+          <Edit size={16} />
+        </Button>
+        <Button
+          variant="danger"
+          size="sm"
+          onClick={() => onDelete(row)}
+          className="d-flex align-items-center"
+        >
+          <Trash2 size={16} />
+        </Button>
+      </div>
+    );
+
+    return filteredRow;
+  });
+
+  // Define columns dynamically
+  const columns = [
+    { name: "#", selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: "80px", center: true },
+    ...tableHeaders.map((header) => ({
+      name: (
+        <span style={{ color: "#ffffff", fontWeight: "bold" }}>
+          {header}
+        </span>
+      ),
+      selector: (row) => row[normalizeKey(header)] || "—",
+      sortable: true,
+      cell: (row) =>
+        normalizeKey(header).includes("photo") || normalizeKey(header).includes("image") ? (
+          <img src={row[normalizeKey(header)]} alt="Preview" className="rounded shadow-sm" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
+        ) : (
+          row[normalizeKey(header)] || "—"
+        ),
+    })),
+    { name: "Actions", selector: (row) => row.actions, center: true, width: "180px" },
+  ];
+
+  const filteredData = processedTableData.filter((row) =>
+    Object.values(row).some((value) => String(value).toLowerCase().includes(searchValue.toLowerCase()))
+  );
 
   return (
-    <div className="shadow-sm border-0 rounded-lg">
-      <div className="border ">
-        {/* Search Bar & Button Row */}
-        <div className="card-header d-flex flex-column flex-sm-row justify-content-end align-items-center bg-light py-3 gap-2">
-          {searchProps && (
-            <input
-              type="text"
-              value={searchProps.value}
-              onChange={searchProps.onChange}
-              placeholder={searchProps.placeholder || 'Search...'}
-              className="form-control w-100 w-sm-auto border shadow-sm"
-              style={{ maxWidth: '200px' }}
-            />
-          )}
-          {onButtonClick && (
-            <button onClick={onButtonClick} className="btn btn-primary d-flex align-items-center fw-bold">
-              <Plus className="me-1" size={16} />
-              {buttonLabel}
-            </button>
-          )}
-        </div>
+    <div className="shadow-sm rounded-lg border p-3 bg-white">
+      {/* Search Bar & Button */}
+      <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mb-3 gap-3">
+        <Form.Control
+          type="text"
+          placeholder="Search..."
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="border shadow-sm w-100 w-md-50"
+          style={{ maxWidth: "400px" }}
+        />
+        {onButtonClick && (
+          <Button
+            onClick={onButtonClick}
+            variant="primary"
+            className="d-flex align-items-center fw-bold shadow-sm"
+            style={{
+              minWidth: "150px",
+              padding: "10px 15px",
+              fontSize: "14px",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Plus className="me-1" size={16} /> {buttonLabel}
+          </Button>
+        )}
+      </div>
 
-        {/* Table Section */}
-        <div className="card-body p-3 table-responsive">
-          <table className="table table-hover align-middle">
-            <thead className="table-primary text-center">
-              <tr>
-                {tableHeaders.map((col, index) => (
-                  <th key={index} className="fw-semibold text-uppercase">
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {currentData.length > 0 ? (
-                currentData.map((row, index) =>
-                  renderRow ? (
-                    renderRow(row, index)
-                  ) : (
-                    <tr key={index}>
-                      {tableHeaders.map((col, j) => (
-                        <td key={j} className="text-center">
-                          {col.toLowerCase().includes('image') ? (
-                            <img
-                              src={row[col.toLowerCase()]}
-                              alt="Table Image"
-                              className="table-img img-fluid rounded"
-                              style={{ width: '50px', height: '50px', objectFit: 'cover' }}
-                            />
-                          ) : (
-                            row[col.toLowerCase()]
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  )
-                )
-              ) : (
-                <tr>
-                  <td colSpan={tableHeaders.length + 1} className="text-center text-muted">
-                    No records found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="card-footer d-flex justify-content-center align-items-center bg-light gap-3 pb-3">
-          <button onClick={handlePrevious} disabled={currentPage === 1} className="btn btn-sm btn-outline-dark">
-            <ChevronLeft size={18} />
-          </button>
-          <div className="d-flex align-items-center gap-2">
-            <span className="text-muted">Page</span>
-            <input
-              type="text"
-              value={currentPage}
-              onChange={handlePageChange}
-              className="form-control text-center border rounded-pill shadow-sm"
-              style={{ width: '50px' }}
-            />
-            <span className="text-muted">of {totalPages}</span>
-          </div>
-          <button onClick={handleNext} disabled={currentPage === totalPages} className="btn btn-sm btn-outline-dark">
-            <ChevronRight size={18} />
-          </button>
-        </div>
+      {/* Data Table */}
+      <div className="rounded overflow-hidden border shadow-sm">
+        <DataTable
+          columns={columns}
+          data={filteredData}
+          pagination
+          highlightOnHover
+          responsive
+          striped
+          paginationPerPage={itemsPerPage}
+          onChangePage={(page) => setCurrentPage(page)}
+          className="border rounded"
+          customStyles={{
+            headRow: {
+              style: {
+                backgroundColor: "#4a9eff",
+                color: "#ffffff",
+                fontSize: "14px",
+              },
+            },
+            headCells: {
+              style: {
+                fontWeight: "bold",
+              },
+            },
+            rows: {
+              style: {
+                fontSize: "14px",
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );

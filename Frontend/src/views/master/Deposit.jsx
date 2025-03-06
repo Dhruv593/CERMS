@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import Table from '@/components/Table/Table';
-import ReusableModal from '@/components/Modal/ReusableModal';
-import DeletePopUp from '@/components/PopUp/DeletePopUp';
-import { addDeposit, getDeposits, updateDeposit, deleteDeposit } from '@/api/depositAPI';
-import { getCategories } from '@/api/categoryApi';
-import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
-import { depositFields } from '@/data/deposit-modal';
-import { Trash2, Edit } from 'lucide-react';
-import { showSuccessAlert } from '@/utils/AlertService';
+import React, { useEffect, useState } from "react";
+import Table from "@/components/Table/Table";
+import ReusableModal from "@/components/Modal/ReusableModal";
+import DeletePopUp from "@/components/PopUp/DeletePopUp";
+import { addDeposit, getDeposits, updateDeposit, deleteDeposit } from "@/api/depositAPI";
+import { getCategories } from "@/api/categoryApi";
+import { getSubcategoriesByCategory } from "@/api/subcategoryAPI";
+import { depositFields } from "@/data/deposit-modal";
+import { Trash2, Edit } from "lucide-react";
+import { showSuccessAlert, showErrorAlert } from "@/utils/AlertService";
 
 function Deposit() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,14 +54,18 @@ function Deposit() {
     }
   };
 
-  const handleEditClick = (e, rowData) => {
-    e.stopPropagation();
-    setSelectedRowData(rowData);
+  const handleEditClick = (rowData) => {
+    console.log("Row data:", rowData); // Debugging log
+
+    setSelectedRowData({
+      ...rowData,
+      rowData
+    });
+
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (e, rowData) => {
-    e.stopPropagation();
+  const handleDeleteClick = (rowData) => {
     setRowToDelete(rowData);
     setIsDeletePopupOpen(true);
   };
@@ -73,7 +77,8 @@ function Deposit() {
       setIsDeletePopupOpen(false);
       showSuccessAlert('Deposit deleted successfully!');
     } catch (error) {
-      console.error('Error deleting deposit:', error);
+      console.error("Error deleting deposit:", error);
+      showErrorAlert("Error deleting deposit.");
     }
   };
 
@@ -90,8 +95,8 @@ function Deposit() {
       setIsModalOpen(false);
       setSelectedRowData(null);
     } catch (error) {
-      console.error('Error saving deposit:', error);
-      showWarningAlert('Error saving deposit. Please try again.');
+      console.error("Error saving deposit:", error);
+      showErrorAlert("Error saving deposit.");
     }
   };
 
@@ -120,24 +125,31 @@ function Deposit() {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: 'Search Deposit...'
         }}
-        tableHeaders={['Id', 'Category', 'Subcategory', 'Deposit', 'Actions']}
+        tableHeaders={["Category", "Subcategory", "Deposit"]}
         tableData={filteredData}
         renderRow={(row, index) => (
           <tr key={index} className="border-bottom text-center">
-            <td className="p-2 text-center">{startIndex + index + 1}</td>
             <td className="p-2">{row.category}</td>
             <td className="p-2">{row.subcategory}</td>
             <td className="p-2">{row.deposit}</td>
             <td className="p-2 d-flex justify-content-center gap-2">
-              <button onClick={(e) => handleEditClick(e, row)} className="btn btn-sm btn-success d-flex align-items-center gap-1">
+              <button
+                onClick={(e) => handleEditClick(e, row)}
+                className="btn btn-sm btn-success d-flex align-items-center gap-1"
+              >
                 <Edit size={16} />
               </button>
-              <button onClick={(e) => handleDeleteClick(e, row)} className="btn btn-sm btn-danger d-flex align-items-center gap-1">
+              <button
+                onClick={(e) => handleDeleteClick(e, row)}
+                className="btn btn-sm btn-danger d-flex align-items-center gap-1"
+              >
                 <Trash2 size={16} />
               </button>
             </td>
           </tr>
         )}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteClick}
       />
 
       {isModalOpen && (
@@ -146,7 +158,7 @@ function Deposit() {
           onClose={handleCloseModal}
           title={selectedRowData ? 'Edit Deposit' : 'Add Deposit'}
           fields={depositFields(categories, subcategories)}
-          initialFormData={selectedRowData}
+          initialFormData={selectedRowData || {}} // Ensure data pre-fills modal
           onSubmit={handleSubmit}
           submitButtonLabel={selectedRowData ? 'Update Deposit' : 'Add Deposit'}
           onCategoryChange={handleCategoryChange}

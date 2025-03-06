@@ -2,6 +2,7 @@
 @import 'assets/scss/style.scss';
 @import 'assets/scss/settings/custom-variables';
 
+
 .pcoded-navbar {
   &.mob-open ~ .pcoded-header:before,
   &.navbar-collapsed:hover ~ .pcoded-header:before {

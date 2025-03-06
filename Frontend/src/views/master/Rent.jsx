@@ -54,14 +54,19 @@ function Rent() {
     }
   };
 
-  const handleEditClick = (e, rowData) => {
-    e.stopPropagation();
-    setSelectedRowData(rowData);
+  const handleEditClick = (row) => {
+    console.log('Editing subcategory:', row); // Debugging log
+
+    if (!row || !row.id) {
+      showErrorAlert('Invalid subcategory selected for editing.');
+      return;
+    }
+
+    setSelectedRowData(row);
     setIsModalOpen(true);
   };
 
-  const handleDeleteClick = (e, rowData) => {
-    e.stopPropagation();
+  const handleDeleteClick = (rowData) => {
     setRowToDelete(rowData);
     setIsDeletePopupOpen(true);
   };
@@ -69,7 +74,7 @@ function Rent() {
   const confirmDelete = async () => {
     try {
       await deleteRent(rowToDelete.id);
-      fetchRents(); // Refresh table after delete
+      fetchRents();
       setIsDeletePopupOpen(false);
       showSuccessAlert('Rent Deleted Successfully');
     } catch (error) {
@@ -82,7 +87,7 @@ function Rent() {
     try {
       if (selectedRowData) {
         await updateRent(selectedRowData.id, data);
-        showSuccessAlert('Rent Update Successfully');
+        showSuccessAlert('Rent Updated Successfully');
       } else {
         await addRent(data);
         showSuccessAlert('Rent Added Successfully');
@@ -121,24 +126,31 @@ function Rent() {
           onChange: (e) => setSearchValue(e.target.value),
           placeholder: 'Search...'
         }}
-        tableHeaders={['Id', 'Category', 'Sub Category', 'Rent', 'Actions']}
+        tableHeaders={['Category', 'Subcategory', 'Rent']}
         tableData={filteredData}
-        renderRow={(row, index) => (
-          <tr key={index} className="border-b hover:bg-gray-100 transition">
-            <td className="p-2 text-center">{startIndex + index + 1}</td>
-            <td className="p-2">{row.category}</td>
-            <td className="p-2">{row.subcategory}</td>
-            <td className="p-2">{row.rent}</td>
-            <td className="p-2 d-flex justify-content-center gap-2">
-              <button onClick={(e) => handleEditClick(e, row)} className="btn btn-sm btn-success d-flex align-items-center gap-1">
-                <Edit size={16} />
-              </button>
-              <button onClick={(e) => handleDeleteClick(e, row)} className="btn btn-sm btn-danger d-flex align-items-center gap-1">
-                <Trash2 size={16} />
-              </button>
-            </td>
-          </tr>
-        )}
+        // renderRow={(row, index) => (
+        //   <tr key={index} className="border-b hover:bg-gray-100 transition">
+        //     <td className="p-2">{row.category}</td>
+        //     <td className="p-2">{row.subcategory}</td>
+        //     <td className="p-2">{row.rent}</td>
+        //     <td className="p-2 d-flex justify-content-center gap-2">
+        //       <button
+        //         onClick={(e) => handleEditClick(e, row)}
+        //         className="btn btn-sm btn-success d-flex align-items-center gap-1"
+        //       >
+        //         <Edit size={16} />
+        //       </button>
+        //       <button
+        //         onClick={(e) => handleDeleteClick(e, row)}
+        //         className="btn btn-sm btn-danger d-flex align-items-center gap-1"
+        //       >
+        //         <Trash2 size={16} />
+        //       </button>
+        //     </td>
+        //   </tr>
+        // )}
+        onEdit={handleEditClick}
+        onDelete={handleDeleteClick}
       />
 
       {isModalOpen && (
@@ -147,7 +159,7 @@ function Rent() {
           onClose={handleCloseModal}
           title={selectedRowData ? 'Edit Rent' : 'Add Rent'}
           fields={rentFields(categories, subcategories)}
-          initialFormData={selectedRowData}
+          initialFormData={selectedRowData || {}} // Ensure data pre-fills modal
           onSubmit={handleSubmit}
           submitButtonLabel={selectedRowData ? 'Update Rent' : 'Add Rent'}
           onCategoryChange={handleCategoryChange}

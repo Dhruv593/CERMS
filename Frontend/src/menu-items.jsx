@@ -57,9 +57,35 @@ const menuItems = {
               type: 'item',
               url: '/master/deposit'
             },
+            {
+              id: 'custoomer',
+              title: 'Customer',
+              type: 'item',
+              url: '/master/customer'
+            },
           ]
         }
       ]
+    },
+    {
+      id: 'menu',
+      title: 'menu',
+      type: 'group',
+      icon: 'icon-ui',
+      children: [
+            {
+              id: 'button',
+              title: 'IN',
+              type: 'item',
+              url: '/rentals/in'
+            },
+            {
+              id: 'badges',
+              title: 'OUT',
+              type: 'item',
+              url: '/rentals/out'
+            }
+          ]
     },
     {
       id: 'auth',

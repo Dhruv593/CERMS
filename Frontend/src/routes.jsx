@@ -78,6 +78,21 @@ export const routes = [
       },
       {
         exact: 'true',
+        path: '/master/customer',
+        element: lazy(() => import('./views/master/Customer'))
+      },
+      {
+        exact: 'true',
+        path: '/rentals/in',
+        element: lazy(() => import('./views/menu/In'))
+      },
+      {
+        exact: 'true',
+        path: '/rentals/out',
+        element: lazy(() => import('./views/menu/Out'))
+      },
+      {
+        exact: 'true',
         path: '/basic/tooltip-popovers',
         element: lazy(() => import('./views/ui-elements/BasicTooltipsPopovers'))
       },
