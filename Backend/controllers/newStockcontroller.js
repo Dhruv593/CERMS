@@ -1,8 +1,8 @@
 const db = require("../config/db");
 
 exports.getStockData = (req, res) => {
-  const sql = "SELECT * FROM stockdata ORDER BY id DESC"
-  
+  const sql = "SELECT * FROM stockdata ORDER BY id DESC";
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Error fetching stock data:", err);
@@ -29,16 +29,15 @@ exports.addStock = (req, res) => {
     transportInclude,
     remarks,
   } = req.body;
-  
 
   const stockPhoto = req.files?.stockPhoto
     ? `uploads/stock/stock/${req.files.stockPhoto[0].filename}`
     : null;
-  
+
   const billPhoto = req.files?.billPhoto
     ? `uploads/stock/bill/${req.files.billPhoto[0].filename}`
     : null;
-console.log("checkobjec",partyContact)
+  console.log("checkobjec", partyContact);
   const sql = `
     INSERT INTO stockdata 
       (category, subcategory, partyName, partyContact, purchaseFrom, purchaseDateTime, purchaseQuantity, paymentMode, transportInclude, stockPhoto, billPhoto, remarks)
@@ -70,32 +69,36 @@ console.log("checkobjec",partyContact)
       }
       return res.status(500).json({ error: err.message });
     }
-    res.json({ message: "Stock added successfully", id: result.insertId, stockPhoto, billPhoto });
+    res.json({
+      message: "Stock added successfully",
+      id: result.insertId,
+      stockPhoto,
+      billPhoto,
+    });
   });
 };
 
 exports.editStock = (req, res) => {
-  
   console.log("Request Body:", req.body);
 
   const { id } = req.params;
   const {
     category,
-        subcategory,
-        partyName,
-        partyContact, 
-        purchaseFrom,
-        purchaseDateTime,
-        purchaseQuantity,
-        paymentMode,
-        transportInclude,
-        remarks,
+    subcategory,
+    partyName,
+    partyContact,
+    purchaseFrom,
+    purchaseDateTime,
+    purchaseQuantity,
+    paymentMode,
+    transportInclude,
+    remarks,
   } = req.body;
 
   const stockPhoto = req.files?.stockPhoto
     ? `uploads/stock/stock/${req.files.stockPhoto[0].filename}`
     : null;
-  
+
   const billPhoto = req.files?.billPhoto
     ? `uploads/stock/bill/${req.files.billPhoto[0].filename}`
     : null;
@@ -170,16 +173,12 @@ exports.deleteStock = (req, res) => {
   });
 };
 
-
-
-
-
 // const db = require("../config/db");
 
 // exports.getStockData = (req, res) => {
 //     // Joining stockdata with category and subcategory tables to get their names.
 //     const sql = `
-//       SELECT 
+//       SELECT
 //         s.id,
 //         s.partyName,
 //         s.partyContact,
@@ -198,7 +197,7 @@ exports.deleteStock = (req, res) => {
 //       LEFT JOIN subcategory sc ON s.subcategory_id = sc.id
 //       ORDER BY s.id DESC
 //     `;
-    
+
 //     db.query(sql, (err, results) => {
 //       if (err) {
 //         console.error("Error fetching stock data:", err);
@@ -207,7 +206,6 @@ exports.deleteStock = (req, res) => {
 //       res.json(results);
 //     });
 //   };
-
 
 // exports.addStock = (req, res) => {
 //   console.log("Request Body:", req.body);
@@ -228,21 +226,21 @@ exports.deleteStock = (req, res) => {
 //   } = req.body;
 
 //   // Get file paths if files are uploaded. Expecting two files: stockPhoto and billPhoto.
-//   const stockPhoto = req.files && req.files.stockPhoto 
-//     ? `/uploads/${req.files.stockPhoto[0].filename}` 
+//   const stockPhoto = req.files && req.files.stockPhoto
+//     ? `/uploads/${req.files.stockPhoto[0].filename}`
 //     : null;
-//   const billPhoto = req.files && req.files.billPhoto 
-//     ? `/uploads/${req.files.billPhoto[0].filename}` 
+//   const billPhoto = req.files && req.files.billPhoto
+//     ? `/uploads/${req.files.billPhoto[0].filename}`
 //     : null;
 
 //   // Prepare SQL with subqueries to get the correct foreign key IDs.
 //   const sql = `
-//     INSERT INTO stockdata 
+//     INSERT INTO stockdata
 //       (category_id, subcategory_id, partyName, partyContact, purchaseFrom, purchaseDateTime, purchaseQuantity, paymentMode, transportInclude, stockPhoto, billPhoto, remarks)
-//     VALUES 
+//     VALUES
 //       (
-//         (SELECT id FROM category WHERE category = ?), 
-//         (SELECT id FROM subcategory WHERE subcategory = ?), 
+//         (SELECT id FROM category WHERE category = ?),
+//         (SELECT id FROM subcategory WHERE subcategory = ?),
 //         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
 //       )
 //   `;

@@ -12,14 +12,11 @@ import moment from 'moment';
 function Stock() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [stockData, setStockData] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
@@ -30,10 +27,7 @@ function Stock() {
   const loadStockData = async () => {
     try {
       const data = await getStockData();
-      console.log("stockdata: ", data)
-      if (data) {
-        setStockData(data);
-      }
+      if (data) setStockData(data);
     } catch (error) {
       console.error('Error loading stock data:', error);
     }
@@ -60,14 +54,27 @@ function Stock() {
 
   const handleSubmit = async (data) => {
     try {
-      console.log('Submitting data:', data);
+      let updatedData = { ...data };
+
+      // Preserve existing images if not updated
+      if (!data.stockPhoto && selectedRowData?.stockPhoto) {
+        updatedData.stockPhoto = selectedRowData.stockPhoto;
+      }
+      if (!data.billPhoto && selectedRowData?.billPhoto) {
+        updatedData.billPhoto = selectedRowData.billPhoto;
+      }
+
+      console.log("stock data submitted: ", data)
+
       if (selectedRowData) {
-        await updateStock(selectedRowData.id, data);
+        console.log(selectedRowData)
+        await updateStock(selectedRowData.id, updatedData);
         showSuccessAlert('Stock updated successfully!');
       } else {
-        await addStock(data);
+        await addStock(updatedData);
         showSuccessAlert('Stock added successfully!');
       }
+      
       loadStockData();
       setIsModalOpen(false);
       setSelectedRowData(null);
@@ -78,24 +85,31 @@ function Stock() {
   };
 
   const handleEditClick = (row) => {
-    if (!row || !row.id) {
+    if (!row?.id) {
       showErrorAlert('Invalid stock item selected for editing.');
       return;
     }
 
-    console.log('Editing row:', row);
-
-    // Convert date-time to required format
-    const formattedDateTime = row.purchaseDateTime
-      ? moment(row.purchaseDateTime).format('YYYY-MM-DDTHH:mm') // Required format for input[type="datetime-local"]
-      : '';
-
     setSelectedRowData({
-      ...row,
-      purchaseDateTime: formattedDateTime,
+      id: row.id,
+      category: row.category || '',
+      subcategory: row.subcategory || '',
+      partyName: row.party_name || '',
+      partyContact: row.party_contact || '',
+      purchaseFrom: row.purchase_from || '',
+      purchaseDateTime: moment(row.purchase_date_time).isValid() 
+        ? moment(row.purchase_date_time).format('YYYY-MM-DDTHH:mm') 
+        : '',
+      purchaseQuantity: row.quantity || '',
+      paymentMode: row.payment_mode || '',
+      transportInclude: row.transport || '',
+      remarks: row.remarks || '',
+      stockPhoto: row.stock_photo,
+      billPhoto: row.bill_photo
     });
-
+    
     setIsModalOpen(true);
+    console.log("data", row)
   };
 
   const handleDeleteClick = (row) => {
@@ -124,13 +138,13 @@ function Stock() {
   };
 
   const tableData = stockData.map((row) => ({
-    id: row.id, // Ensure ID is included
-    category: row.category || '—',
+    id: row.id,
+    category: row.category || '—' || '—',
     subcategory: row.subcategory || '—',
     party_name: row.partyName || '—',
     party_contact: row.partyContact || '—',
     purchase_from: row.purchaseFrom || '—',
-    purchase_date_time: row.purchaseDateTime ? moment(row.purchaseDateTime).format('YYYY-MM-DD HH:mm:ss') : '—',
+    purchase_date_time: moment(row.purchase_date_time).isValid() ? moment(row.purchase_date_time).format('YYYY-MM-DDTHH:mm') : '',
     quantity: row.purchaseQuantity || '—',
     payment_mode: row.paymentMode || '—',
     transport: row.transportInclude || '—',
@@ -143,15 +157,8 @@ function Stock() {
     <>
       <Table
         onButtonClick={() => setIsModalOpen(true)}
-        headerTitle="Stock"
         buttonLabel="Add New Stock"
-        searchProps={{
-          value: searchValue,
-          onChange: (e) => setSearchValue(e.target.value),
-          placeholder: 'Search Stock...'
-        }}
         tableHeaders={[
-          'Id',
           'Category',
           'Subcategory',
           'Party Name',
@@ -179,7 +186,7 @@ function Stock() {
           }}
           title={selectedRowData ? 'Edit Stock' : 'Add Stock'}
           fields={stockFields(categories, subcategories)}
-          initialFormData={selectedRowData || {}} 
+          initialFormData={selectedRowData || {}}
           onSubmit={handleSubmit}
           submitButtonLabel={selectedRowData ? 'Update Stock' : 'Add Stock'}
           onCategoryChange={handleCategoryChange}

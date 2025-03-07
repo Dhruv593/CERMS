@@ -22,46 +22,46 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
     });
 
     // Ensure images load properly
-    if (row.stockPhoto) {
-      filteredRow.stock_photo = (
-        <img
-          src={`${IMG_URL}/${row.stockPhoto}`}
-          alt="Stock"
-          className="rounded shadow-sm"
-          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-        />
-      );
-    }
-    if (row.billPhoto) {
-      filteredRow.bill_photo = (
-        <img
-          src={`${IMG_URL}/${row.billPhoto}`}
-          alt="Bill"
-          className="rounded shadow-sm"
-          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-        />
-      );
-    }
-    if (row.aadharPhoto) {
-      filteredRow.aadharPhoto = (
-        <img
-          src={`${IMG_URL}/${row.aadharPhoto}`}
-          alt="aadhar"
-          className="rounded shadow-sm"
-          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-        />
-      );
-    }
-    if (row.other_proof) {
-      filteredRow.other_proof = (
-        <img
-          src={`${IMG_URL}/${row.other_proof}`}
-          alt="other"
-          className="rounded shadow-sm"
-          style={{ width: "50px", height: "50px", objectFit: "cover" }}
-        />
-      );
-    }
+    // if (row.stockPhoto) {
+    //   filteredRow.stock_photo = (
+    //     <img
+    //       src={`${IMG_URL}/${row.stockPhoto}`}
+    //       alt="Stock"
+    //       className="rounded shadow-sm"
+    //       style={{ width: "50px", height: "50px", objectFit: "cover" }}
+    //     />
+    //   );
+    // }
+    // if (row.billPhoto) {
+    //   filteredRow.bill_photo = (
+    //     <img
+    //       src={`${IMG_URL}/${row.billPhoto}`}
+    //       alt="Bill"
+    //       className="rounded shadow-sm"
+    //       style={{ width: "50px", height: "50px", objectFit: "cover" }}
+    //     />
+    //   );
+    // }
+    // if (row.aadharPhoto) {
+    //   filteredRow.aadharPhoto = (
+    //     <img
+    //       src={`${IMG_URL}/${row.aadharPhoto}`}
+    //       alt="aadhar"
+    //       className="rounded shadow-sm"
+    //       style={{ width: "50px", height: "50px", objectFit: "cover" }}
+    //     />
+    //   );
+    // }
+    // if (row.other_proof) {
+    //   filteredRow.other_proof = (
+    //     <img
+    //       src={`${IMG_URL}/${row.other_proof}`}
+    //       alt="other"
+    //       className="rounded shadow-sm"
+    //       style={{ width: "50px", height: "50px", objectFit: "cover" }}
+    //     />
+    //   );
+    // }
 
     // Action buttons
     filteredRow.actions = (
@@ -100,7 +100,7 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
       selector: (row) => row[normalizeKey(header)] || "—",
       sortable: true,
       cell: (row) =>
-        normalizeKey(header).includes("photo") || normalizeKey(header).includes("image") ? (
+        normalizeKey(header).includes("photo") || normalizeKey(header).includes("image") || normalizeKey(header).includes("proof") ? (
           <img src={row[normalizeKey(header)]} alt="Preview" className="rounded shadow-sm" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
         ) : (
           row[normalizeKey(header)] || "—"

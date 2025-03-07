@@ -14,7 +14,7 @@ export const getStockData = async () => {
 
 export const addStock = async (data) => {
   const formData = new FormData();
-  formData.append("category", data.category);
+  formData.append("category", data.category || '');
   formData.append("subcategory", data.subcategory);
   formData.append("partyName", data.partyName);
   formData.append("partyContact", data.partyContact);
@@ -42,16 +42,16 @@ export const addStock = async (data) => {
 export const updateStock = async (id, data) => {
   console.log("api updatestock:",data)
   const formData = new FormData();
-  formData.append("category", data.category);
-  formData.append("subcategory", data.subcategory);
-  formData.append("partyName", data.partyName);
-  formData.append("partyContact", data.partyContact);
-  formData.append("purchaseFrom", data.purchaseFrom);
-  formData.append("purchaseDateTime", data.purchaseDateTime);
-  formData.append("purchaseQuantity", data.purchaseQuantity);
-  formData.append("paymentMode", data.paymentMode);
-  formData.append("transportInclude", data.transportInclude);
-  formData.append("remarks", data.remarks);
+  formData.append("category", data.category || '');
+  formData.append("subcategory", data.subcategory || '');
+  formData.append("partyName", data.partyName || '');
+  formData.append("partyContact", data.partyContact || '');
+  formData.append("purchaseFrom", data.purchaseFrom || '');
+  formData.append("purchaseDateTime", data.purchaseDateTime || '');
+  formData.append("purchaseQuantity", data.purchaseQuantity || '');
+  formData.append("paymentMode", data.paymentMode || '');
+  formData.append("transportInclude", data.transportInclude || '');
+  formData.append("remarks", data.remarks || '');
 
   if (data.stockPhoto) {
     formData.append("stockPhoto", data.stockPhoto);

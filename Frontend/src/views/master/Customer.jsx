@@ -83,20 +83,15 @@ const Customer = () => {
   };
 
   // Table data processing
-  const tableData = customers.map((row) => {
-  console.log("Row Data:", row);  // 🔍 Debugging
-
-  return {
-    id: row.id,
+  const tableData = customers.map((row) => ({ 
     name: row.name || "N/A",
     email: row.email || "N/A",
     mobile: row.mobile || "N/A",
     address: row.address || "N/A",
     site_address: row.site_address || "N/A",
-    aadharPhoto: row.aadharPhoto ? `${IMG_URL}/${row.aadharPhoto}` : null,
-    other_proof: row.other_proof ? `${IMG_URL}/${row.other_proof}` : null,
-  };
-});
+    aadhar_photo: row.aadharPhoto ? `${IMG_URL}/${row.aadharPhoto}` : "N/A",
+    other_proof: row.other_proof ? `${IMG_URL}/${row.other_proof}` : "N/A",
+}));
 
 
   return (

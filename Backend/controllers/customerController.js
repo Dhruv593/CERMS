@@ -56,12 +56,24 @@ exports.addCustomer = (req, res) => {
 exports.updateCustomer = (req, res) => {
   const { name, email, mobile, address, site_address } = req.body;
   const id = req.params.id;
-  const aadharPhoto = req.files?.aadharPhoto ? `uploads/customers/${req.files.aadharPhoto[0].filename}` : null;
-  const other_proof = req.files?.other_proof ? `uploads/customers/${req.files.other_proof[0].filename}` : null;
+  const aadharPhoto = req.files?.aadharPhoto ? `uploads/customer/aadhar/${req.files.aadharPhoto[0].filename}` : null;
+  const other_proof = req.files?.other_proof ? `uploads/customer/other/${req.files.other_proof[0].filename}` : null;
 
-  const query = `UPDATE customer SET name = ?, email = ?, mobile = ?, address = ?, site_address = ?, 
-                 aadharPhoto = COALESCE(?, aadharPhoto), other_proof = COALESCE(?, other_proof) WHERE id = ?`;
-  const values = [name, email, mobile, address, site_address, aadharPhoto, other_proof, id];
+  const query = `UPDATE customer SET name = ?, email = ?, mobile = ?, address = ?, site_address = ?`;
+  const values = [name, email, mobile, address, site_address];
+
+  if (aadharPhoto) {
+    sql += `, aadharPhoto= ?`;
+    values.push(aadharPhoto);
+  }
+
+  if (other_proof) {
+    sql += `, other_proof = ?`;
+    values.push(other_proof);
+  }
+
+  query += ` WHERE id = ?`;
+  values.push(id);
 
   db.query(query, values, (error) => {
     if (error) {
