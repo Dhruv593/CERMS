@@ -49,6 +49,7 @@
     const handleSubmit = async (data) => {
       try {
         let updatedData = { ...data };
+
     
         if (!data.image_path && selectedRowData?.image_path) {
           updatedData.image_path = selectedRowData.image_path;
@@ -115,9 +116,9 @@
 
     const tableData = subcategoryData.map((row) => ({
       id: row.id,
-      category: row.category || 'N/A',
-      subcategory: row.subcategory || 'N/A',
-      description: row.description || 'N/A',
+      category: row.category || '—',
+      subcategory: row.subcategory || '—',
+      description: row.description || '—',
       item_image: row.image_path ? `${IMG_URL}/${row.image_path}` : null,
     }));
     

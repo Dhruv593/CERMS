@@ -34,7 +34,9 @@ export const addSubcategory = async (data) => {
   formData.append("image_path", data.image_path); // Ensure this is the actual file
 
   try {
-    const response = await axios.post(`${API_URL}/subcategories/add`, formData);
+    const response = await axios.post(`${API_URL}/subcategories/add`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
     return response.data;
   } catch (error) {
     console.error("Error adding subcategory:", error.response?.data || error);
@@ -44,7 +46,26 @@ export const addSubcategory = async (data) => {
 
 export const updateSubcategory = async (id, data) => {
   try {
-    const response = await axios.put(`${API_URL}/subcategories/${id}`, data);
+    const formData = new FormData();
+
+    // Append data fields
+    formData.append("category", data.category);
+    formData.append("subcategory", data.subcategory);
+    formData.append("description", data.description);
+    
+    // Append image only if available
+    if (data.image_path) {
+      formData.append("image_path", data.image_path);
+    }
+
+    console.log("Updating Subcategory with Data:", formData);
+
+    const response = await axios.put(`${API_URL}/subcategories/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
     return response.data;
   } catch (error) {
     console.error("Error updating subcategory:", error);

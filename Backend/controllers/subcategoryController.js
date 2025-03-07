@@ -31,6 +31,9 @@ exports.getSubcategoriesByCategory = (req, res) => {
 
 // Add subcategory with image upload
 exports.addSubcategory = (req, res) => {
+  console.log("Request File Data:", req.file); // Debugging
+  console.log("Request Body Data:", req.body);
+
   const { category, subcategory, description } = req.body;
   const image_path = req.file ? `uploads/subcategories/${req.file.filename}` : null;
 
@@ -38,16 +41,13 @@ exports.addSubcategory = (req, res) => {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query =
-    "INSERT INTO subcategory (category, subcategory, description, image_path) VALUES (?, ?, ?, ?)";
+  const query = "INSERT INTO subcategory (category, subcategory, description, image_path) VALUES (?, ?, ?, ?)";
   const values = [category, subcategory, description, image_path];
 
   db.query(query, values, (error, results) => {
     if (error) {
-      console.error("Error adding subcategory:", error);
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
+      console.error("Database Insert Error:", error);
+      if (req.file) fs.unlinkSync(req.file.path); // Remove file if DB insert fails
       return res.status(500).json({ error: "Error adding subcategory" });
     }
 
@@ -59,30 +59,55 @@ exports.addSubcategory = (req, res) => {
   });
 };
 
+
 // Update subcategory
 exports.updateSubcategory = (req, res) => {
+  console.log(req.body);
   const { category, subcategory, description } = req.body;
   const id = req.params.id;
-  const image_path = req.file ? `uploads/subcategories/${req.file.filename}` : null;
+  const newImagePath = req.file ? `uploads/subcategories/${req.file.filename}` : null;
 
   if (!category || !subcategory || !description) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
-  const query = "UPDATE subcategory SET category = ?, subcategory = ?, description = ?, image_path = ? WHERE id = ?";
-  const values = [category, subcategory, description, image_path, id];
-
-  db.query(query, values, (error, results) => {
-    if (error) {
-      console.error("Error updating subcategory:", error);
-      if (req.file) {
-        fs.unlinkSync(req.file.path);
-      }
+  // Fetch existing image path if no new image is provided
+  const fetchQuery = "SELECT image_path FROM subcategory WHERE id = ?";
+  
+  db.query(fetchQuery, [id], (fetchError, fetchResults) => {
+    if (fetchError) {
+      console.error("Error fetching existing image path:", fetchError);
       return res.status(500).json({ error: "Error updating subcategory" });
     }
 
-    res.json({
-      message: "Subcategory updated successfully",
+    const oldImagePath = fetchResults.length > 0 ? fetchResults[0].image_path : null;
+    const imagePath = newImagePath || oldImagePath; // Use old image if new one isn't provided
+
+    const updateQuery = "UPDATE subcategory SET category = ?, subcategory = ?, description = ?, image_path = ? WHERE id = ?";
+    const values = [category, subcategory, description, imagePath, id];
+
+    db.query(updateQuery, values, (updateError, updateResults) => {
+      if (updateError) {
+        console.error("Error updating subcategory:", updateError);
+        if (newImagePath) {
+          fs.unlinkSync(newImagePath); // Delete uploaded file if update fails
+        }
+        return res.status(500).json({ error: "Error updating subcategory" });
+      }
+
+      // If a new image was uploaded, delete the old one
+      if (newImagePath && oldImagePath) {
+        fs.unlink(oldImagePath, (unlinkError) => {
+          if (unlinkError) {
+            console.error("Error deleting old image:", unlinkError);
+          }
+        });
+      }
+
+      res.json({
+        message: "Subcategory updated successfully",
+        imagePath,
+      });
     });
   });
 };
