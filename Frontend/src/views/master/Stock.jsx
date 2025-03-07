@@ -30,6 +30,7 @@ function Stock() {
   const loadStockData = async () => {
     try {
       const data = await getStockData();
+      console.log("stockdata: ", data)
       if (data) {
         setStockData(data);
       }

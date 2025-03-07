@@ -29,7 +29,7 @@ export function ReusableModal({
   const validateField = (name, value) => {
     let error = "";
 
-    if (name === "category" || name === "subcategory") {
+    if (name === "category" || name === "") {
       if (!/^[A-Za-z\s]+$/.test(value)) {
         error = `${name} must contain only letters and spaces.`;
       }
