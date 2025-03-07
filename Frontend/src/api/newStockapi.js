@@ -40,6 +40,7 @@ export const addStock = async (data) => {
 };
 
 export const updateStock = async (id, data) => {
+  console.log("api updatestock:",data)
   const formData = new FormData();
   formData.append("category", data.category);
   formData.append("subcategory", data.subcategory);

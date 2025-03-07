@@ -76,6 +76,8 @@ console.log("checkobjec",partyContact)
 
 exports.editStock = (req, res) => {
   
+  console.log("Request Body:", req.body);
+
   const { id } = req.params;
   const {
     category,
