@@ -12,6 +12,8 @@ const Customer = () => {
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+const [currentImage, setCurrentImage] = useState(null);
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
@@ -82,8 +84,15 @@ const Customer = () => {
     }
   };
 
+  const handleImageClick = (image) => {
+    setCurrentImage(image);
+    setIsImageModalOpen(true);
+  };
+  
+
   // Table data processing
   const tableData = customers.map((row) => ({ 
+    id: row.id,
     name: row.name || "N/A",
     email: row.email || "N/A",
     mobile: row.mobile || "N/A",

@@ -1,24 +1,31 @@
-import React, { useState } from "react";
-import DataTable from "react-data-table-component";
-import { Button, Form } from "react-bootstrap";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import React, { useState } from 'react';
+import DataTable from 'react-data-table-component';
+import { Button, Form } from 'react-bootstrap';
+import { Plus, Edit, Trash2 } from 'lucide-react';
+import ImageModal from '@/components/Modal/ImageModal';
 
-export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tableData = [], onEdit, onDelete }) {
-  const [searchValue, setSearchValue] = useState("");
+export function Table({ buttonLabel = '', onButtonClick, tableHeaders = [], tableData = [], onEdit, onDelete }) {
+  const [searchValue, setSearchValue] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const IMG_URL = import.meta.env.VITE_IMG_URL;
+  const [showImageModal, setShowImageModal] = useState(false); // NEW
+  const [fullScreenImage, setFullScreenImage] = useState('');
 
+  const handleImageClick = (imageUrl) => {
+    setFullScreenImage(imageUrl);
+    setShowImageModal(true);
+  };
 
   // Normalize table headers to match data keys
-  const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, "_");
+  const normalizeKey = (header) => header.toLowerCase().replace(/\s+/g, '_');
 
   // Process table data
   const processedTableData = tableData.map((row) => {
     let filteredRow = {};
     tableHeaders.forEach((header) => {
       const key = normalizeKey(header);
-      filteredRow[key] = row[key] !== undefined && row[key] !== null && row[key] !== "" ? row[key] : "—";
+      filteredRow[key] = row[key] !== undefined && row[key] !== null && row[key] !== '' ? row[key] : '—';
     });
 
     // Ensure images load properly
@@ -66,20 +73,10 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
     // Action buttons
     filteredRow.actions = (
       <div className="d-flex justify-content-center gap-2">
-        <Button
-          variant="success"
-          size="sm"
-          onClick={() => onEdit(row)}
-          className="d-flex align-items-center"
-        >
+        <Button variant="success" size="sm" onClick={() => onEdit(row)} className="d-flex align-items-center">
           <Edit size={16} />
         </Button>
-        <Button
-          variant="danger"
-          size="sm"
-          onClick={() => onDelete(row)}
-          className="d-flex align-items-center"
-        >
+        <Button variant="danger" size="sm" onClick={() => onDelete(row)} className="d-flex align-items-center">
           <Trash2 size={16} />
         </Button>
       </div>
@@ -90,23 +87,25 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
 
   // Define columns dynamically
   const columns = [
-    { name: "#", selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: "80px", center: true },
+    { name: '#', selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: '80px', center: true },
     ...tableHeaders.map((header) => ({
-      name: (
-        <span style={{ color: "#ffffff", fontWeight: "bold" }}>
-          {header}
-        </span>
-      ),
-      selector: (row) => row[normalizeKey(header)] || "—",
+      name: <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{header}</span>,
+      selector: (row) => row[normalizeKey(header)] || '—',
       sortable: true,
       cell: (row) =>
-        normalizeKey(header).includes("photo") || normalizeKey(header).includes("image") || normalizeKey(header).includes("proof") ? (
-          <img src={row[normalizeKey(header)]} alt="Preview" className="rounded shadow-sm" style={{ width: "40px", height: "40px", objectFit: "cover" }} />
+        normalizeKey(header).includes('photo') || normalizeKey(header).includes('image') || normalizeKey(header).includes('proof') ? (
+          <img
+            src={row[normalizeKey(header)]}
+            alt="Preview"
+            className="rounded shadow-sm"
+            style={{ width: '40px', height: '40px', objectFit: 'cover' }}
+            onClick={() => handleImageClick(row[normalizeKey(header)])}
+          />
         ) : (
-          row[normalizeKey(header)] || "—"
-        ),
+          row[normalizeKey(header)] || '—'
+        )
     })),
-    { name: "Actions", selector: (row) => row.actions, center: true, width: "180px" },
+    { name: 'Actions', selector: (row) => row.actions, center: true, width: '180px' }
   ];
 
   const filteredData = processedTableData.filter((row) =>
@@ -123,7 +122,7 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           className="border shadow-sm w-100 w-md-50"
-          style={{ maxWidth: "400px" }}
+          style={{ maxWidth: '400px' }}
         />
         {onButtonClick && (
           <Button
@@ -131,12 +130,12 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
             variant="primary"
             className="d-flex align-items-center fw-bold shadow-sm"
             style={{
-              minWidth: "150px",
-              padding: "10px 15px",
-              fontSize: "14px",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              minWidth: '150px',
+              padding: '10px 15px',
+              fontSize: '14px',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center'
             }}
           >
             <Plus className="me-1" size={16} /> {buttonLabel}
@@ -159,24 +158,26 @@ export function Table({ buttonLabel = "", onButtonClick, tableHeaders = [], tabl
           customStyles={{
             headRow: {
               style: {
-                backgroundColor: "#4a9eff",
-                color: "#ffffff",
-                fontSize: "14px",
-              },
+                backgroundColor: '#4a9eff',
+                color: '#ffffff',
+                fontSize: '14px'
+              }
             },
             headCells: {
               style: {
-                fontWeight: "bold",
-              },
+                fontWeight: 'bold'
+              }
             },
             rows: {
               style: {
-                fontSize: "14px",
-              },
-            },
+                fontSize: '14px'
+              }
+            }
           }}
         />
       </div>
+
+      <ImageModal show={showImageModal} onHide={() => setShowImageModal(false)} imageUrl={fullScreenImage} />
     </div>
   );
 }

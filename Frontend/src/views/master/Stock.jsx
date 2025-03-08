@@ -53,8 +53,11 @@ function Stock() {
   };
 
   const handleSubmit = async (data) => {
+    console.log("Submitting data:", data);
+
     try {
       let updatedData = { ...data };
+      console.log("update data: ", updatedData)
 
       // Preserve existing images if not updated
       if (!data.stockPhoto && selectedRowData?.stockPhoto) {
@@ -64,7 +67,6 @@ function Stock() {
         updatedData.billPhoto = selectedRowData.billPhoto;
       }
 
-      console.log("stock data submitted: ", data)
 
       if (selectedRowData) {
         console.log(selectedRowData)
@@ -76,6 +78,8 @@ function Stock() {
       }
       
       loadStockData();
+      console.log("Loaded stock data:", data);
+
       setIsModalOpen(false);
       setSelectedRowData(null);
     } catch (error) {
@@ -137,21 +141,34 @@ function Stock() {
     }
   };
 
-  const tableData = stockData.map((row) => ({
+  const tableData = stockData.map((row) => {
+  const processedRow = {
     id: row.id,
-    category: row.category || '—' || '—',
+    category: row.category || '—',
     subcategory: row.subcategory || '—',
     party_name: row.partyName || '—',
     party_contact: row.partyContact || '—',
     purchase_from: row.purchaseFrom || '—',
-    purchase_date_time: moment(row.purchase_date_time).isValid() ? moment(row.purchase_date_time).format('YYYY-MM-DDTHH:mm') : '',
+    purchase_date_time: row.purchaseDateTime ? 
+  new Date(row.purchaseDateTime).toLocaleString('en-GB', { 
+    day: 'numeric', 
+    month: 'short', 
+    year: 'numeric', 
+    hour: '2-digit', 
+    minute: '2-digit' 
+  }) : '',
     quantity: row.purchaseQuantity || '—',
     payment_mode: row.paymentMode || '—',
     transport: row.transportInclude || '—',
     stock_photo: row.stockPhoto ? `${IMG_URL}/${row.stockPhoto}` : 'N/A',
     bill_photo: row.billPhoto ? `${IMG_URL}/${row.billPhoto}` : 'N/A',
     remarks: row.remarks || '—'
-  }));
+  };
+  
+  console.log("Processed table row:", processedRow);
+  return processedRow;
+});
+
 
   return (
     <>
@@ -164,7 +181,7 @@ function Stock() {
           'Party Name',
           'Party Contact',
           'Purchase From',
-          'Purchase Date & Time',
+          'Purchase Date Time',
           'Quantity',
           'Payment Mode',
           'Transport',

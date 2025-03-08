@@ -1,18 +1,13 @@
 import { useState } from 'react';
+import OutModal from '@/components/Modal/OutModal';
 import Table from '@/components/Table/Table';
-import { outFields } from '@/data/out-modal';
-import ReusableModal from '@/components/Modal/ReusableModal';
 import DeletePopUp from '@/components/PopUp/DeletePopUp';
-import { Edit, Trash2 } from 'lucide-react';
 
 const Out = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState('');
   const [selectedItem, setSelectedItem] = useState(null);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
-  const tableData = [];
+  const [tableData, setTableData] = useState([]); // This will store your submitted Out records
 
   const handleEditClick = (row) => {
     setSelectedItem(row);
@@ -21,27 +16,60 @@ const Out = () => {
 
   const handleDeleteClick = (row) => {
     setIsDeletePopupOpen(true);
+    // Add delete logic as needed
   };
+
+  const handleModalSubmit = (data) => {
+    console.log("Final data submitted:", data);
+    // For demonstration, add the submitted record to tableData.
+    // In a real app, you would call your API and then update tableData.
+    setTableData([...tableData, data]);
+    setIsModalOpen(false);
+  };
+
+  // Dummy dropdown arrays
+  const renters = ['Renter A', 'Renter B', 'Renter C'];
+  const categories = ['Category 1', 'Category 2'];
+  const subcategories = ['Subcategory 1', 'Subcategory 2'];
+  const payModes = ['Cash', 'Card', 'Online'];
+
+  // Dummy deposit rate function (could be a lookup from your deposit table)
+  const getDepositRate = (category, subcategory) => {
+    return 10; // fixed rate for demonstration
+  };
+
+  // Updated table headers (adjust as needed)
+  const tableHeaders = ['Customer', 'Payment Mode', 'Total Deposit'];
 
   return (
     <>
       <Table
-        onButtonClick={() => setIsModalOpen(true)}
+        onButtonClick={() => {
+          setSelectedItem(null);
+          setIsModalOpen(true);
+        }}
         buttonLabel="Add Out"
-        tableHeaders={['Customer', 'Category', 'Subcategory', 'Quantity', 'Payment Mode']}
-        tableData={tableData}
+        tableHeaders={tableHeaders}
+        tableData={tableData.map((item) => ({
+          customer: item.renter,
+          payment_mode: item.payMode,
+          total_deposit: item.totalDeposit
+        }))}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />
 
       {isModalOpen && (
-        <ReusableModal
-          isOpen={isModalOpen}
+        <OutModal
+          show={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={selectedItem ? 'Edit Out' : 'Add Out'} 
-          fields={outFields()}
-          initialFormData={selectedItem || {}} 
-          submitButtonLabel={selectedItem ? 'Update' : 'Add'} 
+          initialData={selectedItem}
+          onSubmit={handleModalSubmit}
+          categories={categories}
+          subcategories={subcategories}
+          renters={renters}
+          payModes={payModes}
+          getDepositRate={getDepositRate}
         />
       )}
 
