@@ -1,36 +1,56 @@
 import { useState } from 'react';
+import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
 import { inFields } from '@/data/in-modal';
-import ReusableModal from '@/components/Modal/ReusableModal';
 
 const In = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const tableData = [];
+  const [inData, setInData] = useState([]); // Array of IN records
+  const [selectedRecord, setSelectedRecord] = useState(null);
 
-  const handleEditClick = (row) => {
-    setSelectedItem(row);
-    setIsModalOpen(true);
+  const handleSubmit = (data) => {
+    console.log('In data submitted:', data);
+    setInData([...inData, data]);
+    setIsModalOpen(false);
   };
+
+  const customers = ['Customer A', 'Customer B'];
+  const payModes = ['Cash', 'Card', 'Online'];
+
+  // Define table headers for IN records (you can adjust as needed)
+  const tableHeaders = ['Customer', 'Payment Mode', 'Total Amount'];
+
+  // Map inData to the table data format expected by your Table component.
+  // Keys must match the normalized version of the header (e.g. "customer", "payment_mode", "total_amount")
+  const tableData = inData.map(record => ({
+    customer: record.customer,
+    payment_mode: record.payMode,
+    total_amount: record.summary.totalAmount
+  }));
 
   return (
     <>
+      
       <Table
-        onButtonClick={() => setIsModalOpen(true)}
+        onButtonClick={() => { setSelectedRecord(null); setIsModalOpen(true); }}
         buttonLabel="Add In"
-        tableHeaders={['Customer', 'Category', 'Subcategory', 'Quantity', 'Payment Mode']}
+        tableHeaders={tableHeaders}
         tableData={tableData}
-        onEdit={handleEditClick}
+        onEdit={(row) => { setSelectedRecord(row); setIsModalOpen(true); }}
+        onDelete={(row) => { /* Add deletion logic if needed */ }}
       />
 
       {isModalOpen && (
-        <ReusableModal
-          isOpen={isModalOpen}
+        <InOutModal
+          show={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          title={selectedItem ? 'Edit In' : 'Add In'}
-          fields={inFields()}
-          initialFormData={selectedItem || {}}
-          submitButtonLabel={selectedItem ? 'Update' : 'Add'}
+          initialData={selectedRecord}
+          onSubmit={handleSubmit}
+          mode="in"
+          cartFields={inFields()}
+          customers={customers}
+          payModes={payModes}
+          getDepositRate={(cat, sub) => 10} // Dummy deposit rate function
         />
       )}
     </>
