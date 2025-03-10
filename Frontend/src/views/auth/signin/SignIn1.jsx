@@ -10,10 +10,12 @@ const Signin1 = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      navigate("/app/dashboard/analytics");
+    const token = localStorage.getItem("token");
+    if (token) {
+      navigate("/app/dashboard/analytics", { replace: true });
     }
-  }, []);
+  }, []); // No dependencies required since we are not depending on any external state
+  
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });

@@ -37,6 +37,8 @@ function Stock() {
     try {
       const categoriesData = await getCategories();
       setCategories(categoriesData.map((cat) => cat.category));
+    console.log("onload categories:",categories);
+
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -54,6 +56,11 @@ function Stock() {
 
   const handleSubmit = async (data) => {
     console.log("Submitting data:", data);
+
+  //   if (!data.category) {
+  //     showErrorAlert("Category is required!");
+  //     return;
+  // }
 
     try {
       let updatedData = { ...data };
@@ -165,7 +172,7 @@ function Stock() {
     remarks: row.remarks || '—'
   };
   
-  console.log("Processed table row:", processedRow);
+  // console.log("Processed table row:", processedRow);
   return processedRow;
 });
 

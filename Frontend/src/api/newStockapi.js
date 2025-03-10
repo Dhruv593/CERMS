@@ -13,6 +13,11 @@ export const getStockData = async () => {
 };
 
 export const addStock = async (data) => {
+  console.log("AddStock API data:", data);
+  if (!data.category) {
+    console.error("Category is missing in addStock API");
+}
+
   const formData = new FormData();
   formData.append("category", data.category);
   formData.append("subcategory", data.subcategory);

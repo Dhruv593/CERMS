@@ -15,7 +15,7 @@ export function ReusableModal({
     acc[field.name] = field.initialValue || (field.type === "file" ? null : "");
     return acc;
   }, {});
-
+  console.log("initial state",initialState);
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
 
@@ -50,13 +50,19 @@ export function ReusableModal({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: value };
+      console.log("Updated formData:", updatedFormData); // Debugging log
+      return updatedFormData;
+    });
+  
     validateField(name, value);
-
+  
     if (name === "category" && onCategoryChange) {
       onCategoryChange(value);
     }
   };
+  
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
@@ -68,6 +74,7 @@ export function ReusableModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    console.log("Submitting formdata:", formData); // Debugging line
     if (Object.values(errors).some((err) => err)) return;
     onSubmit(formData);
     onClose();
