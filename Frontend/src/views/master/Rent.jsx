@@ -84,6 +84,7 @@ function Rent() {
   };
 
   const handleSubmit = async (data) => {
+    console.log("rent data submitted", data)
     try {
       if (selectedRowData) {
         await updateRent(selectedRowData.id, data);

@@ -24,7 +24,7 @@ export const getRents = async () => {
 
   export const updateRent = async (id, data) => {
     try {
-      const response = await axios.put(`${API_URL}/rents/edit/${id}`, data); // ✅ Corrected path
+      const response = await axios.put(`${API_URL}/rents/edit/${id}`, data);
       return response.data;
     } catch (error) {
       console.error("Error updating rent:", error.response?.data || error);

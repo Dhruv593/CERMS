@@ -14,8 +14,6 @@ exports.getStockData = (req, res) => {
 
 exports.addStock = (req, res) => {
   // See your existing addStock code
-  console.log("Request Body:", req.body);
-  console.log("Uploaded Files:", req.files);
 
   const {
     category,

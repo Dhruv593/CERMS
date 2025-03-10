@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 
 export function ReusableModal({
   isOpen,
@@ -7,15 +7,15 @@ export function ReusableModal({
   title,
   fields,
   onSubmit,
-  submitButtonLabel = "Submit",
+  submitButtonLabel = 'Submit',
   onCategoryChange,
-  initialFormData = null,
+  initialFormData = null
 }) {
   const initialState = fields.reduce((acc, field) => {
-    acc[field.name] = field.initialValue || (field.type === "file" ? null : "");
+    acc[field.name] = field.initialValue || (field.type === 'file' ? null : '');
     return acc;
   }, {});
-  console.log("initial state",initialState);
+  console.log('initial state', initialState);
   const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
 
@@ -27,19 +27,19 @@ export function ReusableModal({
   }, [isOpen, initialFormData]);
 
   const validateField = (name, value) => {
-    let error = "";
+    let error = '';
 
-    if (name === "category" || name === "") {
-      if (!/^[A-Za-z\s]+$/.test(value)) {
-        error = `${name} must contain only letters and spaces.`;
+    if (name === 'category') {
+      if (!/^[A-Za-z0-9\s]+$/.test(value)) {
+        error = 'Category must contain only letters, numbers, and spaces.';
       }
     }
 
-    if (name === "partyContact" && !/^\d{10}$/.test(value)) {
-      error = "Contact number must be exactly 10 digits.";
+    if (name === 'partyContact' && !/^\d{10}$/.test(value)) {
+      error = 'Contact number must be exactly 10 digits.';
     }
 
-    if (name.includes("deposit") || name.includes("rent") || name.includes("purchaseQuantity")) {
+    if (name.includes('deposit') || name.includes('rent') || name.includes('purchaseQuantity')) {
       if (!/^\d+(\.\d{1,2})?$/.test(value)) {
         error = `${name} must be a valid number.`;
       }
@@ -48,21 +48,25 @@ export function ReusableModal({
     setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
   };
 
+  const handleCategoryFieldChange = (e) => {
+    const { name, value } = e.target;
+    // Update only the category field in formData
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    validateField(name, value);
+    if (onCategoryChange) {
+      onCategoryChange(value);
+    }
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => {
       const updatedFormData = { ...prev, [name]: value };
-      console.log("Updated formData:", updatedFormData); // Debugging log
+      console.log('Updated formData:', updatedFormData);
       return updatedFormData;
     });
-  
     validateField(name, value);
-  
-    if (name === "category" && onCategoryChange) {
-      onCategoryChange(value);
-    }
   };
-  
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
@@ -74,7 +78,7 @@ export function ReusableModal({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Submitting formdata:", formData); // Debugging line
+    console.log('Submitting formdata:', formData); // Debugging line
     if (Object.values(errors).some((err) => err)) return;
     onSubmit(formData);
     onClose();
@@ -93,26 +97,30 @@ export function ReusableModal({
               <Col md={fields.length > 5 ? 6 : 12} key={field.name} className="mb-3">
                 <Form.Group>
                   <Form.Label className="fw-medium">{field.label}</Form.Label>
-                  {field.type === "text" || field.type === "number" || field.type === "datetime-local" || field.type === "tel" ? (
+                  {field.type === 'text' || field.type === 'number' || field.type === 'datetime-local' || field.type === 'tel' ? (
                     <Form.Control
                       type={field.type}
                       name={field.name}
                       value={formData[field.name]}
-                      onChange={handleChange}
+                      onChange={field.name === 'category' ? handleCategoryFieldChange : handleChange}
                       placeholder={field.placeholder}
-                      className={errors[field.name] ? "is-invalid" : ""}
+                      className={errors[field.name] ? 'is-invalid' : ''}
                     />
-                  ) : field.type === "textarea" ? (
+                  ) : field.type === 'textarea' ? (
                     <Form.Control
                       as="textarea"
-                      name={field.name}
+                      name={field.name} 
                       value={formData[field.name]}
                       onChange={handleChange}
                       placeholder={field.placeholder}
-                      className={errors[field.name] ? "is-invalid" : ""}
+                      className={errors[field.name] ? 'is-invalid' : ''}
                     />
-                  ) : field.type === "select" ? (
-                    <Form.Select name={field.name} value={formData[field.name]} onChange={handleChange}>
+                  ) : field.type === 'select' ? (
+                    <Form.Select
+                      name={field.name}
+                      value={formData[field.name]}
+                      onChange={field.name === 'category' ? handleCategoryFieldChange : handleChange}
+                    >
                       <option value="">{field.placeholder || `Select ${field.label}`}</option>
                       {field.options.map((option, index) => (
                         <option key={index} value={option}>
@@ -120,7 +128,7 @@ export function ReusableModal({
                         </option>
                       ))}
                     </Form.Select>
-                  ) : field.type === "file" ? (
+                  ) : field.type === 'file' ? (
                     <Form.Control type="file" name={field.name} onChange={handleFileChange} />
                   ) : null}
                   {errors[field.name] && <Form.Text className="text-danger">{errors[field.name]}</Form.Text>}
@@ -135,11 +143,7 @@ export function ReusableModal({
         <Button variant="secondary" onClick={onClose}>
           Close
         </Button>
-        <Button
-          variant="primary"
-          onClick={handleSubmit}
-          disabled={Object.values(errors).some((err) => err)}
-        >
+        <Button variant="primary" onClick={handleSubmit} disabled={Object.values(errors).some((err) => err)}>
           {submitButtonLabel}
         </Button>
       </Modal.Footer>

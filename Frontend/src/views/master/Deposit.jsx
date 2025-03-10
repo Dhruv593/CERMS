@@ -83,6 +83,7 @@ function Deposit() {
   };
 
   const handleSubmit = async (data) => {
+    console.log("deposit data submitted", data)
     try {
       if (selectedRowData) {
         await updateDeposit(selectedRowData.id, data);

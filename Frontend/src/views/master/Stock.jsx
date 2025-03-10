@@ -37,8 +37,7 @@ function Stock() {
     try {
       const categoriesData = await getCategories();
       setCategories(categoriesData.map((cat) => cat.category));
-    console.log("onload categories:",categories);
-
+   
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -55,16 +54,11 @@ function Stock() {
   };
 
   const handleSubmit = async (data) => {
-    console.log("Submitting data:", data);
-
-  //   if (!data.category) {
-  //     showErrorAlert("Category is required!");
-  //     return;
-  // }
+    console.log('Submitting data:', data);
 
     try {
       let updatedData = { ...data };
-      console.log("update data: ", updatedData)
+      console.log('update data: ', updatedData);
 
       // Preserve existing images if not updated
       if (!data.stockPhoto && selectedRowData?.stockPhoto) {
@@ -74,18 +68,18 @@ function Stock() {
         updatedData.billPhoto = selectedRowData.billPhoto;
       }
 
-
       if (selectedRowData) {
-        console.log(selectedRowData)
+        console.log(selectedRowData);
         await updateStock(selectedRowData.id, updatedData);
         showSuccessAlert('Stock updated successfully!');
       } else {
         await addStock(updatedData);
+        console.log('updatedData', updatedData);
         showSuccessAlert('Stock added successfully!');
       }
-      
+
       loadStockData();
-      console.log("Loaded stock data:", data);
+      console.log('Loaded stock data:', data);
 
       setIsModalOpen(false);
       setSelectedRowData(null);
@@ -108,9 +102,7 @@ function Stock() {
       partyName: row.party_name || '',
       partyContact: row.party_contact || '',
       purchaseFrom: row.purchase_from || '',
-      purchaseDateTime: moment(row.purchase_date_time).isValid() 
-        ? moment(row.purchase_date_time).format('YYYY-MM-DDTHH:mm') 
-        : '',
+      purchaseDateTime: moment(row.purchase_date_time).isValid() ? moment(row.purchase_date_time).format('YYYY-MM-DDTHH:mm') : '',
       purchaseQuantity: row.quantity || '',
       paymentMode: row.payment_mode || '',
       transportInclude: row.transport || '',
@@ -118,9 +110,9 @@ function Stock() {
       stockPhoto: row.stock_photo,
       billPhoto: row.bill_photo
     });
-    
+
     setIsModalOpen(true);
-    console.log("data", row)
+    console.log('data', row);
   };
 
   const handleDeleteClick = (row) => {
@@ -149,33 +141,33 @@ function Stock() {
   };
 
   const tableData = stockData.map((row) => {
-  const processedRow = {
-    id: row.id,
-    category: row.category || '—',
-    subcategory: row.subcategory || '—',
-    party_name: row.partyName || '—',
-    party_contact: row.partyContact || '—',
-    purchase_from: row.purchaseFrom || '—',
-    purchase_date_time: row.purchaseDateTime ? 
-  new Date(row.purchaseDateTime).toLocaleString('en-GB', { 
-    day: 'numeric', 
-    month: 'short', 
-    year: 'numeric', 
-    hour: '2-digit', 
-    minute: '2-digit' 
-  }) : '',
-    quantity: row.purchaseQuantity || '—',
-    payment_mode: row.paymentMode || '—',
-    transport: row.transportInclude || '—',
-    stock_photo: row.stockPhoto ? `${IMG_URL}/${row.stockPhoto}` : 'N/A',
-    bill_photo: row.billPhoto ? `${IMG_URL}/${row.billPhoto}` : 'N/A',
-    remarks: row.remarks || '—'
-  };
-  
-  // console.log("Processed table row:", processedRow);
-  return processedRow;
-});
+    const processedRow = {
+      id: row.id,
+      category: row.category || '—',
+      subcategory: row.subcategory || '—',
+      party_name: row.partyName || '—',
+      party_contact: row.partyContact || '—',
+      purchase_from: row.purchaseFrom || '—',
+      purchase_date_time: row.purchaseDateTime
+        ? new Date(row.purchaseDateTime).toLocaleString('en-GB', {
+            day: 'numeric',
+            month: 'short',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        : '',
+      quantity: row.purchaseQuantity || '—',
+      payment_mode: row.paymentMode || '—',
+      transport: row.transportInclude || '—',
+      stock_photo: row.stockPhoto ? `${IMG_URL}/${row.stockPhoto}` : 'N/A',
+      bill_photo: row.billPhoto ? `${IMG_URL}/${row.billPhoto}` : 'N/A',
+      remarks: row.remarks || '—'
+    };
 
+    // console.log("Processed table row:", processedRow);
+    return processedRow;
+  });
 
   return (
     <>

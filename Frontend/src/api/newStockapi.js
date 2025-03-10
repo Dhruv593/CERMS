@@ -13,10 +13,6 @@ export const getStockData = async () => {
 };
 
 export const addStock = async (data) => {
-  console.log("AddStock API data:", data);
-  if (!data.category) {
-    console.error("Category is missing in addStock API");
-}
 
   const formData = new FormData();
   formData.append("category", data.category);
@@ -32,7 +28,7 @@ export const addStock = async (data) => {
   formData.append("billPhoto", data.billPhoto);
   formData.append("remarks", data.remarks);
   
-
+console.log('fdsafsfda',data.category)
   try {
     const response = await axios.post(`${API_URL}/stockdata/add`, formData, {
       headers: { "Content-Type": "multipart/form-data" },
