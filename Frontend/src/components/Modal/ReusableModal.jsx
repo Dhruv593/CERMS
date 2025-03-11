@@ -50,8 +50,10 @@ export function ReusableModal({
 
   const handleCategoryFieldChange = (e) => {
     const { name, value } = e.target;
+    console.log(`Category changed to: ${value}`);
     // Update only the category field in formData
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log("category form data",formData);
     validateField(name, value);
     if (onCategoryChange) {
       onCategoryChange(value);

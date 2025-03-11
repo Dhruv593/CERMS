@@ -96,11 +96,11 @@ const menuItems = {
       icon: 'icon-pages',
       children: [
         {
-          id: 'sign in',
-          title: 'Login',
+          id: 'logout',
+          title: 'Logout',
           type: 'item',
           icon: 'feather icon-lock',
-          url: '/auth/signin-1',
+          url: '/auth/logout',
           // target: true,
           breadcrumbs: false
         },
