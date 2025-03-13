@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Table from '@/components/Table/Table';
 import ReusableModal from '@/components/Modal/ReusableModal';
 import DeletePopUp from '@/components/PopUp/DeletePopUp';
@@ -54,8 +54,7 @@ function Stock() {
   };
 
   const handleSubmit = async (data) => {
-    console.log('Submitting data:', data);
-
+    console.log('Final submission data:', data);
     try {
       let updatedData = { ...data };
       console.log('update data: ', updatedData);
@@ -169,6 +168,11 @@ function Stock() {
     return processedRow;
   });
 
+  const memoizedFields = React.useMemo(
+    () => stockFields(categories, subcategories),
+    [categories, subcategories]
+  );
+
   return (
     <>
       <Table
@@ -201,7 +205,7 @@ function Stock() {
             setSelectedRowData(null);
           }}
           title={selectedRowData ? 'Edit Stock' : 'Add Stock'}
-          fields={stockFields(categories, subcategories)}
+          fields={memoizedFields}
           initialFormData={selectedRowData || {}}
           onSubmit={handleSubmit}
           submitButtonLabel={selectedRowData ? 'Update Stock' : 'Add Stock'}

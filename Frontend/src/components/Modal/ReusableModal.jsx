@@ -21,7 +21,12 @@ export function ReusableModal({
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(initialFormData ? { ...initialFormData } : initialState);
+      const storedCategory = localStorage.getItem("selectedCategory");
+      setFormData((prev) => ({
+        ...initialState,
+        ...initialFormData,
+        category: storedCategory || initialFormData?.category || "",
+      }));
       setErrors({});
     }
   }, [isOpen, initialFormData]);
@@ -53,6 +58,7 @@ export function ReusableModal({
     console.log(`Category changed to: ${value}`);
     // Update only the category field in formData
     setFormData((prev) => ({ ...prev, [name]: value }));
+    localStorage.setItem("selectedCategory", value);
     console.log("category form data",formData);
     validateField(name, value);
     if (onCategoryChange) {
@@ -121,7 +127,7 @@ export function ReusableModal({
                     <Form.Select
                       name={field.name}
                       value={formData[field.name]}
-                      onChange={field.name === 'category' ? handleCategoryFieldChange : handleChange}
+                      onChange={field.name == 'category' ? handleCategoryFieldChange : handleChange}
                     >
                       <option value="">{field.placeholder || `Select ${field.label}`}</option>
                       {field.options.map((option, index) => (
