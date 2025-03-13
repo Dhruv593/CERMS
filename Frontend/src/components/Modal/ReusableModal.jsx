@@ -56,7 +56,6 @@ export function ReusableModal({
   const handleCategoryFieldChange = (e) => {
     const { name, value } = e.target;
     console.log(`Category changed to: ${value}`);
-    // Update only the category field in formData
     setFormData((prev) => ({ ...prev, [name]: value }));
     localStorage.setItem("selectedCategory", value);
     console.log("category form data",formData);
