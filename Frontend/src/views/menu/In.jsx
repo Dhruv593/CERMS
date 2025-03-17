@@ -1,12 +1,40 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
 import { inFields } from '@/data/in-modal';
+import { getCategories } from '@/api/categoryApi';
+import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 
 const In = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [inData, setInData] = useState([]); // Array of IN records
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+
+// Fetch categories on component mount
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const categoriesData = await getCategories();
+      setCategories(categoriesData.map((cat) => cat.category));
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  fetchCategories();
+}, []);
+
+// Fetch subcategories when a category is selected
+const handleCategoryChange = async (selectedCategory) => {
+  try {
+    const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
+    setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
+  } catch (error) {
+    console.error('Error fetching subcategories:', error);
+    setSubcategories([]);
+  }
+};
 
   const handleSubmit = (data) => {
     console.log('In data submitted:', data);
@@ -18,14 +46,14 @@ const In = () => {
   const payModes = ['Cash', 'Card', 'Online'];
 
   // Define table headers for IN records (you can adjust as needed)
-  const tableHeaders = ['Customer', 'Payment Mode', 'Total Amount'];
+  const tableHeaders = ['Customer', 'Payment Mode', 'Deposit'];
 
   // Map inData to the table data format expected by your Table component.
   // Keys must match the normalized version of the header (e.g. "customer", "payment_mode", "total_amount")
   const tableData = inData.map(record => ({
     customer: record.customer,
     payment_mode: record.payMode,
-    total_amount: record.summary.totalAmount
+    total_amount: record.deposit
   }));
 
   return (
@@ -47,10 +75,11 @@ const In = () => {
           initialData={selectedRecord}
           onSubmit={handleSubmit}
           mode="in"
-          cartFields={inFields()}
+          cartFields={inFields(categories, subcategories)}
           customers={customers}
           payModes={payModes}
           getDepositRate={(cat, sub) => 10} // Dummy deposit rate function
+          onCategoryChange={handleCategoryChange} // Pass category change handler
         />
       )}
     </>

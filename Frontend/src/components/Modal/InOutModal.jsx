@@ -10,7 +10,8 @@ const InOutModal = ({
   cartFields, // Array of field definitions from inFields.js or outFields.js
   customers,
   payModes,
-  getDepositRate
+  getDepositRate,
+  onCategoryChange
 }) => {
   // Main modal fields
   const [customer, setCustomer] = useState(initialData?.customer || '');
@@ -33,6 +34,13 @@ const InOutModal = ({
 
   // Handle cart form field change
   const handleCartFieldChange = (e, fieldName) => {
+    if(fieldName === 'category'){
+      console.log(e.target.value);
+      const categoryValue = e.target.value;
+      if (onCategoryChange) {
+        onCategoryChange(categoryValue);
+      }
+    }
     setCartForm({ ...cartForm, [fieldName]: e.target.value });
   };
 
@@ -132,6 +140,23 @@ const InOutModal = ({
           {/* Cart Section */}
           <h5 className="mb-3">Material Information</h5>
           <Row className="mb-3">
+          <Col xs={12} md={6}>
+              <Form.Group controlId="customer">
+                <Form.Label>Select Customer</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={customer}
+                  onChange={(e) => setCustomer(e.target.value)}
+                >
+                  <option value="">Select Customer</option>
+                  {customers.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row className="mb-3">
             {cartFields.map(field => (
               <Col xs={12} md={field.width || 3} key={field.name}>
                 <Form.Group controlId={`cart_${field.name}`}>
@@ -158,8 +183,8 @@ const InOutModal = ({
                 </Form.Group>
               </Col>
             ))}
-            <Col xs={12} md={2} className="d-flex align-items-end justify-content-center">
-              <Button variant="primary" onClick={handleAddCartItem}>Add</Button>
+            <Col xs={12} md={2} className="d-flex align-items-end justify-content-center mt-3">
+              <Button variant="primary" onClick={handleAddCartItem}>Update</Button>
             </Col>
           </Row>
 
@@ -213,22 +238,7 @@ const InOutModal = ({
           <hr />
 
           {/* Main Fields Section */}
-          <Row>
-            <Col xs={12} md={6}>
-              <Form.Group controlId="customer">
-                <Form.Label>Select Customer</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={customer}
-                  onChange={(e) => setCustomer(e.target.value)}
-                >
-                  <option value="">Select Customer</option>
-                  {customers.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-            </Col>
+          <Row className="mb-3">
             <Col xs={12} md={6}>
               <Form.Group controlId="payMode">
                 <Form.Label>Payment Mode</Form.Label>
@@ -246,7 +256,7 @@ const InOutModal = ({
             </Col>
           </Row>
           <Form.Group controlId="summary">
-            <Form.Label>Summary (Total Amount)</Form.Label>
+            <Form.Label>Deposit</Form.Label>
             <Form.Control
               type="text"
               value={summary.totalAmount || ''}
