@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import Table from "@/components/Table/Table";
-import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from "@/api/customerAPI";
+import { getCustomers, addCustomer, updateCustomer, deleteCustomer } from "@/api/customerApi";
 import ReusableModal from "@/components/Modal/ReusableModal";
 import DeletePopUp from "@/components/PopUp/DeletePopUp";
 import { customerFields } from "@/data/customer-modal";
