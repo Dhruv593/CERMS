@@ -56,19 +56,21 @@ exports.addCustomer = (req, res) => {
 exports.updateCustomer = (req, res) => {
   const { name, email, mobile, address, site_address } = req.body;
   const id = req.params.id;
+  
   const aadharPhoto = req.files?.aadharPhoto ? `uploads/customer/aadhar/${req.files.aadharPhoto[0].filename}` : null;
   const other_proof = req.files?.other_proof ? `uploads/customer/other/${req.files.other_proof[0].filename}` : null;
 
-  const query = `UPDATE customer SET name = ?, email = ?, mobile = ?, address = ?, site_address = ?`;
-  const values = [name, email, mobile, address, site_address];
+  let query = `UPDATE customer SET name = ?, email = ?, mobile = ?, address = ?, site_address = ?`;
+  let values = [name, email, mobile, address, site_address];
 
+  // Dynamically add fields if available
   if (aadharPhoto) {
-    sql += `, aadharPhoto= ?`;
+    query += `, aadharPhoto = ?`;
     values.push(aadharPhoto);
   }
 
   if (other_proof) {
-    sql += `, other_proof = ?`;
+    query += `, other_proof = ?`;
     values.push(other_proof);
   }
 
@@ -84,6 +86,7 @@ exports.updateCustomer = (req, res) => {
     res.json({ message: "Customer updated successfully" });
   });
 };
+
 
 // Delete a customer
 exports.deleteCustomer = (req, res) => {

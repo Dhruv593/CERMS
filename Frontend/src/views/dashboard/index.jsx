@@ -3,7 +3,6 @@ import { Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import OrderCard from '@/components/Widgets/Statistic/OrderCard';
 import { fetchDashboardStats } from '@/api/dashboardApi';
-// Import Lucide icons
 import { 
   Layers, 
   Grid, 
@@ -34,33 +33,52 @@ const DashAnalytics = () => {
 
   return (
     <React.Fragment>
-      {/* Rental Action Section - Full Width Buttons with Lucide Icons */}
-      <Row className="mb-4 gx-4">
-        <Col xs={12} md={6} className="mb-2">
-          <Button
-            variant="success"
-            className="fw-bold py-3 fs-5 shadow-sm w-100 d-flex align-items-center justify-content-center gap-2"
-            onClick={() => navigate('/rentals/in')}
-          >
-            <Truck size={24} />
-            <span>IN - Incoming Rentals</span>
-          </Button>
-        </Col>
-        <Col xs={12} md={6} className="mb-2">
-          <Button
-            variant="danger"
-            className="fw-bold py-3 fs-5 shadow-sm w-100 d-flex align-items-center justify-content-center gap-2"
-            onClick={() => navigate('/rentals/out')}
-          >
-            <PackageOpen size={24} />
-            <span>OUT - Outgoing Rentals</span>
-          </Button>
-        </Col>
-      </Row>
+      {/* Full-width Status Card */}
+      <div className="mb-4 p-3 p-md-4 rounded-3" 
+           style={{ 
+             backgroundColor: 'rgba(173, 216, 230, 0.15)',
+             border: '1px solid rgba(0, 0, 0, 0.1)'
+           }}>
+        <Row className="align-items-center g-3">
+          {/* Left Side Text Content */}
+          <Col md={8} xs={12}>
+            <div className="text-md-start text-center">
+              <h4 className="fw-bold mb-2 text-primary">Rental Operations Dashboard</h4>
+              <p className="text-muted mb-0">
+                Manage incoming and outgoing rental transactions. Track real-time 
+                status and initiate new operations with one click.
+              </p>
+            </div>
+          </Col>
 
-      {/* Order Cards Section with Lucide icons */}
+          {/* Right Side Buttons */}
+          <Col md={4} xs={12}>
+            <div className="d-flex flex-md-row flex-column gap-2 justify-content-md-end justify-content-center">
+              <Button
+                variant="success"
+                className="fw-bold py-2 px-3 d-flex align-items-center gap-2 text-center"
+                onClick={() => navigate('/rentals/in')}
+              >
+                <Truck size={20} />
+                <span>IN - Incoming</span>
+              </Button>
+              
+              <Button
+                variant="danger"
+                className="fw-bold py-2 px-3 d-flex align-items-center gap-2 text-center"
+                onClick={() => navigate('/rentals/out')}
+              >
+                <PackageOpen size={20} />
+                <span>OUT - Outgoing</span>
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      </div>
+
+      {/* Order Cards Grid */}
       <Row>
-        <Col md={6} xl={3}>
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate('/master/category')} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
@@ -74,7 +92,8 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
-        <Col md={6} xl={3}>
+
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate('/master/subcategory')} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
@@ -88,7 +107,8 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
-        <Col md={6} xl={3}>
+
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate('/master/stock')} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
@@ -102,7 +122,8 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
-        <Col md={6} xl={3}>
+
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
@@ -116,7 +137,8 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
-        <Col md={6} xl={3}>
+
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
@@ -130,7 +152,8 @@ const DashAnalytics = () => {
             />
           </div>
         </Col>
-        <Col md={6} xl={3}>
+
+        <Col md={6} xl={3} className="mb-2">
           <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{

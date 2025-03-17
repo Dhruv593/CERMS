@@ -89,23 +89,23 @@ const menuItems = {
             }
           ]
     },
-    {
-      id: 'auth',
-      title: 'Authentication',
-      type: 'group',
-      icon: 'icon-pages',
-      children: [
-        {
-          id: 'logout',
-          title: 'Logout',
-          type: 'item',
-          icon: 'feather icon-lock',
-          url: '/auth/logout',
-          // target: true,
-          breadcrumbs: false
-        },
-      ]
-    },
+    // {
+    //   id: 'auth',
+    //   title: 'Authentication',
+    //   type: 'group',
+    //   icon: 'icon-pages',
+    //   children: [
+    //     {
+    //       id: 'logout',
+    //       title: 'Logout',
+    //       type: 'item',
+    //       icon: 'feather icon-lock',
+    //       url: '/auth/logout',
+    //       // target: true,
+    //       breadcrumbs: false
+    //     },
+    //   ]
+    // },
   ]
 };
 

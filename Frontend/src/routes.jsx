@@ -46,11 +46,11 @@ export const routes = [
     path: '/auth/signin-1',
     element: lazy(() => import('./views/auth/signin/SignIn1'))
   },
-  {
-    exact: true,
-    path: '/auth/logout',
-    element: lazy(() => import('./views/auth/Logout')) // Logout route
-  },
+  // {
+  //   exact: true,
+  //   path: '/auth/logout',
+  //   element: lazy(() => import('./views/auth/Logout')) // Logout route
+  // },
   {
     path: '*',
     layout: AdminLayout,
