@@ -104,6 +104,7 @@ function Rent() {
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => {
+    localStorage.removeItem("selectedCategory")
     setSelectedRowData(null);
     setIsModalOpen(false);
   };

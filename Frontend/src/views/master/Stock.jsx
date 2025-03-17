@@ -4,7 +4,7 @@ import ReusableModal from '@/components/Modal/ReusableModal';
 import DeletePopUp from '@/components/PopUp/DeletePopUp';
 import { addStock, getStockData, updateStock, deleteStock } from '@/api/newStockapi';
 import { getCategories } from '@/api/categoryApi';
-import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
+import { getSubcategoriesByCategory, getSubcategories } from '@/api/subcategoryAPI';
 import { stockFields } from '../../data/stock-modal';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 import moment from 'moment';
@@ -14,6 +14,8 @@ function Stock() {
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [stockData, setStockData] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [subcategoriesdata, setSubcategoriesdata] = useState([]);
+  console.log('subcategoriesdata', subcategoriesdata);
   const [categories, setCategories] = useState([]);
   const [selectedRowData, setSelectedRowData] = useState(null);
   const [rowToDelete, setRowToDelete] = useState(null);
@@ -22,6 +24,7 @@ function Stock() {
   useEffect(() => {
     loadStockData();
     fetchCategories();
+    fetchsubCategories();
   }, []);
 
   const loadStockData = async () => {
@@ -37,7 +40,14 @@ function Stock() {
     try {
       const categoriesData = await getCategories();
       setCategories(categoriesData.map((cat) => cat.category));
-   
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+  const fetchsubCategories = async () => {
+    try {
+      const categoriesData = await getSubcategories();
+      setSubcategoriesdata(categoriesData);
     } catch (error) {
       console.error('Error fetching categories:', error);
     }
@@ -167,11 +177,15 @@ function Stock() {
     // console.log("Processed table row:", processedRow);
     return processedRow;
   });
+  const categorydata = localStorage.getItem('selectedCategory');
 
+  const datachec = subcategoriesdata.filter((data) => data.category == "Ply").map((data) => data.subcategory);
+  console.log('fererererr',datachec)
   const memoizedFields = React.useMemo(
-    () => stockFields(categories, subcategories),
-    [categories, subcategories]
+    () => stockFields(categories, subcategories, categorydata, subcategoriesdata,datachec),
+    [categories, subcategories, categorydata, subcategoriesdata,datachec]
   );
+  // console.log("subcategories",)
 
   return (
     <>
@@ -201,6 +215,7 @@ function Stock() {
         <ReusableModal
           isOpen={isModalOpen}
           onClose={() => {
+            localStorage.removeItem("selectedCategory")
             setIsModalOpen(false);
             setSelectedRowData(null);
           }}
