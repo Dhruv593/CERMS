@@ -3,6 +3,17 @@ import { Row, Col, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import OrderCard from '@/components/Widgets/Statistic/OrderCard';
 import { fetchDashboardStats } from '@/api/dashboardApi';
+// Import Lucide icons
+import { 
+  Layers, 
+  Grid, 
+  Package, 
+  PackageCheck, 
+  ShoppingBag, 
+  CreditCard,
+  Truck,
+  PackageOpen
+} from 'lucide-react';
 
 const DashAnalytics = () => {
   const [stats, setStats] = useState({
@@ -23,30 +34,31 @@ const DashAnalytics = () => {
 
   return (
     <React.Fragment>
-      {/* Rental Action Section */}
-      <Row className="mb-4 text-center">
-        
-        <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+      {/* Rental Action Section - Full Width Buttons with Lucide Icons */}
+      <Row className="mb-4 gx-4">
+        <Col xs={12} md={6} className="mb-2">
           <Button
             variant="success"
-            className="fw-bold px-5 py-3 fs-5 shadow-md"
+            className="fw-bold py-3 fs-5 shadow-sm w-100 d-flex align-items-center justify-content-center gap-2"
             onClick={() => navigate('/rentals/in')}
           >
-            🚛 IN - Incoming Rentals
+            <Truck size={24} />
+            <span>IN - Incoming Rentals</span>
           </Button>
         </Col>
-        <Col xs={12} sm={6} className="d-flex justify-content-center mb-2">
+        <Col xs={12} md={6} className="mb-2">
           <Button
             variant="danger"
-            className="fw-bold px-5 py-3 fs-5 shadow-md"
+            className="fw-bold py-3 fs-5 shadow-sm w-100 d-flex align-items-center justify-content-center gap-2"
             onClick={() => navigate('/rentals/out')}
           >
-            📦 OUT - Outgoing Rentals
+            <PackageOpen size={24} />
+            <span>OUT - Outgoing Rentals</span>
           </Button>
         </Col>
       </Row>
 
-      {/* Order Cards Section */}
+      {/* Order Cards Section with Lucide icons */}
       <Row>
         <Col md={6} xl={3}>
           <div onClick={() => navigate('/master/category')} style={{ cursor: 'pointer' }}>
@@ -54,7 +66,7 @@ const DashAnalytics = () => {
               params={{
                 title: 'Total Categories',
                 class: 'bg-c-blue',
-                icon: 'feather icon-layers',
+                icon: <Layers size={24} />,
                 primaryText: stats.totalCategories,
                 secondaryText: 'Available Categories',
                 extraText: ''
@@ -68,7 +80,7 @@ const DashAnalytics = () => {
               params={{
                 title: 'Total Subcategories',
                 class: 'bg-c-green',
-                icon: 'feather icon-grid',
+                icon: <Grid size={24} />,
                 primaryText: stats.totalSubcategories,
                 secondaryText: 'Available Subcategories',
                 extraText: ''
@@ -82,7 +94,7 @@ const DashAnalytics = () => {
               params={{
                 title: 'Total Stock',
                 class: 'bg-c-yellow',
-                icon: 'feather icon-box',
+                icon: <Package size={24} />,
                 primaryText: stats.totalStock,
                 secondaryText: 'In Inventory',
                 extraText: ''
@@ -94,9 +106,9 @@ const DashAnalytics = () => {
           <div onClick={() => navigate()} style={{ cursor: 'pointer' }}>
             <OrderCard
               params={{
-                title: 'Avilable Stock',
+                title: 'Available Stock',
                 class: 'bg-c-red',
-                icon: 'feather icon-box',
+                icon: <PackageCheck size={24} />,
                 primaryText: "545",
                 secondaryText: 'In Inventory',
                 extraText: ''
@@ -110,7 +122,7 @@ const DashAnalytics = () => {
               params={{
                 title: 'Rented Stock',
                 class: 'bg-c-yellow',
-                icon: 'feather icon-box',
+                icon: <ShoppingBag size={24} />,
                 primaryText: "876",
                 secondaryText: 'Customer Inventory',
                 extraText: ''
@@ -123,8 +135,8 @@ const DashAnalytics = () => {
             <OrderCard
               params={{
                 title: 'Pending Payments',
-                class: 'bg-c-red',
-                icon: 'feather icon-box',
+                class: 'bg-c-blue',
+                icon: <CreditCard size={24} />,
                 primaryText: "₹1,23,456",
                 secondaryText: 'Customer Payments',
                 extraText: ''

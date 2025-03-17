@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 
 export function ReusableModal({
@@ -11,20 +11,14 @@ export function ReusableModal({
   onCategoryChange,
   initialFormData = null
 }) {
-  // Create a proper initial state that includes all fields
-  const createInitialState = () => {
-    return fields.reduce((acc, field) => {
-      acc[field.name] = field.initialValue !== undefined ? field.initialValue : (field.type === 'file' ? null : '');
-      return acc;
-    }, {});
-  };
-  
-  const [formData, setFormData] = useState(createInitialState());
+  const initialState = fields.reduce((acc, field) => {
+    acc[field.name] = field.initialValue || (field.type === 'file' ? null : '');
+    return acc;
+  }, {});
+  console.log('initial state', initialState);
+  const [formData, setFormData] = useState(initialState);
   const [errors, setErrors] = useState({});
-  const isInitialized = useRef(false);
-  const categoryRef = useRef('');
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       const storedCategory = localStorage.getItem("selectedCategory");
@@ -35,37 +29,28 @@ export function ReusableModal({
       }));
       setErrors({});
     }
-  }, [isOpen]);
-
-  // Update form when initialFormData changes (but not on category change)
-  useEffect(() => {
-    if (isOpen && initialFormData && !categoryRef.current) {
-      const newState = { ...createInitialState(), ...initialFormData };
-      console.log("Updating form with new initialFormData:", newState);
-      setFormData(newState);
-    }
-  }, [initialFormData, isOpen]);
+  }, [isOpen, initialFormData]);
 
   const validateField = (name, value) => {
     let error = '';
 
     if (name === 'category') {
-      if (value && !/^[A-Za-z0-9\s]+$/.test(value)) {
+      if (!/^[A-Za-z0-9\s]+$/.test(value)) {
         error = 'Category must contain only letters, numbers, and spaces.';
       }
     }
 
-    if (name === 'partyContact' && value && !/^\d{10}$/.test(value)) {
+    if (name === 'partyContact' && !/^\d{10}$/.test(value)) {
       error = 'Contact number must be exactly 10 digits.';
     }
 
-    if ((name.includes('deposit') || name.includes('rent') || name.includes('purchaseQuantity')) && 
-        value && !/^\d+(\.\d{1,2})?$/.test(value)) {
-      error = `${name} must be a valid number.`;
+    if (name.includes('deposit') || name.includes('rent') || name.includes('purchaseQuantity')) {
+      if (!/^\d+(\.\d{1,2})?$/.test(value)) {
+        error = `${name} must be a valid number.`;
+      }
     }
 
-    setErrors(prevErrors => ({ ...prevErrors, [name]: error }));
-    return error === '';
+    setErrors((prevErrors) => ({ ...prevErrors, [name]: error }));
   };
 
   const handleCategoryFieldChange = (e) => {
@@ -75,8 +60,6 @@ export function ReusableModal({
     localStorage.setItem("selectedCategory", value);
     console.log("category form data",formData);
     validateField(name, value);
-    
-    // Call the onCategoryChange callback with the new value
     if (onCategoryChange) {
       onCategoryChange(value);
     }
@@ -84,42 +67,26 @@ export function ReusableModal({
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updatedFormData = { ...formData, [name]: value };
-    setFormData(updatedFormData);
-    console.log('Updated formData:', updatedFormData);
+    setFormData((prev) => {
+      const updatedFormData = { ...prev, [name]: value };
+      console.log('Updated formData:', updatedFormData);
+      return updatedFormData;
+    });
     validateField(name, value);
   };
 
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (files && files.length > 0) {
-      const updatedFormData = { ...formData, [name]: files[0] };
-      setFormData(updatedFormData);
+    if (files.length > 0) {
+      setFormData((prev) => ({ ...prev, [name]: files[0] }));
       validateField(name, files[0]);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
-    // Validate all fields before submission
-    let isValid = true;
-    const newErrors = {};
-    
-    fields.forEach(field => {
-      const value = formData[field.name];
-      if (!validateField(field.name, value)) {
-        isValid = false;
-        newErrors[field.name] = `${field.label} is invalid`;
-      }
-    });
-    
-    if (!isValid) {
-      setErrors(newErrors);
-      return;
-    }
-    
-    console.log('Submitting formdata:', formData);
+    console.log('Submitting formdata:', formData); // Debugging line
+    if (Object.values(errors).some((err) => err)) return;
     onSubmit(formData);
     onClose();
   };

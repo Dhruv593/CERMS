@@ -1,6 +1,4 @@
 import React from 'react';
-
-// react-bootstrap
 import { Card } from 'react-bootstrap';
 
 // ==============================|| ORDER CARD ||============================== //
@@ -11,17 +9,16 @@ const OrderCard = ({ params }) => {
     cardClass = [...cardClass, params.class];
   }
 
-  let iconClass = ['float-start'];
-  if (params.icon) {
-    iconClass = [...iconClass, params.icon];
-  }
-
   return (
     <Card className={cardClass.join(' ')}>
       <Card.Body>
         <h6 className="text-white">{params.title}</h6>
         <h2 className="text-end text-white">
-          <i className={iconClass.join(' ')} />
+          {typeof params.icon === 'object' ? (
+            <span className="float-start">{params.icon}</span>
+          ) : (
+            <i className={`float-start ${params.icon}`} />
+          )}
           <span>{params.primaryText}</span>
         </h2>
         <p className="mb-0">
