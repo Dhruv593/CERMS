@@ -1,9 +1,10 @@
-export const inFields = () => [
+
+export const inFields = (categories, subcategories) => [
   {
     name: 'category',
     label: 'Select Category',
     type: 'select',
-    options: ['Category 1', 'Category 2'],
+    options: categories,
     placeholder: 'Select Category',
     width: 3
   },
@@ -11,7 +12,7 @@ export const inFields = () => [
     name: 'subcategory',
     label: 'Select Subcategory',
     type: 'select',
-    options: ['Subcategory 1', 'Subcategory 2'],
+    options: subcategories,
     placeholder: 'Select Subcategory',
     width: 3
   },
@@ -30,11 +31,11 @@ export const inFields = () => [
     placeholder: 'Enter Return Quantity',
     width: 3
   },
-  {
-    name: 'returnDate',
-    label: 'Return Date',
-    type: 'date',
-    placeholder: 'Select Return Date',
-    width: 3
-  }
+  // {
+  //   name: 'returnDate',
+  //   label: 'Return Date',
+  //   type: 'date',
+  //   placeholder: 'Select Return Date',
+  //   width: 3
+  // }
 ];
