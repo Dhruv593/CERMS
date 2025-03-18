@@ -3,6 +3,7 @@ import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
 import { outFields } from '@/data/out-modal';
 import { getCategories } from '@/api/categoryApi';
+import {getCustomers} from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 
 const Out = () => {
@@ -11,6 +12,7 @@ const Out = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [customersList, setCustomerList] =useState([]);
   
   // Fetch categories on component mount
   useEffect(() => {
@@ -23,8 +25,19 @@ const Out = () => {
       }
     };
     fetchCategories();
+    fetchCustomers();
   }, []);
   
+  const fetchCustomers = async ()=>{
+    try {
+      const customerData = await getCustomers();
+      // console.log('Customer data',customerData);
+      setCustomerList(customerData.map((cust)=> cust.name))
+      // console.log('CUST Name',customersList);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  }
   // Fetch subcategories when a category is selected
   const handleCategoryChange = async (selectedCategory) => {
     try {
@@ -42,7 +55,7 @@ const Out = () => {
     setIsModalOpen(false);
   };
 
-  const customers = ['Customer X', 'Customer Y'];
+  
   const payModes = ['Cash', 'Card', 'Online'];
 
   // Define table headers for OUT records
@@ -75,7 +88,7 @@ const Out = () => {
           onSubmit={handleSubmit}
           mode="out"
           cartFields={outFields(categories, subcategories)}
-          customers={customers}
+          customers={customersList}
           payModes={payModes}
           getDepositRate={(cat, sub) => 10} // Dummy deposit rate function
           onCategoryChange={handleCategoryChange}

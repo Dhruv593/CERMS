@@ -3,6 +3,7 @@ import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
 import { inFields } from '@/data/in-modal';
 import { getCategories } from '@/api/categoryApi';
+import {getCustomers} from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 
 const In = () => {
@@ -11,6 +12,7 @@ const In = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [customersList, setCustomerList] =useState([]);
 
 // Fetch categories on component mount
 useEffect(() => {
@@ -23,6 +25,7 @@ useEffect(() => {
     }
   };
   fetchCategories();
+  fetchCustomers();
 }, []);
 
 // Fetch subcategories when a category is selected
@@ -36,13 +39,24 @@ const handleCategoryChange = async (selectedCategory) => {
   }
 };
 
+  const fetchCustomers = async ()=>{
+    try {
+      const customerData = await getCustomers();
+      // console.log('Customer data',customerData);
+      setCustomerList(customerData.map((cust)=> cust.name))
+      // console.log('CUST Name',customersList);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    }
+  }
+
   const handleSubmit = (data) => {
     console.log('In data submitted:', data);
     setInData([...inData, data]);
     setIsModalOpen(false);
   };
 
-  const customers = ['Customer A', 'Customer B'];
+
   const payModes = ['Cash', 'Card', 'Online'];
 
   // Define table headers for IN records (you can adjust as needed)
@@ -76,7 +90,7 @@ const handleCategoryChange = async (selectedCategory) => {
           onSubmit={handleSubmit}
           mode="in"
           cartFields={inFields(categories, subcategories)}
-          customers={customers}
+          customers={customersList}
           payModes={payModes}
           getDepositRate={(cat, sub) => 10} // Dummy deposit rate function
           onCategoryChange={handleCategoryChange} // Pass category change handler

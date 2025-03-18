@@ -19,6 +19,12 @@ const InOutModal = ({
   // Cart items state
   const [cartItems, setCartItems] = useState(initialData?.cartItems || []);
   
+  const [receiverDetails, setReceiverDetails] = useState({
+    receiverName: initialData?.receiverName || '',
+    aadharPhoto: null,
+    other_proof: null
+  });
+
   // Build initial state for cart form based on provided cartFields.
   const initialCartState = {};
   cartFields.forEach(field => {
@@ -32,6 +38,12 @@ const InOutModal = ({
   });
   const [cartForm, setCartForm] = useState(initialCartState);
 
+  const handleReceiverChange = (e) => {
+    const { name, value, files } = e.target;
+    setReceiverDetails({ ...receiverDetails, [name]: files ? files[0] : value });
+    console.log("receiver details",receiverDetails);
+  };
+
   // Handle cart form field change
   const handleCartFieldChange = (e, fieldName) => {
     if(fieldName === 'category'){
@@ -42,6 +54,7 @@ const InOutModal = ({
       }
     }
     setCartForm({ ...cartForm, [fieldName]: e.target.value });
+    console.log('Cart Form',cartForm)
   };
 
   // Handler to add cart item
@@ -236,6 +249,45 @@ const InOutModal = ({
           )}
 
           <hr />
+
+          {/* Receiver Details Section */}
+          <h5 className="mb-3">Receiver Details</h5>
+          <Row className="mb-3">
+            <Col md={4}>
+              <Form.Group controlId="receiverName">
+                <Form.Label>Receiver Name</Form.Label>
+                <Form.Control
+                  type="text"
+                  name="receiverName"
+                  value={receiverDetails.receiverName}
+                  onChange={handleReceiverChange}
+                  placeholder="Enter Receiver Name"
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group controlId="aadharPhoto">
+                <Form.Label>Aadhar Photo</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="aadharPhoto"
+                  accept="image/*"
+                  onChange={handleReceiverChange}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={4}>
+              <Form.Group controlId="other_proof">
+                <Form.Label>Other Proof</Form.Label>
+                <Form.Control
+                  type="file"
+                  name="other_proof"
+                  accept="image/*"
+                  onChange={handleReceiverChange}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
 
           {/* Main Fields Section */}
           <Row className="mb-3">
