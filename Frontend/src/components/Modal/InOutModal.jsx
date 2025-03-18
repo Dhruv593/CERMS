@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Modal, Button, Form, Row, Col, Card, Table as BootstrapTable } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Modal, Button, Form, Row, Col, Card, Table } from 'react-bootstrap';
 
 const InOutModal = ({
   show,
@@ -7,319 +7,429 @@ const InOutModal = ({
   initialData,
   onSubmit,
   mode, // 'in' or 'out'
-  cartFields, // Array of field definitions from inFields.js or outFields.js
-  customers,
-  payModes,
+  mainFields = [],
+  cartFields = [],
   getDepositRate,
   onCategoryChange
 }) => {
-  // Main modal fields
-  const [customer, setCustomer] = useState(initialData?.customer || '');
-  const [payMode, setPayMode] = useState(initialData?.payMode || '');
-  // Cart items state
-  const [cartItems, setCartItems] = useState(initialData?.cartItems || []);
-  
-  const [receiverDetails, setReceiverDetails] = useState({
-    receiverName: initialData?.receiverName || '',
-    aadharPhoto: null,
-    other_proof: null
-  });
+  // Ensure initialData is an object even if null
+  const safeInitialData = initialData || {};
 
-  // Build initial state for cart form based on provided cartFields.
+  // Build initial state for the main form
+  const initialMainState = mainFields.reduce((acc, field) => {
+    acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
+    return acc;
+  }, {});
+  const [mainForm, setMainForm] = useState(initialMainState);
+
+  // Cart items state
+  const [cartItems, setCartItems] = useState(safeInitialData.cartItems || []);
+
+  // Build initial state for cart form
   const initialCartState = {};
   cartFields.forEach(field => {
     if (field.type === 'date' && field.name === 'returnDate') {
-      const today = new Date();
-      today.setMonth(today.getMonth() + 1);
-      initialCartState[field.name] = today.toISOString().split('T')[0];
+      initialCartState[field.name] = field.initialValue || new Date().toISOString().split('T')[0];
     } else {
-      initialCartState[field.name] = '';
+      initialCartState[field.name] = field.initialValue || '';
     }
   });
   const [cartForm, setCartForm] = useState(initialCartState);
 
-  const handleReceiverChange = (e) => {
-    const { name, value, files } = e.target;
-    setReceiverDetails({ ...receiverDetails, [name]: files ? files[0] : value });
-    console.log("receiver details",receiverDetails);
+  // Handler for main form field changes
+  const handleMainFieldChange = (e, fieldName) => {
+    const { value, files } = e.target;
+    setMainForm((prev) => ({
+      ...prev,
+      [fieldName]: files ? files[0] : value
+    }));
   };
 
-  // Handle cart form field change
+  // Handler for cart form field changes
   const handleCartFieldChange = (e, fieldName) => {
-    if(fieldName === 'category'){
-      console.log(e.target.value);
-      const categoryValue = e.target.value;
-      if (onCategoryChange) {
-        onCategoryChange(categoryValue);
-      }
+    const { value } = e.target;
+    setCartForm((prev) => ({ ...prev, [fieldName]: value }));
+    if (fieldName === 'category' && onCategoryChange) {
+      onCategoryChange(value);
     }
-    setCartForm({ ...cartForm, [fieldName]: e.target.value });
-    console.log('Cart Form',cartForm)
   };
 
-  // Handler to add cart item
+  // Handler to add a cart item
   const handleAddCartItem = () => {
-    // Validate required fields
+    // Validate required cart fields
     for (const field of cartFields) {
       if (!cartForm[field.name]) {
-        alert(`Please fill ${field.label}`);
+        alert(`Please fill "${field.label}"`);
         return;
       }
     }
-    setCartItems([...cartItems, cartForm]);
+
+    // Calculations
+    const rate = getDepositRate ? getDepositRate(cartForm.category, cartForm.subcategory) : 0;
+    const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
+    const quantity = Number(cartForm[quantityField]) || 1;
+    const totalDays = 5; // Example: 5 days
+    const rent = rate * quantity;
+    const totalAmount = rent * totalDays;
+    const deposit = rate * quantity * 2; // Example: deposit is twice daily rent
+    const depositReturn = deposit - totalAmount;
+
+    const newCartItem = {
+      ...cartForm,
+      totalDays,
+      rent,
+      totalAmount,
+      deposit,
+      depositReturn
+    };
+
+    setCartItems((prev) => [...prev, newCartItem]);
     setCartForm(initialCartState);
   };
 
-  // Handler to delete a cart item
+  // Handler to delete a cart item by its index
   const handleDeleteCartItem = (index) => {
-    const newCart = [...cartItems];
-    newCart.splice(index, 1);
-    setCartItems(newCart);
+    setCartItems((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Dummy summary calculation (example only)
+  // Compute summary values from cart items
   const summary = {
-    totalAmount: cartItems.reduce((sum, item) => {
-      const rate = getDepositRate ? getDepositRate(item.category, item.subcategory) : 0;
-      const qty = mode === 'in' ? Number(item.returnQuantity) : Number(item.quantity);
-      return sum + rate * qty;
-    }, 0)
+    totalAmount: cartItems.reduce((sum, item) => sum + (item.totalAmount || 0), 0),
+    depositReturn: cartItems.reduce((sum, item) => sum + (item.depositReturn || 0), 0)
   };
 
-  // For mode "in", if category and subcategory are selected, render a card.
-  // Replace the pending value with your actual pending data.
-  const renderSubcategoryCard = () => {
-    if (mode === 'in' && cartForm.category && cartForm.subcategory) {
-      // Dummy pending value
-      const pending = 50; 
-      return (
-        <Card className="mb-3">
-          <Card.Body>
-            <Card.Title>{cartForm.subcategory}</Card.Title>
-            <Card.Text>
-              Pending: {pending}
-            </Card.Text>
-          </Card.Body>
-        </Card>
-      );
-    }
-    return null;
-  };
-
-  // Define table columns based on mode
-  let tableColumns = [];
-  if (mode === 'in') {
-    tableColumns = [
-      { label: '#', key: 'index' },
-      { label: 'Category', key: 'category' },
-      { label: 'Subcategory', key: 'subcategory' },
-      { label: 'Invoice', key: 'invoice' },
-      { label: 'Return Quantity', key: 'returnQuantity' },
-      { label: 'Return Date', key: 'returnDate' },
-      { label: 'Total Days', key: 'totalDays' },
-      { label: 'Rent', key: 'rent' },
-      { label: 'Deposit', key: 'deposit' },
-      { label: 'Action', key: 'action' }
-    ];
-  } else {
-    tableColumns = [
-      { label: '#', key: 'index' },
-      { label: 'Category', key: 'category' },
-      { label: 'Subcategory', key: 'subcategory' },
-      { label: 'Quantity', key: 'quantity' },
-      { label: 'Return Date', key: 'returnDate' },
-      { label: 'Action', key: 'action' }
-    ];
-  }
+  // Update main form computed fields when summary changes
+  useEffect(() => {
+    setMainForm((prev) => ({
+      ...prev,
+      totalAmount: summary.totalAmount,
+      depositReturn: summary.depositReturn
+    }));
+  }, [summary.totalAmount, summary.depositReturn]);
 
   // Final submit handler
   const handleSubmit = () => {
     const data = {
-      customer,
-      payMode,
-      cartItems,
-      summary
+      ...mainForm,
+      cartItems
     };
     onSubmit(data);
   };
 
+  // Define table columns for the cart items section based on mode
+  const tableColumns = mode === 'in'
+    ? [
+        { label: '#', key: 'index', priorityMobile: true },
+        { label: 'Category', key: 'category', priorityMobile: true },
+        { label: 'Subcategory', key: 'subcategory', priorityMobile: true },
+        { label: 'Invoice', key: 'invoice', priorityMobile: false },
+        { label: 'Return Qty', key: 'returnQuantity', priorityMobile: true },
+        { label: 'Return Date', key: 'returnDate', priorityMobile: false },
+        { label: 'Days', key: 'totalDays', priorityMobile: false },
+        { label: 'Rent', key: 'rent', priorityMobile: false },
+        { label: 'Amount', key: 'totalAmount', priorityMobile: true },
+        { label: 'Deposit', key: 'deposit', priorityMobile: false },
+        { label: 'Return', key: 'depositReturn', priorityMobile: true },
+        { label: 'Action', key: 'action', priorityMobile: true }
+      ]
+    : [
+        { label: '#', key: 'index', priorityMobile: true },
+        { label: 'Category', key: 'category', priorityMobile: true },
+        { label: 'Subcategory', key: 'subcategory', priorityMobile: true },
+        { label: 'Quantity', key: 'quantity', priorityMobile: true },
+        { label: 'Return Date', key: 'returnDate', priorityMobile: true },
+        { label: 'Action', key: 'action', priorityMobile: true }
+      ];
+
+  // State to track screen width for responsive design
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+
+  // Handle window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Determine if we're on mobile view
+  const isMobileView = windowWidth < 768;
+
   return (
-    <Modal show={show} onHide={onClose} size="xl" centered style={{ maxWidth: '95%' }}>
-      <Modal.Header closeButton style={{ backgroundColor: '#f8f9fa' }}>
-        <Modal.Title>{initialData ? `Edit ${mode.toUpperCase()}` : `Add ${mode.toUpperCase()}`}</Modal.Title>
+    <Modal show={show} onHide={onClose} size="xl" centered backdrop="static">
+      <Modal.Header closeButton className="bg-light border-bottom">
+        <Modal.Title className="fw-bold text-dark">
+          {safeInitialData && Object.keys(safeInitialData).length > 0 
+            ? `Edit ${mode.toUpperCase()} Entry` 
+            : `Add New ${mode.toUpperCase()} Entry`}
+        </Modal.Title>
       </Modal.Header>
-      <Modal.Body>
+      <Modal.Body className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
         <Form>
-          {/* Cart Section */}
-          <h5 className="mb-3">Material Information</h5>
-          <Row className="mb-3">
-          <Col xs={12} md={6}>
-              <Form.Group controlId="customer">
-                <Form.Label>Select Customer</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={customer}
-                  onChange={(e) => setCustomer(e.target.value)}
+          {/* Material Information Section */}
+          <div className="bg-white rounded shadow-sm p-4 mb-4">
+            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Material Information</h5>
+            <Row className="g-3">
+              {cartFields.map((field) => (
+                <Col xs={12} md={field.width || 3} key={field.name}>
+                  <Form.Group controlId={`cart_${field.name}`}>
+                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                    {field.type === 'select' ? (
+                      <Form.Select
+                        value={cartForm[field.name]} 
+                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        className="rounded-2"
+                      >
+                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                        {field.options &&
+                          field.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                      </Form.Select>
+                    ) : (
+                      <Form.Control
+                        type={field.type}
+                        value={cartForm[field.name]}
+                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        className="rounded-2"
+                      />
+                    )}
+                  </Form.Group>
+                </Col>
+              ))}
+              <Col xs={12} md={2} className="d-flex align-items-end">
+                <Button 
+                  variant="primary" 
+                  onClick={handleAddCartItem} 
+                  className="w-100 mt-2 mt-md-0 rounded-2"
                 >
-                  <option value="">Select Customer</option>
-                  {customers.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mb-3">
-            {cartFields.map(field => (
-              <Col xs={12} md={field.width || 3} key={field.name}>
-                <Form.Group controlId={`cart_${field.name}`}>
-                  <Form.Label>{field.label}</Form.Label>
-                  {field.type === 'select' ? (
-                    <Form.Control 
-                      as="select"
-                      value={cartForm[field.name]}
-                      onChange={(e) => handleCartFieldChange(e, field.name)}
-                    >
-                      <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                      {field.options && field.options.map(opt => (
-                        <option key={opt} value={opt}>{opt}</option>
-                      ))}
-                    </Form.Control>
-                  ) : (
-                    <Form.Control 
-                      type={field.type}
-                      value={cartForm[field.name]}
-                      onChange={(e) => handleCartFieldChange(e, field.name)}
-                      placeholder={field.placeholder || ''}
-                    />
-                  )}
-                </Form.Group>
+                  Add Item
+                </Button>
               </Col>
-            ))}
-            <Col xs={12} md={2} className="d-flex align-items-end justify-content-center mt-3">
-              <Button variant="primary" onClick={handleAddCartItem}>Update</Button>
-            </Col>
-          </Row>
+            </Row>
+          </div>
 
-          {/* Render subcategory card if available */}
-          {renderSubcategoryCard()}
+          {/* Card Rendering for IN Mode */}
+          {mode === 'in' && cartForm.category && cartForm.subcategory && (
+            <Card className="mb-3 shadow-sm border">
+              <Card.Body className="p-3">
+                <Card.Title className="fs-6 fw-semibold">{cartForm.subcategory}</Card.Title>
+                <Card.Text className="small text-secondary mb-0">
+                  Pending: <span className="fw-semibold text-primary">50</span>
+                </Card.Text>
+              </Card.Body>
+            </Card>
+          )}
 
-          {/* Cart Table */}
+          {/* Cart Items Section */}
           {cartItems.length > 0 && (
-            <div className="table-responsive mb-3">
-              <BootstrapTable striped bordered hover>
-                <thead>
-                  <tr>
-                    {tableColumns.map(col => <th key={col.key}>{col.label}</th>)}
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="bg-white rounded shadow-sm p-4 mb-4">
+              <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Selected Items</h5>
+              
+              {/* Mobile View - Card Layout */}
+              {isMobileView ? (
+                <div>
                   {cartItems.map((item, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      {mode === 'in' ? (
-                        <>
-                          <td>{item.category}</td>
-                          <td>{item.subcategory}</td>
-                          <td>{item.invoice}</td>
-                          <td>{item.returnQuantity}</td>
-                          <td>{item.returnDate}</td>
-                          <td>{/* totalDays placeholder */}</td>
-                          <td>{/* rent placeholder */}</td>
-                          <td>{/* deposit placeholder */}</td>
-                        </>
-                      ) : (
-                        <>
-                          <td>{item.category}</td>
-                          <td>{item.subcategory}</td>
-                          <td>{item.quantity}</td>
-                          <td>{item.returnDate}</td>
-                        </>
-                      )}
-                      <td>
-                        <Button variant="danger" size="sm" onClick={() => handleDeleteCartItem(index)}>
+                    <div key={index} className="border rounded mb-3 shadow-sm">
+                      <div className="bg-light border-bottom p-3 d-flex justify-content-between align-items-center">
+                        <div className="fw-semibold">
+                          #{index + 1} {item.category} - {item.subcategory}
+                        </div>
+                        <Button 
+                          variant="danger" 
+                          size="sm"
+                          onClick={() => handleDeleteCartItem(index)}
+                          className="rounded-2"
+                        >
                           Delete
                         </Button>
-                      </td>
-                    </tr>
+                      </div>
+                      <div className="p-3">
+                        {mode === 'in' ? (
+                          <>
+                            <div className="d-flex justify-content-between py-2 border-bottom">
+                              <span>Return Quantity:</span>
+                              <span className="fw-medium">{item.returnQuantity}</span>
+                            </div>
+                            <div className="d-flex justify-content-between py-2 border-bottom">
+                              <span>Return Date:</span>
+                              <span>{item.returnDate}</span>
+                            </div>
+                            <div className="d-flex justify-content-between py-2 border-bottom">
+                              <span>Invoice:</span>
+                              <span>{item.invoice}</span>
+                            </div>
+                            <div className="d-flex justify-content-between py-2 border-bottom">
+                              <span>Total Amount:</span>
+                              <span className="fw-semibold">${item.totalAmount}</span>
+                            </div>
+                            <div className="d-flex justify-content-between py-2">
+                              <span>Deposit Return:</span>
+                              <span className={`fw-semibold ${item.depositReturn > 0 ? 'text-success' : 'text-danger'}`}>
+                                ${item.depositReturn}
+                              </span>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="d-flex justify-content-between py-2 border-bottom">
+                              <span>Quantity:</span>
+                              <span className="fw-medium">{item.quantity}</span>
+                            </div>
+                            <div className="d-flex justify-content-between py-2">
+                              <span>Return Date:</span>
+                              <span>{item.returnDate}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   ))}
-                </tbody>
-              </BootstrapTable>
+                </div>
+              ) : (
+                /* Desktop View - Table Layout */
+                <div className="table-responsive">
+                  <Table striped bordered hover className="mb-0">
+                    <thead>
+                      <tr className="bg-light">
+                        {tableColumns.map((col) => (
+                          <th key={col.key} className="small fw-semibold py-3">
+                            {col.label}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {cartItems.map((item, index) => (
+                        <tr key={index} className="small">
+                          <td className="py-3">{index + 1}</td>
+                          {mode === 'in' ? (
+                            <>
+                              <td>{item.category}</td>
+                              <td>{item.subcategory}</td>
+                              <td>{item.invoice}</td>
+                              <td>{item.returnQuantity}</td>
+                              <td>{item.returnDate}</td>
+                              <td>{item.totalDays}</td>
+                              <td className="fw-medium">${item.rent}</td>
+                              <td className="fw-medium">${item.totalAmount}</td>
+                              <td className="fw-medium">${item.deposit}</td>
+                              <td className={`fw-medium ${item.depositReturn > 0 ? 'text-success' : 'text-danger'}`}>
+                                ${item.depositReturn}
+                              </td>
+                            </>
+                          ) : (
+                            <>
+                              <td>{item.category}</td>
+                              <td>{item.subcategory}</td>
+                              <td>{item.quantity}</td>
+                              <td>{item.returnDate}</td>
+                            </>
+                          )}
+                          <td>
+                            <Button variant="danger" size="sm" onClick={() => handleDeleteCartItem(index)}>
+                              Delete
+                            </Button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </Table>
+                </div>
+              )}
+              
+              {/* Summary Section */}
+              {mode === 'in' && cartItems.length > 0 && (
+                <div className={`bg-light rounded p-3 mt-3 ${isMobileView ? 'd-flex flex-column' : 'd-flex justify-content-end'}`}>
+                  <div className={isMobileView ? 'mb-2' : 'me-4'}>
+                    <span className="fw-semibold text-secondary">Total Amount:</span>
+                    <span className="ms-2 fw-semibold text-primary">
+                      ${summary.totalAmount}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="fw-semibold text-secondary">Deposit Return:</span>
+                    <span className={`ms-2 fw-semibold ${summary.depositReturn > 0 ? 'text-success' : 'text-danger'}`}>
+                      ${summary.depositReturn}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
-          <hr />
-
-          {/* Receiver Details Section */}
-          <h5 className="mb-3">Receiver Details</h5>
-          <Row className="mb-3">
-            <Col md={4}>
-              <Form.Group controlId="receiverName">
-                <Form.Label>Receiver Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="receiverName"
-                  value={receiverDetails.receiverName}
-                  onChange={handleReceiverChange}
-                  placeholder="Enter Receiver Name"
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="aadharPhoto">
-                <Form.Label>Aadhar Photo</Form.Label>
-                <Form.Control
-                  type="file"
-                  name="aadharPhoto"
-                  accept="image/*"
-                  onChange={handleReceiverChange}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={4}>
-              <Form.Group controlId="other_proof">
-                <Form.Label>Other Proof</Form.Label>
-                <Form.Control
-                  type="file"
-                  name="other_proof"
-                  accept="image/*"
-                  onChange={handleReceiverChange}
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-
-          {/* Main Fields Section */}
-          <Row className="mb-3">
-            <Col xs={12} md={6}>
-              <Form.Group controlId="payMode">
-                <Form.Label>Payment Mode</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={payMode}
-                  onChange={(e) => setPayMode(e.target.value)}
-                >
-                  <option value="">Select Payment Mode</option>
-                  {payModes.map(pm => (
-                    <option key={pm} value={pm}>{pm}</option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Form.Group controlId="summary">
-            <Form.Label>Deposit</Form.Label>
-            <Form.Control
-              type="text"
-              value={summary.totalAmount || ''}
-              readOnly
-            />
-          </Form.Group>
+          {/* Main Details Section */}
+          <div className="bg-white rounded shadow-sm p-4 mb-4">
+            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
+            <Row className="g-3">
+              {mainFields.map((field) => (
+                <Col xs={12} md={field.width || 4} key={field.name}>
+                  <Form.Group controlId={`main_${field.name}`}>
+                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                    {field.type === 'select' ? (
+                      <Form.Select
+                        value={mainForm[field.name]} 
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        className="rounded-2"
+                      >
+                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                        {field.options &&
+                          field.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                      </Form.Select>
+                    ) : field.type === 'textarea' ? (
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        readOnly={field.readOnly || false}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+                      />
+                    ) : (
+                      <Form.Control
+                        type={field.type}
+                        value={field.type === 'file' ? undefined : mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        readOnly={field.readOnly || false}
+                        accept={field.accept || undefined}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+                      />
+                    )}
+                  </Form.Group>
+                </Col>
+              ))}
+            </Row>
+          </div>
         </Form>
       </Modal.Body>
-      <Modal.Footer className="justify-content-end">
-        <Button variant="secondary" onClick={onClose}>Close</Button>
-        <Button variant="primary" onClick={handleSubmit}>Submit</Button>
+      <Modal.Footer className="border-top p-3">
+        <div className={`d-flex ${isMobileView ? 'flex-column w-100' : 'justify-content-end'}`}>
+          <Button 
+            variant="secondary" 
+            onClick={onClose} 
+            className={`${isMobileView ? 'w-100 mb-2' : 'me-2'} rounded-2`}
+          >
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={handleSubmit} 
+            className={`${isMobileView ? 'w-100' : ''} rounded-2`}
+          >
+            {safeInitialData && Object.keys(safeInitialData).length > 0 ? 'Update' : 'Submit'}
+          </Button>
+        </div>
       </Modal.Footer>
     </Modal>
   );

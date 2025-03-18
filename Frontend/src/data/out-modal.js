@@ -1,3 +1,4 @@
+// outFields.js
 export const outFields = (categories, subcategories) => [
   {
     name: 'category',
@@ -5,7 +6,7 @@ export const outFields = (categories, subcategories) => [
     type: 'select',
     options: categories,
     placeholder: 'Select Category',
-    width: 3
+    width: 3,
   },
   {
     name: 'subcategory',
@@ -13,38 +14,21 @@ export const outFields = (categories, subcategories) => [
     type: 'select',
     options: subcategories,
     placeholder: 'Select Subcategory',
-    width: 3
+    width: 3,
   },
   {
     name: 'quantity',
     label: 'Quantity',
     type: 'text',
     placeholder: 'Enter Quantity',
-    width: 3
+    width: 3,
   },
   {
-    name: 'returnDate',
+    name: 'date',
     label: 'Return Date',
     type: 'date',
     placeholder: 'Select Return Date',
-    width: 3
+    width: 3,
   },
-  // {
-  //   name: 'receiverName',
-  //   label: 'Receiver Name',
-  //   type: 'text',
-  //   placeholder: 'Receiver Name',
-  // },
-  // { name: 'aadharPhoto', 
-  //   label: 'Aadhar Photo', 
-  //   type: 'file',
-  //   placeholder: 'Aadhar Photo', 
-  //   accept: 'image/*', 
-  // },
-  // { name: 'other_proof', 
-  //   label: 'Other Proof', 
-  //   type: 'file',
-  //   placeholder: 'Other Proof', 
-  //   accept: 'image/*',
-  // }
+  // You can add more material-related fields here if needed.
 ];
