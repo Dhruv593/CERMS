@@ -28,5 +28,23 @@ export const outFields = (categories, subcategories) => [
     type: 'date',
     placeholder: 'Select Return Date',
     width: 3
-  }
+  },
+  // {
+  //   name: 'receiverName',
+  //   label: 'Receiver Name',
+  //   type: 'text',
+  //   placeholder: 'Receiver Name',
+  // },
+  // { name: 'aadharPhoto', 
+  //   label: 'Aadhar Photo', 
+  //   type: 'file',
+  //   placeholder: 'Aadhar Photo', 
+  //   accept: 'image/*', 
+  // },
+  // { name: 'other_proof', 
+  //   label: 'Other Proof', 
+  //   type: 'file',
+  //   placeholder: 'Other Proof', 
+  //   accept: 'image/*',
+  // }
 ];

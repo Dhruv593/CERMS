@@ -9,7 +9,7 @@ import { ConfigContext } from '../../../contexts/ConfigContext';
 import * as actionType from '../../../store/actions';
 
 // assets
-import logo from '../../../assets/images/logo.png';
+import logo from '../../../assets/images/Logo.png';
 
 // ==============================|| NAV BAR ||============================== //
 
@@ -47,7 +47,8 @@ const NavBar = () => {
           <span />
         </Link>
         <Link to="#" className="b-brand">
-          <img id="main-logo" src={logo} alt="" className="logo" />
+        <h1 className='text-white'>CERM</h1>
+          {/* <img id="main-logo" src={logo} alt="" className="logo" /> */}
         </Link>
         <Link to="#" className={moreClass.join(' ')} onClick={() => setMoreToggle(!moreToggle)}>
           <i className="feather icon-more-vertical" />
