@@ -9,6 +9,7 @@ const InOutModal = ({
   mode, // 'in' or 'out'
   mainFields = [],
   cartFields = [],
+  customer,
   getDepositRate,
   onCategoryChange
 }) => {
@@ -48,10 +49,12 @@ const InOutModal = ({
   // Handler for cart form field changes
   const handleCartFieldChange = (e, fieldName) => {
     const { value } = e.target;
+    console.log(`fieldName: ${fieldName} \nvalue: ${value} `);
     setCartForm((prev) => ({ ...prev, [fieldName]: value }));
     if (fieldName === 'category' && onCategoryChange) {
       onCategoryChange(value);
     }
+    console.log(`cartForm: ${cartForm}`);
   };
 
   // Handler to add a cart item
@@ -168,6 +171,26 @@ const InOutModal = ({
       </Modal.Header>
       <Modal.Body className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
         <Form>
+          <div className="bg-white rounded shadow-sm p-4 mb-4">
+          <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Select Customer</h5>
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group controlId="customer">
+                <Form.Label>Select Customer</Form.Label>
+                <Form.Select
+                  value={cartForm['customer']}
+                  onChange={(e) => handleCartFieldChange(e, 'customer')}
+                >
+                  <option value="">Select Customer</option>
+                  {customer.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
+          </div>
+          
           {/* Material Information Section */}
           <div className="bg-white rounded shadow-sm p-4 mb-4">
             <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Material Information</h5>
@@ -328,7 +351,7 @@ const InOutModal = ({
                               <td>{item.category}</td>
                               <td>{item.subcategory}</td>
                               <td>{item.quantity}</td>
-                              <td>{item.returnDate}</td>
+                              <td>{item.date}</td>
                             </>
                           )}
                           <td>

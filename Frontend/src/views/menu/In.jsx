@@ -55,11 +55,24 @@ const In = () => {
   };
 
   const payModes = ['Cash', 'Card', 'Online'];
-  const tableHeaders = ['Customer', 'Payment Mode', 'Deposit'];
+  const tableHeaders = ['Customer','Category','Sub category','Receiver Name','Payment Mode','Deposit','Deposit Return','Rent','Return Date','Total Days','Return Quantity','Invoice','Total Amount','Aadhar Photo','Other Proof','Remark'];
   const tableData = inData.map(record => ({
-    customer: record.customer,
+    customer: record.cartItems[0].customer,
+    category: record.cartItems[0].category,
+    sub_category: record.cartItems[0].subcategory,
+    receiver_name:record.receiver,
     payment_mode: record.payMode,
-    total_amount: record.depositReturn,
+    deposit: record.cartItems[0].deposit,
+    deposit_return: record.depositReturn,
+    rent: record.cartItems[0].rent,
+    return_date: record.cartItems[0].returnDate,
+    total_days: record.cartItems[0].totalDays,
+    return_quantity: record.cartItems[0].returnQuantity,
+    invoice: record.cartItems[0].invoice,
+    total_amount: record.totalAmount,
+    aadhar_photo: record.aadharPhoto,
+    other_proof: record.otherProof,
+    remark: record.remark,
   }));
 
   // Get dynamic cart fields and main fields
@@ -94,6 +107,7 @@ const In = () => {
           mode="in"
           mainFields={mainFields}
           cartFields={cartFields}
+          customer={customersList}
           getDepositRate={(cat, sub) => 10} // Example deposit rate function
           onCategoryChange={handleCategoryChange}
         />

@@ -55,11 +55,20 @@ const Out = () => {
   };
 
   const payModes = ['Cash', 'Card', 'Online'];
-  const tableHeaders = ['Customer', 'Payment Mode', 'Deposit'];
+  const tableHeaders = ['Customer','Category','Sub category','Receiver Name','Quantity','Return Date','Payment Mode','Deposit','Rent','Aadhar Photo','Other Proof','Remark'];
   const tableData = outData.map(record => ({
-    customer: record.customer,
+    customer: record.cartItems[0].customer,
+    category: record.cartItems[0].category,
+    sub_category: record.cartItems[0].subcategory,
+    receiver_name:record.receiver,
+    quantity: record.cartItems[0].quantity,
     payment_mode: record.payMode,
-    total_amount: record.depositReturn, // or record.deposit, adjust as needed
+    deposit: record.cartItems[0].deposit,
+    rent: record.cartItems[0].rent,
+    return_date: record.cartItems[0].date,
+    aadhar_photo: record.aadharPhoto,
+    other_proof: record.otherProof,
+    remark: record.remark,
   }));
 
   // Get dynamic fields for material (cart) and main details
@@ -94,6 +103,7 @@ const Out = () => {
           mode="out"
           mainFields={mainFields}
           cartFields={cartFields}
+          customer={customersList}
           getDepositRate={(cat, sub) => 10} // Example deposit rate function
           onCategoryChange={handleCategoryChange}
         />

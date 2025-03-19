@@ -1,10 +1,17 @@
 export const inMainFields = (customers, payModes) => [
+  // {
+  //   name: 'customer',
+  //   label: 'Customer Name',
+  //   type: 'select',
+  //   options: customers, 
+  //   placeholder: 'Select Customer',
+  //   width: 4,
+  // },
   {
-    name: 'customer',
-    label: 'Customer Name',
-    type: 'select',
-    options: customers, 
-    placeholder: 'Select Customer',
+    name: 'receiver',
+    label: 'Receiver Name',
+    type: 'text',
+    placeholder: 'Receiver Name',
     width: 4,
   },
   {
