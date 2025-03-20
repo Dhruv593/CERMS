@@ -7,6 +7,8 @@ import { outMainFields } from '@/data/outMainFields'; // adjust the path as need
 import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
+import { getOutData, addOutData } from '@/api/outApi';
+import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 
 const Out = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,10 +50,19 @@ const Out = () => {
     }
   };
 
-  const handleSubmit = (data) => {
+  const handleSubmit = async (data) => {
     console.log('Out data submitted:', data);
     setOutData([...outData, data]);
-    setIsModalOpen(false);
+    // setIsModalOpen(false);
+    try {
+      await addOutData(data);
+      showSuccessAlert('Out data added successfully!');
+      setIsModalOpen(false);
+      setSelectedRecord(null);
+    } catch (error) {
+      console.error('Error adding out data:', error);
+      showErrorAlert('Error adding out data!');
+    }
   };
 
   const payModes = ['Cash', 'Card', 'Online'];
