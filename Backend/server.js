@@ -9,6 +9,7 @@ const newStockRoutes = require('./routes/newStock.routes');
 const depositRoutes = require('./routes/deposit.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const customerRoutes = require('./routes/customer.routes');
+const outDataRoutes = require('./routes/out.routes');
 const db = require('./config/db');
 const path = require('path');
   
@@ -43,6 +44,11 @@ app.use("/api/stockdata",newStockRoutes);
 app.use("/api/deposits", depositRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/customers", customerRoutes);
+app.use("/api/outdata", outDataRoutes);
+
+app.post('/api/outdata/add', (req, res) => {
+  console.log("Received Data:", req.body);
+});
 
 
 const PORT = process.env.PORT || 5000;
