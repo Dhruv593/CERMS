@@ -2,8 +2,8 @@
 import { useState, useEffect } from 'react';
 import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
-import { outFields } from '@/data/out-modal'; // adjust the path as needed
-import { outMainFields } from '@/data/outMainFields'; // adjust the path as needed
+import { outFields } from '@/data/out-modal'; // Adjust the path as needed
+import { outMainFields } from '@/data/outMainFields'; // Adjust the path as needed
 import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
@@ -17,33 +17,36 @@ const Out = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [customersList, setCustomerList] = useState([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchInitialData = async () => {
       try {
+        // Fetch categories
         const categoriesData = await getCategories();
-        setCategories(categoriesData.map((cat) => cat.category));
+        setCategories(categoriesData.map(cat => cat.category));
+
+        // Fetch customers
+        const customerData = await getCustomers();
+        setCustomerList(customerData.map(cust => cust.name));
+
+        // Fetch OUT data
+        const outRecords = await getOutData();
+        setOutData(outRecords);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error initializing data:', error);
+      } finally {
+        setIsLoading(false); // Set loading to false after fetching
       }
     };
-    fetchCategories();
-    fetchCustomers();
-  }, []);
 
-  const fetchCustomers = async () => {
-    try {
-      const customerData = await getCustomers();
-      setCustomerList(customerData.map((cust) => cust.name));
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-    }
-  };
+    fetchInitialData();
+  }, []);
 
   const handleCategoryChange = async (selectedCategory) => {
     try {
       const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
-      setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
+      setSubcategories(subcategoryList.map(subcat => subcat.subcategory));
     } catch (error) {
       console.error('Error fetching subcategories:', error);
       setSubcategories([]);
@@ -53,7 +56,6 @@ const Out = () => {
   const handleSubmit = async (data) => {
     console.log('Out data submitted:', data);
     setOutData([...outData, data]);
-    // setIsModalOpen(false);
     try {
       await addOutData(data);
       showSuccessAlert('Out data added successfully!');
@@ -66,20 +68,22 @@ const Out = () => {
   };
 
   const payModes = ['Cash', 'Card', 'Online'];
-  const tableHeaders = ['Customer','Category','Sub category','Receiver Name','Quantity','Return Date','Payment Mode','Deposit','Rent','Aadhar Photo','Other Proof','Remark'];
+  const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark'];
+
+  // Map outData to table format with safety checks for undefined values
   const tableData = outData.map(record => ({
-    customer: record.cartItems[0].customer,
-    category: record.cartItems[0].category,
-    sub_category: record.cartItems[0].subcategory,
-    receiver_name:record.receiver,
-    quantity: record.cartItems[0].quantity,
-    payment_mode: record.payMode,
-    deposit: record.cartItems[0].deposit,
-    rent: record.cartItems[0].rent,
-    return_date: record.cartItems[0].date,
-    aadhar_photo: record.aadharPhoto,
-    other_proof: record.otherProof,
-    remark: record.remark,
+    customer: record.customer ?? '',
+    category: record.cartItems?.[0]?.category ?? '',
+    sub_category: record.cartItems?.[0]?.subcategory ?? '',
+    receiver_name: record.receiver ?? '',
+    quantity: record.cartItems?.quantity ?? 0,
+    payment_mode: record.payMode ?? '',
+    deposit: record.deposit ?? 0,
+    // rent: record.cartItems?.[0]?.rent ?? 0,
+    return_date: record.cartItems?.[0]?.date ?? '',
+    aadhar_photo: record.aadharPhoto ?? '',
+    other_proof: record.otherProof ?? '',
+    remark: record.remark ?? '',
   }));
 
   // Get dynamic fields for material (cart) and main details
@@ -119,6 +123,8 @@ const Out = () => {
           onCategoryChange={handleCategoryChange}
         />
       )}
+
+      {isLoading && <p>Loading...</p>} {/* Optional loading indicator */}
     </>
   );
 };

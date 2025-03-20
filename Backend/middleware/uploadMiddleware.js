@@ -7,6 +7,8 @@ const stockDir = path.join(__dirname, "../uploads/stock/stock");
 const billDir = path.join(__dirname, "../uploads/stock/bill");
 const aadharDir = path.join(__dirname, "../uploads/customer/aadhar");
 const otherDir = path.join(__dirname, "../uploads/customer/other");
+const inOutAadharDir = path.join(__dirname, "../uploads/in_out/aadhar");
+const inOutOtherDir = path.join(__dirname, "../uploads/in_out/otherproof");
 
 if (!fs.existsSync(subcategoryDir)) {
   fs.mkdirSync(subcategoryDir, { recursive: true });
@@ -23,6 +25,12 @@ if (!fs.existsSync(aadharDir)) {
 if (!fs.existsSync(otherDir)) {
   fs.mkdirSync(otherDir, { recursive: true });
 }
+if (!fs.existsSync(inOutAadharDir)) {
+  fs.mkdirSync(inOutAadharDir, { recursive: true });
+}
+if (!fs.existsSync(inOutOtherDir)) {
+  fs.mkdirSync(inOutOtherDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -36,6 +44,10 @@ const storage = multer.diskStorage({
       cb(null, aadharDir);
     } else if (file.fieldname === "other_proof") {
       cb(null, otherDir);
+    } else if (file.fieldname === "aadhar") {
+      cb(null, inOutAadharDir);
+    } else if (file.fieldname === "otherProof") {
+      cb(null, inOutOtherDir);
     }
   },
   filename: (req, file, cb) => {

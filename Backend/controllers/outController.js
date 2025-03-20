@@ -28,13 +28,13 @@ exports.addOutData = (req, res) => {
       } = req.body;
   
     // Handling Aadhar Photo Upload
-      const aadharPhoto = req.files?.aadharPhoto
-      ? `uploads/outgoing/aadhar/${req.files.aadharPhoto[0].filename}`
+      const aadhar = req.files?.aadharPhoto
+      ? `uploads/in_out/aadhar/${req.files.aadharPhoto[0].filename}`
       : null;
 
     // Handling Other Proof Upload
-    const other_proof = req.files?.other_proof
-      ? `uploads/outgoing/otherproof/${req.files.other_proof[0].filename}`
+    const otherProof = req.files?.other_proof
+      ? `uploads/in_out/otherproof/${req.files.other_proof[0].filename}`
       : null;
   
       // ✅ Validate cartItems
@@ -70,7 +70,7 @@ exports.addOutData = (req, res) => {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
   
-        const outValues = [customer, materialInfoString, receiver, aadharPhoto, other_proof, payMode, deposit, remark];
+        const outValues = [customer, materialInfoString, receiver, aadhar, otherProof, payMode, deposit, remark];
   
         db.query(outSql, outValues, (err, outResult) => {
           if (err) {
@@ -82,7 +82,8 @@ exports.addOutData = (req, res) => {
             message: "Out data added successfully",
             in_out_id: outResult.insertId,
             material_ids: materialIds,
-            aadharPhoto: aadharPhotoPath
+            aadhar,
+            otherProof
           });
         });
       });

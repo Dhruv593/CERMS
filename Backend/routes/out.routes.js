@@ -6,8 +6,8 @@ const router = express.Router();
 
 // Configure multer to handle multiple file fields.
 const cpUpload = upload.fields([
-    { name: "stockPhoto", maxCount: 1 },
-    { name: "billPhoto", maxCount: 1 }
+    { name: "aadharPhoto", maxCount: 1 },
+    { name: "other_proof", maxCount: 1 }
   ]);
   
   // Get all stock data
