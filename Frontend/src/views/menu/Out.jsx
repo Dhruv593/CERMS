@@ -18,6 +18,8 @@ const Out = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [customersList, setCustomerList] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
+  const IMG_URL = import.meta.env.VITE_IMG_URL;
+
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -73,16 +75,16 @@ const Out = () => {
   // Map outData to table format with safety checks for undefined values
   const tableData = outData.map(record => ({
     customer: record.customer ?? '',
-    category: record.cartItems?.[0]?.category ?? '',
-    sub_category: record.cartItems?.[0]?.subcategory ?? '',
+    // category: record.cartItems?.[0]?.category ?? '',
+    // sub_category: record.cartItems?.[0]?.subcategory ?? '',
     receiver_name: record.receiver ?? '',
     quantity: record.cartItems?.quantity ?? 0,
     payment_mode: record.payMode ?? '',
     deposit: record.deposit ?? 0,
     // rent: record.cartItems?.[0]?.rent ?? 0,
-    return_date: record.cartItems?.[0]?.date ?? '',
-    aadhar_photo: record.aadharPhoto ?? '',
-    other_proof: record.otherProof ?? '',
+    // return_date: record.cartItems?.[0]?.date ?? '',
+    aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : "N/A",
+    other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : "N/A",
     remark: record.remark ?? '',
   }));
 
