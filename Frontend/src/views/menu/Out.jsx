@@ -72,6 +72,7 @@ const Out = () => {
 
   // Map outData to table format with safety checks for undefined values
   const tableData = outData.map(record => ({
+    customer: record.cartItems?.[0]?.customer ?? '',
     customer: record.customer ?? '',
     category: record.cartItems?.[0]?.category ?? '',
     sub_category: record.cartItems?.[0]?.subcategory ?? '',
