@@ -87,7 +87,7 @@ export function Table({ buttonLabel = '', onButtonClick, tableHeaders = [], tabl
 
   // Define columns dynamically
   const columns = [
-    { name: '#', selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: '80px', center: true },
+    { name: 'Id', selector: (_, index) => (currentPage - 1) * itemsPerPage + index + 1, sortable: false, width: '80px', center: true },
     ...tableHeaders.map((header) => ({
       name: <span style={{ color: '#ffffff', fontWeight: 'bold' }}>{header}</span>,
       selector: (row) => row[normalizeKey(header)] || '—',
