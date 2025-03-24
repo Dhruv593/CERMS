@@ -178,8 +178,8 @@ const InOutModal = ({
               <Form.Group controlId="customer">
                 <Form.Label>Select Customer</Form.Label>
                 <Form.Select
-                  value={cartForm['customer']}
-                  onChange={(e) => handleCartFieldChange(e, 'customer')}
+                  value={mainForm['customer']}
+                  onChange={(e) => handleMainFieldChange(e, 'customer')}
                 >
                   <option value="">Select Customer</option>
                   {customer.map(c => (

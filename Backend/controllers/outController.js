@@ -12,6 +12,43 @@ exports.getOutData = (req, res) => {
   });
 };
 
+exports.getMaterialInfoById = async (req, res) => {
+  
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: 'Material Info ID is required' });
+    }
+
+    // Split the comma-separated IDs into an array
+    const idsArray = id.split(',').map(Number);
+
+    // Check if valid numbers
+    if (idsArray.some(isNaN)) {
+      return res.status(400).json({ message: 'Invalid ID format' });
+    }
+
+    // SQL query to fetch data
+    const query = `SELECT * FROM material_info WHERE insert_id IN (?)`;
+
+    db.query(query, [idsArray], (error, results) => {
+      if (error) {
+        console.error('Database query error:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+      }
+
+      if (results.length === 0) {
+        return res.status(404).json({ message: 'Material Info not found' });
+      }
+
+      res.json(results);
+    });
+
+  } catch (error) {
+    console.error('Error fetching material info:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 exports.addOutData = (req, res) => {
   console.log("Received Data:", req.body);
@@ -92,3 +129,58 @@ exports.addOutData = (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  exports.deleteOutData = (req, res) => {
+    const { id } = req.params;
+
+    // Fetch material_info IDs from in_out table
+    db.query(`SELECT material_info FROM in_out WHERE in_out_id = ?`, [id], (err, results) => {
+        if (err) {
+            console.error("Error fetching in_out data:", err);
+            return res.status(500).json({ message: "Internal server error", error: err });
+        }
+
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Entry not found in in_out table" });
+        }
+
+        const materialInfoIds = results[0].material_info;
+
+        // Delete the in_out row
+        db.query(`DELETE FROM in_out WHERE in_out_id = ?`, [id], (err) => {
+            if (err) {
+                console.error("Error deleting in_out:", err);
+                return res.status(500).json({ message: "Failed to delete in_out", error: err });
+            }
+
+            // If material_info contains multiple IDs (comma-separated), delete them
+            if (materialInfoIds.includes(',')) {
+                const idsArray = materialInfoIds.split(',').map(id => id.trim());
+
+                // Construct dynamic query for multiple IDs
+                const placeholders = idsArray.map(() => '?').join(',');
+                const query = `DELETE FROM material_info WHERE insert_id IN (${placeholders})`;
+
+                db.query(query, idsArray, (err) => {
+                    if (err) {
+                        console.error("Error deleting material_info:", err);
+                        return res.status(500).json({ message: "Failed to delete material_info", error: err });
+                    }
+
+                    res.status(200).json({ message: "in_out and related material_info deleted successfully" });
+                });
+
+            } else {
+                // If only a single ID exists, delete it directly
+                db.query(`DELETE FROM material_info WHERE insert_id = ?`, [materialInfoIds], (err) => {
+                    if (err) {
+                        console.error("Error deleting material_info:", err);
+                        return res.status(500).json({ message: "Failed to delete material_info", error: err });
+                    }
+
+                    res.status(200).json({ message: "in_out and related material_info deleted successfully" });
+                });
+            }
+        });
+    });
+};

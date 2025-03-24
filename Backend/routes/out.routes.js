@@ -1,5 +1,5 @@
 const express = require("express");
-const { addOutData, getOutData, editOutdata, deleteOutData } = require("../controllers/outController");
+const { addOutData, getOutData, getMaterialInfoById,editOutdata, deleteOutData } = require("../controllers/outController");
 const upload = require("../middleware/uploadMiddleware");
 
 const router = express.Router();
@@ -16,10 +16,13 @@ const cpUpload = upload.fields([
   // Add new stock entry
   router.post("/add", cpUpload, addOutData);
   
-  // Edit an existing stock entry
+  // material info by id
+  router.get("/materialInfo/:id", getMaterialInfoById);
+  
+  // Edit an existing entry
 //   router.put("/edit/:id", cpUpload, editOutdata);
   
-  // Delete a stock entry
-//   router.delete("/delete/:id", deleteOutData);
+  // Delete a entry
+  router.delete("/delete/:id", deleteOutData);
   
   module.exports = router;
