@@ -83,7 +83,8 @@ exports.addOutData = (req, res) => {
             in_out_id: outResult.insertId,
             material_ids: materialIds,
             aadhar,
-            otherProof
+            otherProof, 
+            customer
           });
         });
       });
