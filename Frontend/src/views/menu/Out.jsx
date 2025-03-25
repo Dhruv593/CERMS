@@ -1,13 +1,15 @@
 // Out.jsx
 import { useState, useEffect } from 'react';
 import InOutModal from '@/components/Modal/InOutModal';
+import MaterialInfoModal from '@/components/Modal/MaterialInfoModal';
 import Table from '@/components/Table/Table';
+import DeletePopUp from '@/components/PopUp/DeletePopUp';
 import { outFields } from '@/data/out-modal'; // Adjust the path as needed
 import { outMainFields } from '@/data/outMainFields'; // Adjust the path as needed
 import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
-import { getOutData, addOutData } from '@/api/outApi';
+import { getOutData, addOutData ,getMaterialInfoById, deleteOutData } from '@/api/outApi';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 
 const Out = () => {
@@ -18,7 +20,11 @@ const Out = () => {
   const [subcategories, setSubcategories] = useState([]);
   const [customersList, setCustomerList] = useState([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
-  const IMG_URL = import.meta.env.VITE_IMG_URL;
+  const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
+  const [selectedMaterialInfo, setSelectedMaterialInfo] = useState(null); // Store fetched material info
+  const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
+  const [selectedRowData, setSelectedRowData] = useState(null);
+  const [rowToDelete, setRowToDelete] = useState(null);
 
 
   useEffect(() => {
@@ -35,6 +41,7 @@ const Out = () => {
         // Fetch OUT data
         const outRecords = await getOutData();
         setOutData(outRecords);
+        console.log("outRecord",outRecords);
       } catch (error) {
         console.error('Error initializing data:', error);
       } finally {
@@ -69,23 +76,64 @@ const Out = () => {
     }
   };
 
+  const handleDetails = async (materialInfoId) => {
+    try {
+      const materialData = await getMaterialInfoById(materialInfoId);
+      console.log('materialData', materialData);
+      setSelectedMaterialInfo(materialData);
+      setIsMaterialModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching material info:', error);
+      showErrorAlert('Failed to fetch material info');
+    }
+  };
+
+  const handleDeleteClick = (row) => {
+    console.log('row',row);
+      if (!row || !row.id) {
+        showErrorAlert('Invalid stock item selected for deletion.');
+        return;
+      }
+      setRowToDelete(row);
+      setIsDeletePopupOpen(true);
+    };
+  
+    const confirmDelete = async () => {
+      if (!rowToDelete || !rowToDelete.id) {
+        showErrorAlert('Error deleting data. Invalid item selected.');
+        return;
+      }
+      try {
+        await deleteOutData(rowToDelete);
+        
+        setIsDeletePopupOpen(false);
+        showSuccessAlert('Outdata Deleted Successfully');
+      } catch (error) {
+        console.error('Error deleting data:', error);
+        showErrorAlert('Error deleting data');
+      }
+    };
+
   const payModes = ['Cash', 'Card', 'Online'];
   const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark'];
 
   // Map outData to table format with safety checks for undefined values
   const tableData = outData.map(record => ({
-    customer: record.cartItems?.[0]?.customer ?? '',
-    // customer: record.customer ?? '',
+    // customer: record.cartItems?.[0]?.customer ?? '',
+    id: record.in_out_id,
+    material_info_id: record.material_info,
+    material_info:(<button onClick={() => handleDetails(record.material_info)}>Details</button>),
+    customer: record.customer ?? '',
     // category: record.cartItems?.[0]?.category ?? '',
     // sub_category: record.cartItems?.[0]?.subcategory ?? '',
     receiver_name: record.receiver ?? '',
-    quantity: record.cartItems?.quantity ?? 0,
+    // quantity: record.cartItems?.quantity ?? 0,
     payment_mode: record.payMode ?? '',
     deposit: record.deposit ?? 0,
     // rent: record.cartItems?.[0]?.rent ?? 0,
     // return_date: record.cartItems?.[0]?.date ?? '',
-    aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : "N/A",
-    other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : "N/A",
+    aadhar_photo: record.aadharPhoto ?? '',
+    other_proof: record.otherProof ?? '',
     remark: record.remark ?? '',
   }));
 
@@ -107,9 +155,7 @@ const Out = () => {
           setSelectedRecord(row);
           setIsModalOpen(true);
         }}
-        onDelete={(row) => {
-          // Add deletion logic if needed
-        }}
+        onDelete={handleDeleteClick}
       />
 
       {isModalOpen && (
@@ -128,6 +174,26 @@ const Out = () => {
       )}
 
       {isLoading && <p>Loading...</p>} {/* Optional loading indicator */}
+
+      {isMaterialModalOpen && selectedMaterialInfo && (
+          <MaterialInfoModal
+            materialData={selectedMaterialInfo}
+            onClose={() => setIsMaterialModalOpen(false)}
+            show={isMaterialModalOpen}
+          />
+        )}
+
+      {isDeletePopupOpen && (
+              <DeletePopUp
+                isOpen={isDeletePopupOpen}
+                onClose={() => setIsDeletePopupOpen(false)}
+                onConfirm={confirmDelete}
+                title="Confirm Deletion"
+                message="Are you sure you want to delete this Out data?"
+                confirmLabel="Delete"
+                cancelLabel="Cancel"
+              />
+            )}
     </>
   );
 };
