@@ -65,7 +65,7 @@ exports.addOutData = (req, res) => {
       } = req.body;
   
     // Handling Aadhar Photo Upload
-      const aadhar = req.files?.aadharPhoto
+      const outAadhar = req.files?.aadharPhoto
       ? `uploads/in_out/aadhar/${req.files.aadharPhoto[0].filename}`
       : null;
 
@@ -107,7 +107,7 @@ exports.addOutData = (req, res) => {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
   
-        const outValues = [customer, materialInfoString, receiver, aadhar, otherProof, payMode, deposit, remark];
+        const outValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark];
   
         db.query(outSql, outValues, (err, outResult) => {
           if (err) {
@@ -119,9 +119,8 @@ exports.addOutData = (req, res) => {
             message: "Out data added successfully",
             in_out_id: outResult.insertId,
             material_ids: materialIds,
-            aadhar,
-            otherProof, 
-            customer
+            outAadhar,
+            otherProof
           });
         });
       });
