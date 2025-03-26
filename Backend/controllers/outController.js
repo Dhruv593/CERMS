@@ -66,12 +66,12 @@ exports.addOutData = (req, res) => {
   
     // Handling Aadhar Photo Upload
       const outAadhar = req.files?.aadharPhoto
-      ? `uploads/in_out/aadhar/${req.files.aadharPhoto[0].filename}`
+      ? `uploads/customer/aadhar/${req.files.aadharPhoto[0].filename}`
       : null;
 
     // Handling Other Proof Upload
     const otherProof = req.files?.other_proof
-      ? `uploads/in_out/otherproof/${req.files.other_proof[0].filename}`
+      ? `uploads/customer/other/${req.files.other_proof[0].filename}`
       : null;
   
       // ✅ Validate cartItems
