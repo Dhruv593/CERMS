@@ -58,6 +58,41 @@ export const addOutData = async (data) => {
     }
 };
 
+export const updateOutData = async (id, data) => {
+    console.log("Updating Out Data:", id, data);
+
+    const formData = new FormData();
+    formData.append("customer", data.customer || "");
+    formData.append("receiver", data.receiver);
+    formData.append("aadharPhoto", data.aadharPhoto);
+    formData.append("other_proof", data.other_proof);
+    formData.append("payMode", data.payMode);
+    formData.append("deposit", data.deposit);
+    formData.append("remark", data.remark);
+    formData.append("totalAmount", data.totalAmount);
+
+    // Handling cartItems array
+    if (data.cartItems && Array.isArray(data.cartItems)) {
+        data.cartItems.forEach((item, index) => {
+            formData.append(`cartItems[${index}][category]`, item.category);
+            formData.append(`cartItems[${index}][subcategory]`, item.subcategory);
+            formData.append(`cartItems[${index}][quantity]`, item.quantity);
+            formData.append(`cartItems[${index}][date]`, item.date);
+        });
+    }
+
+    try {
+        const response = await axios.put(`${API_URL}/outdata/update/${id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error updating out data:", error.response?.data || error);
+        return null;
+    }
+};
+
+
 // export const addOutData = async (data) => {
 //   console.log("API Passed data:", data);
 

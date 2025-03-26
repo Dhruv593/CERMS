@@ -73,7 +73,7 @@ exports.addOutData = (req, res) => {
     const otherProof = req.files?.other_proof
       ? `uploads/customer/other/${req.files.other_proof[0].filename}`
       : null;
-  
+  console.log(`outAadhar: ${outAadhar} \n otherProof: ${otherProof}`);
       // ✅ Validate cartItems
       if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
         return res.status(400).json({ error: "Cart items are required" });
@@ -129,6 +129,98 @@ exports.addOutData = (req, res) => {
       res.status(500).json({ error: "Internal Server Error" });
     }
   };
+
+  exports.updateOutData = (req, res) => {
+    const { id } = req.params;
+    const {
+        customer,
+        receiver,
+        payMode,
+        deposit,
+        remark,
+        cartItems = []
+    } = req.body;
+
+    // Handling file uploads
+    const outAadhar = req.files?.aadharPhoto
+        ? `uploads/customer/aadhar/${req.files.aadharPhoto[0].filename}`
+        : null;
+
+    const otherProof = req.files?.other_proof
+        ? `uploads/customer/other/${req.files.other_proof[0].filename}`
+        : null;
+
+    // Validate cartItems
+    if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
+        return res.status(400).json({ error: "Cart items are required" });
+    }
+
+    // Validate date field in cartItems
+    for (const item of cartItems) {
+        if (!item.date) {
+            return res.status(400).json({ error: "Each item in cartItems must have a valid date" });
+        }
+    }
+
+    // Fetch existing material_info IDs
+    db.query(`SELECT material_info FROM in_out WHERE in_out_id = ?`, [id], (err, results) => {
+        if (err) {
+            console.error("Error fetching existing material_info IDs:", err);
+            return res.status(500).json({ error: err.message });
+        }
+        
+        if (results.length === 0) {
+            return res.status(404).json({ message: "Entry not found" });
+        }
+
+        const oldMaterialIds = results[0].material_info.split(",").map(Number);
+
+        // Delete existing material_info records
+        db.query(`DELETE FROM material_info WHERE insert_id IN (?)`, [oldMaterialIds], (err) => {
+            if (err) {
+                console.error("Error deleting old material_info records:", err);
+                return res.status(500).json({ error: err.message });
+            }
+
+            // Insert updated materials into material_info
+            const materialValues = cartItems.map(m => [m.category, m.subcategory, m.quantity, m.date]);
+            db.query(`INSERT INTO material_info (category, subcategory, quantity, date) VALUES ?`, [materialValues], (err, materialResult) => {
+                if (err) {
+                    console.error("Error inserting updated material data:", err);
+                    return res.status(500).json({ error: err.message });
+                }
+
+                // Retrieve new material IDs
+                const newMaterialIds = [...Array(materialResult.affectedRows)].map((_, i) => materialResult.insertId + i);
+                const materialInfoString = newMaterialIds.join(",");
+
+                // Update in_out record
+                const updateSql = `
+                    UPDATE in_out
+                    SET customer = ?, material_info = ?, receiver = ?, aadharPhoto = ?, other_proof = ?, payMode = ?, deposit = ?, remark = ?
+                    WHERE in_out_id = ?
+                `;
+
+                const updateValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark, id];
+                db.query(updateSql, updateValues, (err, updateResult) => {
+                    if (err) {
+                        console.error("Error updating in_out data:", err);
+                        return res.status(500).json({ error: err.message });
+                    }
+
+                    res.json({
+                        message: "Out data updated successfully",
+                        in_out_id: id,
+                        material_ids: newMaterialIds,
+                        outAadhar,
+                        otherProof
+                    });
+                });
+            });
+        });
+    });
+};
+
 
   exports.deleteOutData = (req, res) => {
     const { id } = req.params;
