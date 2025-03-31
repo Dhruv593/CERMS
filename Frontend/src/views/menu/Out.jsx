@@ -240,6 +240,7 @@ const Out = () => {
             materialData={selectedMaterialInfo}
             onClose={() => setIsMaterialModalOpen(false)}
             show={isMaterialModalOpen}
+            mode="out"
           />
         )}
 

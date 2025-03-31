@@ -7,6 +7,9 @@ import { inMainFields } from '@/data/inMainFields';
 import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
+import { addInData, updateInData } from 'api/inApi';
+import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
+
 
 const In = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,6 +18,8 @@ const In = () => {
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
   const [customersList, setCustomerList] = useState([]);
+  
+  const IMG_URL = import.meta.env.VITE_IMG_URL;
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -47,31 +52,61 @@ const In = () => {
       console.error('Error fetching customers:', error);
     }
   };
+  const handleDetails = async (materialInfoId) => {
 
-  const handleSubmit = (data) => {
+  }
+
+  const handleSubmit = async (data) => {
     console.log('In data submitted:', data);
+    await addInData(data);
+    showSuccessAlert('In data added successfully!');
     setInData([...inData, data]);
     setIsModalOpen(false);
+
+    // console.log('Out data submitted:', data);
+
+    //   try {
+    //       if (selectedRecord) {
+    //           // Update existing record
+    //           await updateInData(selectedRecord.in_out_id,data);
+    //           showSuccessAlert('In data updated successfully!');
+    //       } else {
+    //           // Add new record
+    //           await addInData(data);
+    //           showSuccessAlert('In data added successfully!');
+    //       }
+
+    //       setIsModalOpen(false);
+    //       setSelectedRecord(null);
+
+    //       const updatedData = await getInData();
+    //       setInData(updatedData);
+    //   } catch (error) {
+    //       console.error('Error submitting In data:', error);
+    //       showErrorAlert('Error submitting In data!');
+    //   }
   };
 
   const payModes = ['Cash', 'Card', 'Online'];
-  const tableHeaders = ['Customer','Category','Sub category','Receiver Name','Payment Mode','Deposit','Deposit Return','Rent','Return Date','Total Days','Return Quantity','Invoice','Total Amount','Aadhar Photo','Other Proof','Remark'];
+  const tableHeaders = ['Customer','Material Info','Receiver Name','Payment Mode','Deposit Return','Aadhar Photo','Other Proof','Remark'];
   const tableData = inData.map(record => ({
-    customer: record.cartItems[0].customer,
-    category: record.cartItems[0].category,
-    sub_category: record.cartItems[0].subcategory,
+    customer: record.customer,
+    material_info_id: record.material_info,
+    // category: record.cartItems[0].category,
+    // sub_category: record.cartItems[0].subcategory,
+    material_info:(<button onClick={() => handleDetails(record.material_info)}>Details</button>),
     receiver_name:record.receiver,
     payment_mode: record.payMode,
-    deposit: record.cartItems[0].deposit,
+    // deposit: record.cartItems[0].deposit,
     deposit_return: record.depositReturn,
-    rent: record.cartItems[0].rent,
-    return_date: record.cartItems[0].returnDate,
-    total_days: record.cartItems[0].totalDays,
-    return_quantity: record.cartItems[0].returnQuantity,
-    invoice: record.cartItems[0].invoice,
-    total_amount: record.totalAmount,
-    aadhar_photo: record.aadharPhoto,
-    other_proof: record.otherProof,
+    // rent: record.cartItems[0].rent,
+    // return_date: record.cartItems[0].returnDate,
+    // total_days: record.cartItems[0].totalDays,
+    // return_quantity: record.cartItems[0].returnQuantity,
+    // invoice: record.cartItems[0].invoice,
+    // total_amount: record.totalAmount,
+    aadharPhoto: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
+    other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
     remark: record.remark,
   }));
 
