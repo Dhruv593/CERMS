@@ -1,0 +1,74 @@
+digraph ERD {
+	rankdir=LR size=15
+	category [label="category
+id (PK)
+category
+description" fillcolor=lightblue shape=box style=filled]
+	customer [label="customer
+id (PK)
+name
+email
+mobile
+address
+site_address
+aadharPhoto
+other_proof" fillcolor=lightblue shape=box style=filled]
+	deposit [label="deposit
+id (PK)
+category
+subcategory
+deposit" fillcolor=lightblue shape=box style=filled]
+	in_out [label="in_out
+in_out_id (PK)
+customer (FK)
+material_info
+receiver
+aadharPhoto
+other_proof
+payMode
+deposit
+remark" fillcolor=lightblue shape=box style=filled]
+	material_info [label="material_info
+insert_id (PK)
+category
+subcategory
+quantity
+date" fillcolor=lightblue shape=box style=filled]
+	registration [label="registration
+id (PK)
+username
+password" fillcolor=lightblue shape=box style=filled]
+	rent [label="rent
+id (PK)
+category
+subcategory
+rent" fillcolor=lightblue shape=box style=filled]
+	stockdata [label="stockdata
+id (PK)
+category
+subcategory
+partyName
+partyContact
+purchaseFrom
+purchaseDateTime
+purchaseQuantity
+paymentMode
+transportInclude
+stockPhoto
+billPhoto
+remarks" fillcolor=lightblue shape=box style=filled]
+	subcategory [label="subcategory
+id (PK)
+category
+subcategory
+description
+image_path
+created_at" fillcolor=lightblue shape=box style=filled]
+	subcategory -> category [arrowhead=vee]
+	deposit -> subcategory [arrowhead=vee]
+	in_out -> customer [arrowhead=vee]
+	material_info -> category [arrowhead=vee]
+	material_info -> subcategory [arrowhead=vee]
+	rent -> subcategory [arrowhead=vee]
+	stockdata -> subcategory [arrowhead=vee]
+}

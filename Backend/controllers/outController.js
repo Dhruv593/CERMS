@@ -107,8 +107,7 @@ exports.addOutData = (req, res) => {
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
   
-        const outValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark];
-  
+        const outValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark];  
         db.query(outSql, outValues, (err, outResult) => {
           if (err) {
             console.error("Error inserting out data:", err);

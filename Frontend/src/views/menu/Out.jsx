@@ -9,7 +9,7 @@ import { outMainFields } from '@/data/outMainFields'; // Adjust the path as need
 import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
-import { getOutData, addOutData ,getMaterialInfoById, deleteOutData, updateOutData } from '@/api/outApi';
+import { getOutData, addOutData, getMaterialInfoById, deleteOutData, updateOutData } from '@/api/outApi';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 
 const Out = () => {
@@ -32,16 +32,16 @@ const Out = () => {
       try {
         // Fetch categories
         const categoriesData = await getCategories();
-        setCategories(categoriesData.map(cat => cat.category));
+        setCategories(categoriesData.map((cat) => cat.category));
 
         // Fetch customers
         const customerData = await getCustomers();
-        setCustomerList(customerData.map(cust => cust.name));
+        setCustomerList(customerData.map((cust) => cust.name));
 
         // Fetch OUT data
         const outRecords = await getOutData();
         setOutData(outRecords);
-        console.log("outRecord",outRecords);
+        console.log('outRecord', outRecords);
       } catch (error) {
         console.error('Error initializing data:', error);
       } finally {
@@ -55,86 +55,85 @@ const Out = () => {
   const handleCategoryChange = async (selectedCategory) => {
     try {
       const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
-      setSubcategories(subcategoryList.map(subcat => subcat.subcategory));
+      setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
     } catch (error) {
       console.error('Error fetching subcategories:', error);
       setSubcategories([]);
     }
   };
 
-  
-    const handleSubmit = async (data) => {
-      console.log('Out data submitted:', data);
+  const handleSubmit = async (data) => {
+    console.log('Out data submitted:', data);
 
-      try {
-          if (selectedRecord) {
-              // Update existing record
-              await updateOutData(selectedRecord.in_out_id,data);
-              showSuccessAlert('Out data updated successfully!');
-          } else {
-              // Add new record
-              await addOutData(data);
-              showSuccessAlert('Out data added successfully!');
-          }
-
-          setIsModalOpen(false);
-          setSelectedRecord(null);
-
-          const updatedData = await getOutData();
-          setOutData(updatedData);
-      } catch (error) {
-          console.error('Error submitting out data:', error);
-          showErrorAlert('Error submitting out data!');
+    try {
+      if (selectedRecord) {
+        // Update existing record
+        await updateOutData(selectedRecord.in_out_id, data);
+        showSuccessAlert('Out data updated successfully!');
+      } else {
+        // Add new record
+        await addOutData(data);
+        showSuccessAlert('Out data added successfully!');
       }
-    };
 
-    const handleEditClick = async (row) => {
-  if (!row?.id) {
+      setIsModalOpen(false);
+      setSelectedRecord(null);
+
+      const updatedData = await getOutData();
+      setOutData(updatedData);
+    } catch (error) {
+      console.error('Error submitting out data:', error);
+      showErrorAlert('Error submitting out data!');
+    }
+  };
+
+  const handleEditClick = async (row) => {
+    console.log('checkvalue',row)
+    if (!row?.id) {
       showErrorAlert('Invalid data item selected for editing.');
       return;
-  }
-  console.log('row', row);
+    }
+    console.log('row', row);
 
-  try {
+    try {
       const materialData = await getMaterialInfoById(row.material_info_id);
 
       const newRecord = {
-          in_out_id: row.id || '',
-          customer: row.customer || '',  // Ensure correct assignment
-          receiver: row.receiver_name || '',
-          payMode: row.payment_mode || '',
-          deposit: row.deposit || '',
-          aadharPhoto: row.aadharPhoto || '',
-          other_proof: row.other_proof || '',
-          remark: row.remark || '',
-          cartItems: materialData || [],
+        in_out_id: row.id || '',
+        customer: row.customer || '',
+        receiver: row.receiver_name || '',
+        payMode: row.payment_mode || '',
+        deposit: row.deposit || '',
+        aadharPhoto: row.aadharPhoto || '',
+        other_proof: row.other_proof || '',
+        remark: row.remark || '',
+        cartItems: materialData || []
       };
 
       console.log('Updated selectedRecord:', newRecord);
       setSelectedRecord(newRecord);
       setIsModalOpen(true);
-  } catch (error) {
+    } catch (error) {
       console.error('Error fetching material info:', error);
       showErrorAlert('Failed to fetch material info');
-  }
-};
-
+    }
+  };
 
   const handleDetails = async (materialInfoId) => {
     if (!materialInfoId) {
-      showErrorAlert("Material Info ID is missing.");
+      showErrorAlert('Material Info ID is missing.');
       return;
     }
-    
+
     try {
       const materialData = await getMaterialInfoById(materialInfoId);
       console.log('materialData', materialData);
-      
+
       if (!materialData) {
         showErrorAlert('No material data found.');
         return;
       }
-  
+
       setSelectedMaterialInfo(materialData);
       setIsMaterialModalOpen(true);
     } catch (error) {
@@ -142,44 +141,47 @@ const Out = () => {
       showErrorAlert('Failed to fetch material info');
     }
   };
-  
 
   const handleDeleteClick = (row) => {
-    console.log('row',row);
-      if (!row || !row.id) {
-        showErrorAlert('Invalid stock item selected for deletion.');
-        return;
-      }
-      setRowToDelete(row);
-      setIsDeletePopupOpen(true);
-    };
-  
-    const confirmDelete = async () => {
-      if (!rowToDelete || !rowToDelete.id) {
-        showErrorAlert('Error deleting data. Invalid item selected.');
-        return;
-      }
-      try {
-        await deleteOutData(rowToDelete);
-        const updatedData = await getOutData();
-        setOutData(updatedData);
-        setIsDeletePopupOpen(false);
-        showSuccessAlert('Outdata Deleted Successfully');
-      } catch (error) {
-        console.error('Error deleting data:', error);
-        showErrorAlert('Error deleting data');
-      }
-    };
+    console.log('row', row);
+    if (!row || !row.id) {
+      showErrorAlert('Invalid stock item selected for deletion.');
+      return;
+    }
+    setRowToDelete(row);
+    setIsDeletePopupOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!rowToDelete || !rowToDelete.id) {
+      showErrorAlert('Error deleting data. Invalid item selected.');
+      return;
+    }
+    try {
+      await deleteOutData(rowToDelete);
+      const updatedData = await getOutData();
+      setOutData(updatedData);
+      setIsDeletePopupOpen(false);
+      showSuccessAlert('Outdata Deleted Successfully');
+    } catch (error) {
+      console.error('Error deleting data:', error);
+      showErrorAlert('Error deleting data');
+    }
+  };
 
   const payModes = ['Cash', 'Card', 'Online'];
   const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark'];
 
   // Map outData to table format with safety checks for undefined values
-  const tableData = outData.map(record => ({
+  const tableData = outData.map((record) => ({
     // customer: record.cartItems?.[0]?.customer ?? '',
     id: record.in_out_id,
     material_info_id: record.material_info,
-    material_info:(<button onClick={() => handleDetails(record.material_info)}>Details</button>),
+    material_info: (
+      <button onClick={() => handleDetails(record.material_info)} className="btn btn-outline-primary btn-sm">
+        Details
+      </button>
+    ),
     customer: record.customer ?? '',
     // category: record.cartItems?.[0]?.category ?? '',
     // sub_category: record.cartItems?.[0]?.subcategory ?? '',
@@ -191,7 +193,7 @@ const Out = () => {
     // return_date: record.cartItems?.[0]?.date ?? '',
     aadharPhoto: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
     other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
-    remark: record.remark ?? '',
+    remark: record.remark ?? ''
   }));
 
   // Get dynamic fields for material (cart) and main details
@@ -217,7 +219,6 @@ const Out = () => {
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />
-
       {isModalOpen && (
         <InOutModal
           show={isModalOpen}
@@ -232,28 +233,21 @@ const Out = () => {
           onCategoryChange={handleCategoryChange}
         />
       )}
-
       {isLoading && <p>Loading...</p>} {/* Optional loading indicator */}
-
       {isMaterialModalOpen && selectedMaterialInfo && (
-          <MaterialInfoModal
-            materialData={selectedMaterialInfo}
-            onClose={() => setIsMaterialModalOpen(false)}
-            show={isMaterialModalOpen}
-          />
-        )}
-
+        <MaterialInfoModal materialData={selectedMaterialInfo} onClose={() => setIsMaterialModalOpen(false)} show={isMaterialModalOpen} />
+      )}
       {isDeletePopupOpen && (
-              <DeletePopUp
-                isOpen={isDeletePopupOpen}
-                onClose={() => setIsDeletePopupOpen(false)}
-                onConfirm={confirmDelete}
-                title="Confirm Deletion"
-                message="Are you sure you want to delete this Out data?"
-                confirmLabel="Delete"
-                cancelLabel="Cancel"
-              />
-            )}
+        <DeletePopUp
+          isOpen={isDeletePopupOpen}
+          onClose={() => setIsDeletePopupOpen(false)}
+          onConfirm={confirmDelete}
+          title="Confirm Deletion"
+          message="Are you sure you want to delete this Out data?"
+          confirmLabel="Delete"
+          cancelLabel="Cancel"
+        />
+      )}
     </>
   );
 };
