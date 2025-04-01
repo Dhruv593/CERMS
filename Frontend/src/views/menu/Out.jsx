@@ -208,12 +208,6 @@ const Out = () => {
         buttonLabel="Add Out"
         tableHeaders={tableHeaders}
         tableData={tableData}
-        // onEdit={(row) => {
-        //   console.log('row',row);
-        //   setSelectedRecord(row);
-        //   console.log('se')
-        //   setIsModalOpen(true);
-        // }}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />

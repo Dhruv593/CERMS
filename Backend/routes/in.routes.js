@@ -10,14 +10,14 @@ const cpUpload = upload.fields([
     { name: "other_proof", maxCount: 1 }
   ]);
   
-//   router.get("/", getInData);
+  router.get("/", getInData);
   
   router.post("/add", cpUpload, addInData);
   
-//   router.get("/materialInfo/:id", getMaterialInfoById);
+  router.get("/materialInfo/:id", getMaterialInfoById);
   
-//   router.put("/update/:id", cpUpload, updateInData);
+  router.put("/update/:id", cpUpload, updateInData);
   
-//   router.delete("/delete/:id", deleteInData);
+  router.delete("/delete/:id", deleteInData);
   
   module.exports = router;
