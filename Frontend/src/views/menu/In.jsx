@@ -178,10 +178,11 @@ const In = () => {
     id: record.in_out_id,
     customer: record.customer,
     material_info_id: record.material_info,
-    material_info:(<button className='bg-primary text-white rounded border-0' onClick={() => handleDetails(record.material_info)}>Details</button>),
+    material_info:(<button onClick={() => handleDetails(record.material_info)} className='btn btn-outline-primary btn-sm'>Details</button>),
+    // material_info:(<button className='bg-primary text-white rounded border-0' onClick={() => handleDetails(record.material_info)}>Details</button>),
     receiver_name:record.receiver,
     payment_mode: record.payMode,
-    aadharPhoto: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
+    aadhar_Photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
     other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
     remark: record.remark,
   }));

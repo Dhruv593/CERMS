@@ -28,6 +28,7 @@ export function Table({ buttonLabel = '', onButtonClick, tableHeaders = [], tabl
       filteredRow[key] = row[key] !== undefined && row[key] !== null && row[key] !== '' ? row[key] : '—';
     });
 
+
     // Ensure images load properly
     // if (row.stockPhoto) {
     //   filteredRow.stock_photo = (
