@@ -2,7 +2,7 @@ const db = require("../config/db");
 const path = require("path");
 
 exports.getOutData = (req, res) => {
-  const sql = "SELECT * FROM in_out ORDER BY in_out_id DESC";
+  const sql = "SELECT * FROM in_out WHERE mode = 'out' ORDER BY in_out_id DESC";
   db.query(sql, (err, results) => {
     if (err) {
       console.error("Error fetching out data:", err);

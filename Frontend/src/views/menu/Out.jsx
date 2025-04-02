@@ -191,7 +191,7 @@ const Out = () => {
     deposit: record.deposit ?? 0,
     // rent: record.cartItems?.[0]?.rent ?? 0,
     // return_date: record.cartItems?.[0]?.date ?? '',
-    aadharPhoto: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
+    aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
     other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
     remark: record.remark ?? ''
   }));
@@ -210,12 +210,6 @@ const Out = () => {
         buttonLabel="Add Out"
         tableHeaders={tableHeaders}
         tableData={tableData}
-        // onEdit={(row) => {
-        //   console.log('row',row);
-        //   setSelectedRecord(row);
-        //   console.log('se')
-        //   setIsModalOpen(true);
-        // }}
         onEdit={handleEditClick}
         onDelete={handleDeleteClick}
       />
@@ -235,8 +229,14 @@ const Out = () => {
       )}
       {isLoading && <p>Loading...</p>} {/* Optional loading indicator */}
       {isMaterialModalOpen && selectedMaterialInfo && (
-        <MaterialInfoModal materialData={selectedMaterialInfo} onClose={() => setIsMaterialModalOpen(false)} show={isMaterialModalOpen} />
-      )}
+          <MaterialInfoModal
+            materialData={selectedMaterialInfo}
+            onClose={() => setIsMaterialModalOpen(false)}
+            show={isMaterialModalOpen}
+            mode="out"
+          />
+        )}
+
       {isDeletePopupOpen && (
         <DeletePopUp
           isOpen={isDeletePopupOpen}

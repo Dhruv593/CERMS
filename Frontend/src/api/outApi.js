@@ -138,7 +138,7 @@ export const updateOutData = async (id, data) => {
 
         return outDataResponse.data;
     } catch (error) {
-        console.error("Error deleting stock:", error.response?.data || error);
+        console.error("Error deleting Out Data:", error.response?.data || error);
         return null;
     }
 };
