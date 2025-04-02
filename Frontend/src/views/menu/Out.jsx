@@ -179,7 +179,7 @@ const Out = () => {
     // customer: record.cartItems?.[0]?.customer ?? '',
     id: record.in_out_id,
     material_info_id: record.material_info,
-    material_info:(<button onClick={() => handleDetails(record.material_info)}>Details</button>),
+    material_info:(<button className='bg-primary text-white rounded border-0' onClick={() => handleDetails(record.material_info)}>Details</button>),
     customer: record.customer ?? '',
     // category: record.cartItems?.[0]?.category ?? '',
     // sub_category: record.cartItems?.[0]?.subcategory ?? '',

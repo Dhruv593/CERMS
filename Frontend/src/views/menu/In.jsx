@@ -147,12 +147,7 @@ const In = () => {
     };
 
   const handleSubmit = async (data) => {
-    // console.log('In data submitted:', data);
-    // await addInData(data);
-    // showSuccessAlert('In data added successfully!');
-    // setInData([...inData, data]);
-    // setIsModalOpen(false);
-
+   
     console.log('In data submitted:', data);
 
       try {
@@ -183,7 +178,7 @@ const In = () => {
     id: record.in_out_id,
     customer: record.customer,
     material_info_id: record.material_info,
-    material_info:(<button onClick={() => handleDetails(record.material_info)}>Details</button>),
+    material_info:(<button className='bg-primary text-white rounded border-0' onClick={() => handleDetails(record.material_info)}>Details</button>),
     receiver_name:record.receiver,
     payment_mode: record.payMode,
     aadharPhoto: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
