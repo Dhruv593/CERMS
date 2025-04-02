@@ -10,6 +10,7 @@ import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 import { getOutData, addOutData, getMaterialInfoById, deleteOutData, updateOutData } from '@/api/outApi';
+import { getDeposits } from 'api/depositAPI';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 
 const Out = () => {
@@ -61,6 +62,30 @@ const Out = () => {
       setSubcategories([]);
     }
   };
+  
+  const handleDepositRate = async (cat, sub) =>{
+    try {
+      const depositData = await getDeposits();
+      // console.log('Deposit Data:', depositData);
+
+      // Find the deposit value based on category and subcategory
+      const depositEntry = depositData.find(entry =>
+          entry.category.toLowerCase() === cat.toLowerCase() &&
+          entry.subcategory.toLowerCase() === sub.toLowerCase()
+      );
+
+      if (depositEntry) {
+          console.log(`Deposit Value for Category: ${cat}, Subcategory: ${sub} is ${depositEntry.deposit}`);
+          return depositEntry.deposit;
+      } else {
+          console.log(`No deposit value found for Category: ${cat}, Subcategory: ${sub}`);
+          return null;
+      }
+     } catch (error) {
+      console.error('Error fetching deposit data:', error);
+      return null;
+    } 
+  }
 
   const handleSubmit = async (data) => {
     console.log('Out data submitted:', data);
@@ -223,7 +248,8 @@ const Out = () => {
           mainFields={mainFields}
           cartFields={cartFields}
           customer={customersList}
-          getDepositRate={(cat, sub) => 10} // Example deposit rate function
+          getDepositRate={handleDepositRate}
+          // getDepositRate={(cat, sub) => 10} 
           onCategoryChange={handleCategoryChange}
         />
       )}

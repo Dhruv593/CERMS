@@ -10,6 +10,7 @@ const InOutModal = ({
   mainFields = [],
   cartFields = [],
   customer,
+  onCustomerChange,
   getDepositRate,
   onCategoryChange
 }) => {
@@ -44,6 +45,9 @@ const InOutModal = ({
       ...prev,
       [fieldName]: files ? files[0] : value
     }));
+    if (fieldName === 'customer' && mode === 'in') {
+      onCustomerChange(value);
+    }
   };
 
   // Handler for cart form field changes

@@ -8,8 +8,10 @@ import { getCategories } from '@/api/categoryApi';
 import { getCustomers } from '@/api/customerApi';
 import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 import { getInData, addInData, updateInData, deleteInData } from 'api/inApi';
+import { getOutData } from 'api/outApi';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 import { getMaterialInfoById } from '@/api/inApi';
+import { getMaterialInfoById as getMaterialInfoForCustomer } from 'api/outApi';
 import MaterialInfoModal from '@/components/Modal/MaterialInfoModal';
 import DeletePopUp from '@/components/PopUp/DeletePopUp';
 
@@ -25,6 +27,7 @@ const In = () => {
   const [selectedMaterialInfo, setSelectedMaterialInfo] = useState(null);
   const [isDeletePopupOpen, setIsDeletePopupOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState(null);
+  const [materialInfoList, setMaterialInfoList] = useState([]);
   
   const IMG_URL = import.meta.env.VITE_IMG_URL;
 
@@ -57,6 +60,42 @@ const In = () => {
       setSubcategories([]);
     }
   };
+
+  const handleCustomerChange =async (selectedCustomer) => {
+    console.log('Selected Customer:', selectedCustomer);
+    try {
+        const outData = await getOutData();
+        console.log('outdata from API in handleCustomerChange: ',outData );
+
+       // Find the material_info for the selected customer
+       const materialInfoId = outData.find(entry =>
+        entry.customer.toLowerCase() === selectedCustomer.toLowerCase()
+       )?.material_info;
+
+        if (materialInfoId) {
+            console.log(`Material Info for ${selectedCustomer}:`, materialInfoId);
+            try {
+              const materialList = await getMaterialInfoForCustomer(materialInfoId);
+              console.log("materialList: ",materialList);
+              setMaterialInfoList(materialList);
+
+            } catch (error) {
+              console.error('Error fetching Customer Material Info by Id:', error);
+              setMaterialInfoList([]);
+            }
+        } else {
+            console.log(`No material info found for ${selectedCustomer}`);
+            setMaterialInfoList([]);
+        }
+        } catch (error) {
+          console.error('Error fetching Customer Material Info:', error);
+          setMaterialInfoList([]);
+    }
+  }
+
+  useEffect(() => {
+    console.log('materialInfoList state: ', materialInfoList);
+}, [materialInfoList]);
 
   const fetchCustomers = async () => {
     try {
@@ -215,6 +254,7 @@ const In = () => {
           mainFields={mainFields}
           cartFields={cartFields}
           customer={customersList}
+          onCustomerChange={handleCustomerChange}
           getDepositRate={(cat, sub) => 10} // Example deposit rate function
           onCategoryChange={handleCategoryChange}
         />
