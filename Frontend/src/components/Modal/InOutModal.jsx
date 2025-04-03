@@ -18,10 +18,17 @@ const InOutModal = ({
   const safeInitialData = initialData || {};
 
   // Build initial state for the main form
-  const initialMainState = mainFields.reduce((acc, field) => {
-    acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
-    return acc;
-  }, {});
+  // const initialMainState = mainFields.reduce((acc, field) => {
+  //   acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
+  //   return acc;
+  // }, {});
+  const initialMainState = {
+    ...mainFields.reduce((acc, field) => {
+      acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
+      return acc;
+    }, {}),
+    customer: safeInitialData.customer || '', // Ensure customer is included
+  };  
   const [mainForm, setMainForm] = useState(initialMainState);
 
   // Cart items state

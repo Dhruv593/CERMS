@@ -1,4 +1,4 @@
-// In.jsx
+// In.jsx 
 import { useState, useEffect } from 'react';
 import InOutModal from '@/components/Modal/InOutModal';
 import Table from '@/components/Table/Table';
@@ -221,7 +221,7 @@ const In = () => {
     // material_info:(<button className='bg-primary text-white rounded border-0' onClick={() => handleDetails(record.material_info)}>Details</button>),
     receiver_name:record.receiver,
     payment_mode: record.payMode,
-    aadhar_Photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
+    aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
     other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
     remark: record.remark,
   }));
