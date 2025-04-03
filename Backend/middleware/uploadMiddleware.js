@@ -44,7 +44,7 @@ const storage = multer.diskStorage({
       cb(null, aadharDir);
     } else if (file.fieldname === "other_proof") {
       cb(null, otherDir);
-    } else if (file.fieldname === "outAadhar") {
+    } else if (file.fieldname === "outAadhar" || file.fieldname === "inAadhar") {
       cb(null, inOutAadharDir);
     } else if (file.fieldname === "otherProof") {
       cb(null, inOutOtherDir);
