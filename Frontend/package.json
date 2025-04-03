@@ -31,6 +31,7 @@
     "react-data-table-component": "^7.7.0",
     "react-data-table-component-extensions": "^1.6.0",
     "react-dom": "18.2.0",
+    "react-hot-toast": "^2.5.2",
     "react-icons": "^5.0.1",
     "react-perfect-scrollbar": "^1.5.8",
     "react-router-dom": "^6.23.0",
