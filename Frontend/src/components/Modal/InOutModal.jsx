@@ -21,10 +21,6 @@ const InOutModal = ({
   const safeInitialData = initialData || {};
 
   // Build initial state for the main form
-  // const initialMainState = mainFields.reduce((acc, field) => {
-  //   acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
-  //   return acc;
-  // }, {});
   const initialMainState = {
     ...mainFields.reduce((acc, field) => {
       acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
@@ -57,8 +53,13 @@ const InOutModal = ({
       ...prev,
       [fieldName]: files ? files[0] : value
     }));
-    if (fieldName === 'customer' && mode === 'in') {
-      onCustomerChange(value);
+    if (fieldName === 'customer') {
+      if (mode === 'in' && onCustomerChange) {
+        onCustomerChange(value);
+        // Reset cart form when customer changes
+        setCartForm(initialCartState);
+      }
+      console.log('Customer selected:', value);
     }
   };
 
@@ -69,6 +70,8 @@ const InOutModal = ({
     setCartForm((prev) => ({ ...prev, [fieldName]: value }));
     if (fieldName === 'category' && onCategoryChange) {
       onCategoryChange(value);
+      // Reset subcategory when category changes
+      setCartForm(prev => ({ ...prev, subcategory: '' }));
     }
     console.log(`cartForm: ${cartForm}`);
   };
@@ -170,10 +173,13 @@ const InOutModal = ({
 
   // Final submit handler
   const handleSubmit = () => {
+    // Ensure customer is included in the data
     const data = {
       ...mainForm,
+      customer: mainForm.customer, // Explicitly include customer
       cartItems
     };
+    console.log('Submitting data with customer:', data.customer);
     onSubmit(data);
   };
 
@@ -229,38 +235,99 @@ const InOutModal = ({
       </Modal.Header>
       <Modal.Body className="p-4" style={{ maxHeight: '80vh', overflowY: 'auto' }}>
         <Form>
+          {/* Customer Selection Section */}
           <div className="bg-white rounded shadow-sm p-4 mb-4">
-          <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Select Customer</h5>
-          <Row className="mb-3">
-            <Col md={6}>
-              <Form.Group controlId="customer">
-                <Form.Label>Select Customer</Form.Label>
-                <Form.Select
-                  value={mainForm['customer']}
-                  onChange={(e) => handleMainFieldChange(e, 'customer')}
-                >
-                  <option value="">Select Customer</option>
-                  {customer.map(c => (
-                    <option key={c} value={c}>{c}</option>
-                  ))}
-                </Form.Select>
-              </Form.Group>
-            </Col>
-          </Row>
+            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Select Customer</h5>
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group controlId="customer">
+                  <Form.Label>Select Customer</Form.Label>
+                  <Form.Select
+                    value={mainForm.customer}
+                    onChange={(e) => handleMainFieldChange(e, 'customer')}
+                    className="rounded-2"
+                  >
+                    <option value="">Select Customer</option>
+                    {customer.map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </Form.Select>
+                </Form.Group>
+              </Col>
+            </Row>
           </div>
           
           {/* Material Information Section */}
           <div className="bg-white rounded shadow-sm p-4 mb-4">
             <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Material Information</h5>
+            {mode === 'in' && !mainForm.customer ? (
+              <div className="alert alert-warning">
+                Please select a customer first to view available categories and subcategories.
+              </div>
+            ) : (
+              <Row className="g-3">
+                {cartFields.map((field) => (
+                  <Col xs={12} md={field.width || 3} key={field.name}>
+                    <Form.Group controlId={`cart_${field.name}`}>
+                      <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                      {field.type === 'select' ? (
+                        <Form.Select
+                          value={cartForm[field.name]} 
+                          onChange={(e) => handleCartFieldChange(e, field.name)}
+                          className="rounded-2"
+                          disabled={mode === 'in' && (
+                            !mainForm.customer || 
+                            (field.name === 'subcategory' && !cartForm.category)
+                          )}
+                        >
+                          <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                          {field.options &&
+                            field.options.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                        </Form.Select>
+                      ) : (
+                        <Form.Control
+                          type={field.type}
+                          value={cartForm[field.name]}
+                          onChange={(e) => handleCartFieldChange(e, field.name)}
+                          placeholder={field.placeholder || ''}
+                          className="rounded-2"
+                          min={field.type === 'date' ? today : undefined}
+                          disabled={mode === 'in' && !mainForm.customer}
+                        />
+                      )}
+                    </Form.Group>
+                  </Col>
+                ))}
+                <Col xs={12} md={2} className="d-flex align-items-end">
+                  <Button 
+                    variant="primary" 
+                    onClick={handleAddCartItem} 
+                    className="w-100 mt-2 mt-md-0 rounded-2"
+                    disabled={mode === 'in' && !mainForm.customer}
+                  >
+                    Add Item
+                  </Button>
+                </Col>
+              </Row>
+            )}
+          </div>
+          
+          {/* Main Details Section */}
+          <div className="bg-white rounded shadow-sm p-4 mb-4">
+            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
             <Row className="g-3">
-              {cartFields.map((field) => (
-                <Col xs={12} md={field.width || 3} key={field.name}>
-                  <Form.Group controlId={`cart_${field.name}`}>
+              {mainFields.map((field) => (
+                <Col xs={12} md={field.width || 4} key={field.name}>
+                  <Form.Group controlId={`main_${field.name}`}>
                     <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
                     {field.type === 'select' ? (
                       <Form.Select
-                        value={cartForm[field.name]} 
-                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        value={mainForm[field.name]} 
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
                         className="rounded-2"
                       >
                         <option value="">{field.placeholder || `Select ${field.label}`}</option>
@@ -271,28 +338,30 @@ const InOutModal = ({
                             </option>
                           ))}
                       </Form.Select>
+                    ) : field.type === 'textarea' ? (
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        readOnly={field.readOnly || false}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+                      />
                     ) : (
                       <Form.Control
                         type={field.type}
-                        value={cartForm[field.name]}
-                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        value={field.type === 'file' ? undefined : mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
                         placeholder={field.placeholder || ''}
-                        className="rounded-2"
-                        min={field.type === 'date' ? today : undefined} // Set min attribute if type is date
+                        readOnly={field.readOnly || false}
+                        accept={field.accept || undefined}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
                       />
                     )}
                   </Form.Group>
                 </Col>
               ))}
-              <Col xs={12} md={2} className="d-flex align-items-end">
-                <Button 
-                  variant="primary" 
-                  onClick={handleAddCartItem} 
-                  className="w-100 mt-2 mt-md-0 rounded-2"
-                >
-                  Add Item
-                </Button>
-              </Col>
             </Row>
           </div>
 
@@ -444,55 +513,6 @@ const InOutModal = ({
               )}
             </div>
           )}
-
-          {/* Main Details Section */}
-          <div className="bg-white rounded shadow-sm p-4 mb-4">
-            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
-            <Row className="g-3">
-              {mainFields.map((field) => (
-                <Col xs={12} md={field.width || 4} key={field.name}>
-                  <Form.Group controlId={`main_${field.name}`}>
-                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
-                    {field.type === 'select' ? (
-                      <Form.Select
-                        value={mainForm[field.name]} 
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        className="rounded-2"
-                      >
-                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                        {field.options &&
-                          field.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                      </Form.Select>
-                    ) : field.type === 'textarea' ? (
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        value={mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    ) : (
-                      <Form.Control
-                        type={field.type}
-                        value={field.type === 'file' ? undefined : mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        accept={field.accept || undefined}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    )}
-                  </Form.Group>
-                </Col>
-              ))}
-            </Row>
-          </div>
         </Form>
       </Modal.Body>
       <Modal.Footer className="border-top p-3">

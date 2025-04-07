@@ -52,6 +52,8 @@ exports.getMaterialInfoById = async (req, res) => {
 
 exports.addOutData = (req, res) => {
   console.log("Received Data:", req.body);
+  console.log("Customer value:", req.body.customer);
+  console.log("Files:", req.files);
 
     try {
       const {
@@ -108,6 +110,8 @@ exports.addOutData = (req, res) => {
         `;
   
         const outValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark];  
+        console.log("Inserting into in_out with values:", outValues);
+        
         db.query(outSql, outValues, (err, outResult) => {
           if (err) {
             console.error("Error inserting out data:", err);
@@ -131,23 +135,32 @@ exports.addOutData = (req, res) => {
 
   exports.updateOutData = (req, res) => {
     const { id } = req.params;
+    console.log("Updating Out Data for ID:", id);
+    console.log("Request body:", req.body);
+    console.log("Files:", req.files);
+
     const {
         customer,
         receiver,
         payMode,
         deposit,
         remark,
+        existingAadharPhoto,
+        existingOtherProof,
         cartItems = []
     } = req.body;
 
-    // Handling file uploads
+    // Handle file uploads or use existing paths
     const outAadhar = req.files?.aadharPhoto
         ? `uploads/customer/aadhar/${req.files.aadharPhoto[0].filename}`
-        : null;
+        : existingAadharPhoto || null;
 
     const otherProof = req.files?.other_proof
         ? `uploads/customer/other/${req.files.other_proof[0].filename}`
-        : null;
+        : existingOtherProof || null;
+
+    console.log("Using Aadhar Photo:", outAadhar);
+    console.log("Using Other Proof:", otherProof);
 
     // Validate cartItems
     if (!cartItems || !Array.isArray(cartItems) || cartItems.length === 0) {
@@ -201,6 +214,8 @@ exports.addOutData = (req, res) => {
                 `;
 
                 const updateValues = [customer, materialInfoString, receiver, outAadhar, otherProof, payMode, deposit, remark, id];
+                console.log("Updating in_out with values:", updateValues);
+
                 db.query(updateSql, updateValues, (err, updateResult) => {
                     if (err) {
                         console.error("Error updating in_out data:", err);

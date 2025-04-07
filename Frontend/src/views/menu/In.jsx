@@ -36,10 +36,11 @@ const In = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categoriesData = await getCategories();
-        setCategories(categoriesData.map((cat) => cat.category));
+        // Initialize with empty arrays instead of fetching all categories
+        setCategories([]);
+        setSubcategories([]);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error initializing categories:', error);
       }
     };
     fetchCategories();
@@ -55,10 +56,18 @@ const In = () => {
 
   const handleCategoryChange = async (selectedCategory) => {
     try {
-      const subcategoryList = await getSubcategoriesByCategory(selectedCategory);
-      setSubcategories(subcategoryList.map((subcat) => subcat.subcategory));
+      // Filter subcategories from materialInfoList based on the selected category
+      const filteredSubcategories = materialInfoList
+        .filter(item => item.category.toLowerCase() === selectedCategory.toLowerCase())
+        .map(item => item.subcategory);
+      
+      // Remove duplicates
+      const uniqueSubcategories = [...new Set(filteredSubcategories)];
+      
+      console.log('Filtered subcategories for category:', selectedCategory, uniqueSubcategories);
+      setSubcategories(uniqueSubcategories);
     } catch (error) {
-      console.error('Error fetching subcategories:', error);
+      console.error('Error filtering subcategories:', error);
       setSubcategories([]);
     }
   };
@@ -112,35 +121,51 @@ const In = () => {
   }
 
 
-  const handleCustomerChange =async (selectedCustomer) => {
+  const handleCustomerChange = async (selectedCustomer) => {
     console.log('Selected Customer:', selectedCustomer);
     try {
         const outData = await getOutData();
-        console.log('outdata from API in handleCustomerChange: ',outData );
+        console.log('outdata from API in handleCustomerChange: ', outData);
 
-       // Find the material_info for the selected customer
-       const materialInfoId = outData.find(entry =>
-        entry.customer.toLowerCase() === selectedCustomer.toLowerCase()
-       )?.material_info;
+        // Find the material_info for the selected customer
+        const materialInfoId = outData.find(entry =>
+          entry.customer.toLowerCase() === selectedCustomer.toLowerCase()
+        )?.material_info;
 
         if (materialInfoId) {
             console.log(`Material Info for ${selectedCustomer}:`, materialInfoId);
             try {
               const materialList = await getMaterialInfoForCustomer(materialInfoId);
-              console.log("materialList: ",materialList);
+              console.log("materialList: ", materialList);
               setMaterialInfoList(materialList);
-
+              
+              // Extract unique categories and subcategories from materialList
+              const uniqueCategories = [...new Set(materialList.map(item => item.category))];
+              const uniqueSubcategories = [...new Set(materialList.map(item => item.subcategory))];
+              
+              console.log("Unique categories for this customer:", uniqueCategories);
+              console.log("Unique subcategories for this customer:", uniqueSubcategories);
+              
+              // Update categories and subcategories state
+              setCategories(uniqueCategories);
+              setSubcategories(uniqueSubcategories);
             } catch (error) {
               console.error('Error fetching Customer Material Info by Id:', error);
               setMaterialInfoList([]);
+              setCategories([]);
+              setSubcategories([]);
             }
         } else {
             console.log(`No material info found for ${selectedCustomer}`);
             setMaterialInfoList([]);
+            setCategories([]);
+            setSubcategories([]);
         }
-        } catch (error) {
-          console.error('Error fetching Customer Material Info:', error);
-          setMaterialInfoList([]);
+    } catch (error) {
+        console.error('Error fetching Customer Material Info:', error);
+        setMaterialInfoList([]);
+        setCategories([]);
+        setSubcategories([]);
     }
   }
 

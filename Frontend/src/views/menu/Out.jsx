@@ -89,6 +89,7 @@ const Out = () => {
 
   const handleSubmit = async (data) => {
     console.log('Out data submitted:', data);
+    console.log('Customer value:', data.customer);
 
     try {
       if (selectedRecord) {
@@ -104,8 +105,12 @@ const Out = () => {
       setIsModalOpen(false);
       setSelectedRecord(null);
 
-      const updatedData = await getOutData();
-      setOutData(updatedData);
+      // Add a small delay to ensure the database operation is complete
+      setTimeout(async () => {
+        const updatedData = await getOutData();
+        console.log('Updated Out data:', updatedData);
+        setOutData(updatedData);
+      }, 500);
     } catch (error) {
       console.error('Error submitting out data:', error);
       showErrorAlert('Error submitting out data!');
@@ -113,15 +118,18 @@ const Out = () => {
   };
 
   const handleEditClick = async (row) => {
-    console.log('checkvalue',row)
+    console.log('Edit row data:', row);
     if (!row?.id) {
       showErrorAlert('Invalid data item selected for editing.');
       return;
     }
-    console.log('row', row);
 
     try {
       const materialData = await getMaterialInfoById(row.material_info_id);
+
+      // Extract image paths from the URLs
+      const aadharPhoto = row.aadhar_photo ? row.aadhar_photo.replace(`${IMG_URL}/`, '') : '';
+      const otherProof = row.other_proof ? row.other_proof.replace(`${IMG_URL}/`, '') : '';
 
       const newRecord = {
         in_out_id: row.id || '',
@@ -129,8 +137,8 @@ const Out = () => {
         receiver: row.receiver_name || '',
         payMode: row.payment_mode || '',
         deposit: row.deposit || '',
-        aadharPhoto: row.aadharPhoto || '',
-        other_proof: row.other_proof || '',
+        aadharPhoto: aadharPhoto, // Use the extracted path
+        other_proof: otherProof, // Use the extracted path
         remark: row.remark || '',
         cartItems: materialData || []
       };
@@ -198,28 +206,27 @@ const Out = () => {
   const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark'];
 
   // Map outData to table format with safety checks for undefined values
-  const tableData = outData.map((record) => ({
-    // customer: record.cartItems?.[0]?.customer ?? '',
-    id: record.in_out_id,
-    material_info_id: record.material_info,
-    material_info: (
-      <button onClick={() => handleDetails(record.material_info)} className="btn btn-outline-primary btn-sm">
-        Details
-      </button>
-    ),
-    customer: record.customer ?? '',
-    // category: record.cartItems?.[0]?.category ?? '',
-    // sub_category: record.cartItems?.[0]?.subcategory ?? '',
-    receiver_name: record.receiver ?? '',
-    // quantity: record.cartItems?.quantity ?? 0,
-    payment_mode: record.payMode ?? '',
-    deposit: record.deposit ?? 0,
-    // rent: record.cartItems?.[0]?.rent ?? 0,
-    // return_date: record.cartItems?.[0]?.date ?? '',
-    aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
-    other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
-    remark: record.remark ?? ''
-  }));
+  const tableData = outData.map((record) => {
+    console.log('Processing record:', record);
+    console.log('Customer value:', record.customer);
+    
+    return {
+      id: record.in_out_id,
+      material_info_id: record.material_info,
+      material_info: (
+        <button onClick={() => handleDetails(record.material_info)} className="btn btn-outline-primary btn-sm">
+          Details
+        </button>
+      ),
+      customer: record.customer || '',
+      receiver_name: record.receiver || '',
+      payment_mode: record.payMode || '',
+      deposit: record.deposit || 0,
+      aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
+      other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
+      remark: record.remark || ''
+    };
+  });
 
   // Get dynamic fields for material (cart) and main details
   const cartFields = outFields(categories, subcategories);

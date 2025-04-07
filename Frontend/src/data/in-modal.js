@@ -1,4 +1,4 @@
-export const inFields = (categories, subcategories) => {
+export const inFields = (categories = [], subcategories = []) => {
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   return [
     {
@@ -6,7 +6,7 @@ export const inFields = (categories, subcategories) => {
       label: 'Select Category',
       type: 'select',
       options: categories, // dynamically injected
-      placeholder: 'Select Category',
+      placeholder: categories.length > 0 ? 'Select Category' : 'No categories available',
       width: 3,
     },
     {
@@ -14,7 +14,7 @@ export const inFields = (categories, subcategories) => {
       label: 'Select Subcategory',
       type: 'select',
       options: subcategories, // dynamically injected
-      placeholder: 'Select Subcategory',
+      placeholder: subcategories.length > 0 ? 'Select Subcategory' : 'No subcategories available',
       width: 3,
     },
     {
