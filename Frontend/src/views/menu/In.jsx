@@ -12,6 +12,8 @@ import { getOutData } from 'api/outApi';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
 import { getMaterialInfoById } from '@/api/inApi';
 import { getMaterialInfoById as getMaterialInfoForCustomer } from 'api/outApi';
+import { getDeposits } from 'api/depositAPI';
+import {getRents} from 'api/rentApi';
 import MaterialInfoModal from '@/components/Modal/MaterialInfoModal';
 import DeletePopUp from '@/components/PopUp/DeletePopUp';
 
@@ -60,6 +62,55 @@ const In = () => {
       setSubcategories([]);
     }
   };
+
+  const handleDepositRate = async (cat, sub) =>{
+    try {
+      const depositData = await getDeposits();
+      // console.log('Deposit Data:', depositData);
+
+      // Find the deposit value based on category and subcategory
+      const depositEntry = depositData.find(entry =>
+          entry.category.toLowerCase() === cat.toLowerCase() &&
+          entry.subcategory.toLowerCase() === sub.toLowerCase()
+      );
+
+      if (depositEntry) {
+          console.log(`Deposit Value for Category: ${cat}, Subcategory: ${sub} is ${depositEntry.deposit}`);
+          return depositEntry.deposit;
+      } else {
+          console.log(`No deposit value found for Category: ${cat}, Subcategory: ${sub}`);
+          return null;
+      }
+     } catch (error) {
+      console.error('Error fetching deposit data:', error);
+      return null;
+    } 
+  }
+
+  const handleRentRate = async (cat,sub) => {
+    try {
+      const rentData = await getRents();
+      // console.log('Rent Data:', rentData);
+  
+      // Find the rent rate value based on category and subcategory
+      const rentEntry = rentData.find(entry =>
+        entry.category.toLowerCase() === cat.toLowerCase() &&
+        entry.subcategory.toLowerCase() === sub.toLowerCase()
+      );
+  
+      if (rentEntry) {
+        console.log(`Rent Rate for Category: ${cat}, Subcategory: ${sub} is ${rentEntry.rent}`);
+        return rentEntry.rent;
+      } else {
+        console.log(`No rent rate found for Category: ${cat}, Subcategory: ${sub}`);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching rent data:', error);
+      return null;
+    }
+  }
+
 
   const handleCustomerChange =async (selectedCustomer) => {
     console.log('Selected Customer:', selectedCustomer);
@@ -254,8 +305,10 @@ const In = () => {
           mainFields={mainFields}
           cartFields={cartFields}
           customer={customersList}
+          materialDataOfCustomer={materialInfoList}
           onCustomerChange={handleCustomerChange}
-          getDepositRate={(cat, sub) => 10} // Example deposit rate function
+          getDepositRate={handleDepositRate}
+          getRentRate={handleRentRate}
           onCategoryChange={handleCategoryChange}
         />
       )}
