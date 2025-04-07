@@ -10,10 +10,13 @@ const InOutModal = ({
   mainFields = [],
   cartFields = [],
   customer,
+  materialDataOfCustomer =[],
   onCustomerChange,
   getDepositRate,
+  getRentRate,
   onCategoryChange
 }) => {
+  
   // Ensure initialData is an object even if null
   const safeInitialData = initialData || {};
 
@@ -33,6 +36,8 @@ const InOutModal = ({
 
   // Cart items state
   const [cartItems, setCartItems] = useState(safeInitialData.cartItems || []);
+
+  const today = new Date().toISOString().split('T')[0];
 
   // Build initial state for cart form
   const initialCartState = {};
@@ -68,37 +73,79 @@ const InOutModal = ({
     console.log(`cartForm: ${cartForm}`);
   };
 
+  // on selecting the customer the material info will shown in table for mode = in
+    // useEffect(() => {
+    //   if (mode === 'in' && onCustomerChange) {
+    //     const newMaterialData = materialDataOfCustomer.map((item) => ({
+    //       ...item,
+    //       invoice: item.invoice || '',
+    //       returnQuantity: item.quantity || '',
+    //       returnDate: item.date.split("T")[0] || '',
+    //       totalAmount : item.amount || '',
+    //     }));
+    //     setCartItems(newMaterialData);
+    //   }
+    // }, [mode, onCustomerChange, setCartItems, materialDataOfCustomer]);
+
+  const handleCalculations = async () => {
+    try {
+      // Fetch the rate asynchronously
+      const depositRate = getDepositRate ? await getDepositRate(cartForm.category, cartForm.subcategory) : 0;
+      console.log('depositRate', depositRate);
+      
+      const rentRate = getRentRate ? await getRentRate(cartForm.category, cartForm.subcategory) : 0;
+      console.log('rentRate',rentRate);
+
+      console.log('materialDataOfCustomer',materialDataOfCustomer);
+
+      const totalDays = 5; //calculate total days
+      console.log('totalDays',totalDays);
+      
+
+      // Perform calculations
+      const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
+      const quantity = Number(cartForm[quantityField]) || 1;
+     
+      const rent = rentRate * quantity;
+      const totalAmount = rent * totalDays;
+      const deposit = depositRate * quantity; 
+      const depositReturn = deposit - totalAmount;
+
+      if(mode==='out'){
+        setMainForm((prevForm) => ({
+          ...prevForm,
+          deposit: deposit
+        }));
+      }
+      
+      // Create a new cart item with the calculated values
+      const newCartItem = {
+        ...cartForm,
+        totalDays,
+        rent,
+        totalAmount,
+        deposit,
+        depositReturn
+      };
+  
+      // Update the cart items state
+      setCartItems((prev) => [...prev, newCartItem]);
+      setCartForm(initialCartState);
+    } catch (error) {
+      console.error('Error calculating rate:', error);
+    }
+  };
+  
   // Handler to add a cart item
-  const handleAddCartItem = () => {
-    // Validate required cart fields
+
+  const handleAddCartItem = async () => {
     for (const field of cartFields) {
       if (!cartForm[field.name]) {
         alert(`Please fill "${field.label}"`);
         return;
       }
     }
-
-    // Calculations
-    const rate = getDepositRate ? getDepositRate(cartForm.category, cartForm.subcategory) : 0;
-    const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
-    const quantity = Number(cartForm[quantityField]) || 1;
-    const totalDays = 5; // Example: 5 days
-    const rent = rate * quantity;
-    const totalAmount = rent * totalDays;
-    const deposit = rate * quantity * 2; // Example: deposit is twice daily rent
-    const depositReturn = deposit - totalAmount;
-
-    const newCartItem = {
-      ...cartForm,
-      totalDays,
-      rent,
-      totalAmount,
-      deposit,
-      depositReturn
-    };
-
-    setCartItems((prev) => [...prev, newCartItem]);
-    setCartForm(initialCartState);
+    await handleCalculations();
   };
 
   // Handler to delete a cart item by its index
@@ -231,6 +278,7 @@ const InOutModal = ({
                         onChange={(e) => handleCartFieldChange(e, field.name)}
                         placeholder={field.placeholder || ''}
                         className="rounded-2"
+                        min={field.type === 'date' ? today : undefined} // Set min attribute if type is date
                       />
                     )}
                   </Form.Group>
@@ -350,11 +398,11 @@ const InOutModal = ({
                               <td>{item.returnQuantity}</td>
                               <td>{item.returnDate}</td>
                               <td>{item.totalDays}</td>
-                              <td className="fw-medium">${item.rent}</td>
-                              <td className="fw-medium">${item.totalAmount}</td>
-                              <td className="fw-medium">${item.deposit}</td>
+                              <td className="fw-medium">₹{item.rent}</td>
+                              <td className="fw-medium">₹{item.totalAmount}</td>
+                              <td className="fw-medium">₹{item.deposit}</td>
                               <td className={`fw-medium ${item.depositReturn > 0 ? 'text-success' : 'text-danger'}`}>
-                                ${item.depositReturn}
+                              ₹{item.depositReturn}
                               </td>
                             </>
                           ) : (
@@ -383,13 +431,13 @@ const InOutModal = ({
                   <div className={isMobileView ? 'mb-2' : 'me-4'}>
                     <span className="fw-semibold text-secondary">Total Amount:</span>
                     <span className="ms-2 fw-semibold text-primary">
-                      ${summary.totalAmount}
+                    ₹{summary.totalAmount}
                     </span>
                   </div>
                   <div>
                     <span className="fw-semibold text-secondary">Deposit Return:</span>
                     <span className={`ms-2 fw-semibold ${summary.depositReturn > 0 ? 'text-success' : 'text-danger'}`}>
-                      ${summary.depositReturn}
+                    ₹{summary.depositReturn}
                     </span>
                   </div>
                 </div>
