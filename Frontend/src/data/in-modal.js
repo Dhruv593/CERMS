@@ -1,4 +1,4 @@
-export const inFields = (categories = [], subcategories = []) => {
+export const inFields = (categories = [], subcategories = [], quantity =[]) => {
   const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
   return [
     {
@@ -19,10 +19,11 @@ export const inFields = (categories = [], subcategories = []) => {
     },
     {
       name: 'invoice',
-      label: 'Select Invoice',
+      label: 'Select Quantity',
       type: 'select',
-      options: ['Invoice 1001', 'Invoice 1002'],
-      placeholder: 'Select Invoice',
+      // options: ['Invoice 1001', 'Invoice 1002'],
+      options: quantity,
+      placeholder: 'Select Quantity',
       width: 3,
     },
     {

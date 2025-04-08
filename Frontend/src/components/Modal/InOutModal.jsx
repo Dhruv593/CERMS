@@ -115,9 +115,21 @@ const InOutModal = ({
       const depositReturn = deposit - totalAmount;
 
       if(mode==='out'){
+        const todaysDate = new Date();
+        console.log('todaysDate',todaysDate);
+      
+        const returnDateString = cartForm.date; // Assuming this is a string like "2025-04-16"
+        const returnDate = new Date(returnDateString);
+        console.log('cartForm return date', returnDate);
+
+        const timeDifference = returnDate - todaysDate;
+
+        const totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+        const depositOut = depositRate * totalDays;
+        console.log('depositOut',depositOut);
         setMainForm((prevForm) => ({
           ...prevForm,
-          deposit: deposit
+          deposit: depositOut
         }));
       }
       
@@ -277,7 +289,8 @@ const InOutModal = ({
                           className="rounded-2"
                           disabled={mode === 'in' && (
                             !mainForm.customer || 
-                            (field.name === 'subcategory' && !cartForm.category)
+                            (field.name === 'subcategory' && !cartForm.category) ||
+                            (field.name === 'invoice' && (!cartForm.category || !cartForm.subcategory))
                           )}
                         >
                           <option value="">{field.placeholder || `Select ${field.label}`}</option>

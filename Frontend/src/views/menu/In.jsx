@@ -24,6 +24,7 @@ const In = () => {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
+  const [quantity, setQuantity] = useState([]);
   const [customersList, setCustomerList] = useState([]);
   const [isMaterialModalOpen, setIsMaterialModalOpen] = useState(false);
   const [selectedMaterialInfo, setSelectedMaterialInfo] = useState(null);
@@ -142,18 +143,22 @@ const In = () => {
               // Extract unique categories and subcategories from materialList
               const uniqueCategories = [...new Set(materialList.map(item => item.category))];
               const uniqueSubcategories = [...new Set(materialList.map(item => item.subcategory))];
+              const  uniqueQuantity = [...new Set(materialList.map(item => item.quantity))]
               
               console.log("Unique categories for this customer:", uniqueCategories);
               console.log("Unique subcategories for this customer:", uniqueSubcategories);
+              console.log("Unique Quantity for this customer:", uniqueQuantity);
               
               // Update categories and subcategories state
               setCategories(uniqueCategories);
               setSubcategories(uniqueSubcategories);
+              setQuantity(uniqueQuantity);
             } catch (error) {
               console.error('Error fetching Customer Material Info by Id:', error);
               setMaterialInfoList([]);
               setCategories([]);
               setSubcategories([]);
+              setQuantity([]);
             }
         } else {
             console.log(`No material info found for ${selectedCustomer}`);
@@ -303,7 +308,7 @@ const In = () => {
   }));
 
   // Get dynamic cart fields and main fields
-  const cartFields = inFields(categories, subcategories);
+  const cartFields = inFields(categories, subcategories, quantity);
   const mainFields = inMainFields(customersList, payModes);
 
   return (
