@@ -294,12 +294,27 @@ const InOutModal = ({
                           )}
                         >
                           <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                          {field.options &&
-                            field.options.map((opt) => (
-                              <option key={opt} value={opt}>
-                                {opt}
-                              </option>
-                            ))}
+                          {field.options && (
+                            field.name === 'invoice' ? 
+                              // For invoice field, show quantity based on selected category
+                              [cartFields.find(field => 
+                                field.name === 'invoice' && 
+                                field.options
+                              )?.options?.[
+                                cartFields.find(field => 
+                                  field.name === 'category'
+                                )?.options.findIndex(cat => 
+                                  cat === cartForm.category
+                                )
+                              ] || 0].map(opt => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))
+                            : 
+                              // For other fields, show all options
+                              field.options.map((opt) => (
+                                <option key={opt} value={opt}>{opt}</option>
+                              ))
+                          )}
                         </Form.Select>
                       ) : (
                         <Form.Control
@@ -329,66 +344,33 @@ const InOutModal = ({
             )}
           </div>
           
-          {/* Main Details Section */}
-          <div className="bg-white rounded shadow-sm p-4 mb-4">
-            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
-            <Row className="g-3">
-              {mainFields.map((field) => (
-                <Col xs={12} md={field.width || 4} key={field.name}>
-                  <Form.Group controlId={`main_${field.name}`}>
-                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
-                    {field.type === 'select' ? (
-                      <Form.Select
-                        value={mainForm[field.name]} 
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        className="rounded-2"
-                      >
-                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                        {field.options &&
-                          field.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                      </Form.Select>
-                    ) : field.type === 'textarea' ? (
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        value={mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    ) : (
-                      <Form.Control
-                        type={field.type}
-                        value={field.type === 'file' ? undefined : mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        accept={field.accept || undefined}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    )}
-                  </Form.Group>
-                </Col>
-              ))}
-            </Row>
-          </div>
-
+          
           {/* Card Rendering for IN Mode */}
           {mode === 'in' && cartForm.category && cartForm.subcategory && (
             <Card className="mb-3 shadow-sm border">
               <Card.Body className="p-3">
                 <Card.Title className="fs-6 fw-semibold">{cartForm.subcategory}</Card.Title>
                 <Card.Text className="small text-secondary mb-0">
-                  Pending: <span className="fw-semibold text-primary">50</span>
+                  Pending: <span className="fw-semibold text-primary">
+                    {cartFields.find(field => 
+                      field.name === 'invoice' && 
+                      field.options
+                    )?.options?.[
+                      cartFields.find(field => 
+                        field.name === 'category'
+                      )?.options.findIndex(cat => 
+                        cat === cartForm.category
+                      )
+                    ] || 0}
+                  </span>
                 </Card.Text>
               </Card.Body>
             </Card>
           )}
+
+          
+
+      
 
           {/* Cart Items Section */}
           {cartItems.length > 0 && (
@@ -526,6 +508,55 @@ const InOutModal = ({
               )}
             </div>
           )}
+
+          {/* Main Details Section */}
+          <div className="bg-white rounded shadow-sm p-4 mb-4">
+            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
+            <Row className="g-3">
+              {mainFields.map((field) => (
+                <Col xs={12} md={field.width || 4} key={field.name}>
+                  <Form.Group controlId={`main_${field.name}`}>
+                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                    {field.type === 'select' ? (
+                      <Form.Select
+                        value={mainForm[field.name]} 
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        className="rounded-2"
+                      >
+                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                        {field.options &&
+                          field.options.map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                      </Form.Select>
+                    ) : field.type === 'textarea' ? (
+                      <Form.Control
+                        as="textarea"
+                        rows={3}
+                        value={mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        readOnly={field.readOnly || false}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+                      />
+                    ) : (
+                      <Form.Control
+                        type={field.type}
+                        value={field.type === 'file' ? undefined : mainForm[field.name]}
+                        onChange={(e) => handleMainFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        readOnly={field.readOnly || false}
+                        accept={field.accept || undefined}
+                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+                      />
+                    )}
+                  </Form.Group>
+                </Col>
+              ))}
+            </Row>
+          </div>
         </Form>
       </Modal.Body>
       <Modal.Footer className="border-top p-3">
