@@ -129,24 +129,32 @@ const In = () => {
         console.log('outdata from API in handleCustomerChange: ', outData);
 
         // Find ALL material_info entries for the selected customer
-        const materialInfoIds = outData
+        const materialInfoEntries = outData
             .filter(entry => entry.customer.toLowerCase() === selectedCustomer.toLowerCase())
-            .map(entry => entry.material_info);
+            .map(entry => ({
+                material_info_id: entry.material_info,
+                created_at: entry.created_at
+            }));
 
-        if (materialInfoIds.length > 0) {
-            console.log(`Material Info IDs for ${selectedCustomer}:`, materialInfoIds);
+        if (materialInfoEntries.length > 0) {
+            console.log(`Material Info Entries for ${selectedCustomer}:`, materialInfoEntries);
             try {
                 // Fetch material info for all IDs and combine the results
                 const allMaterialLists = await Promise.all(
-                    materialInfoIds.map(id => getMaterialInfoForCustomer(id))
+                    materialInfoEntries.map(async entry => {
+                        const materialInfo = await getMaterialInfoForCustomer(entry.material_info_id);
+                        return materialInfo.map(info => ({ ...info, created_at: entry.created_at }));
+                    })
                 );
-                
+
                 // Flatten the array of arrays into a single array
                 const materialList = allMaterialLists.flat();
-                
+                console.log('materialList Before addition', materialList);
+                setMaterialInfoList(materialList);
+
                 // Create a map to store combined quantities for each category-subcategory pair
                 const combinedMaterials = new Map();
-                
+
                 materialList.forEach(item => {
                     const key = `${item.category}-${item.subcategory}`;
                     if (combinedMaterials.has(key)) {
@@ -157,26 +165,26 @@ const In = () => {
                         existingItem.invoice = item.invoice;
                         existingItem.return_date = item.return_date;
                         existingItem.amount = item.amount;
+                        existingItem.created_at = item.created_at; // Update created_at
                     } else {
                         combinedMaterials.set(key, { ...item });
                     }
                 });
-                
+
                 // Convert the map back to an array
                 const combinedMaterialList = Array.from(combinedMaterials.values());
-                
+
                 console.log("Combined materialList with summed quantities: ", combinedMaterialList);
-                setMaterialInfoList(combinedMaterialList);
-                
+
                 // Extract unique categories and subcategories from combined list
                 const uniqueCategories = [...new Set(combinedMaterialList.map(item => item.category))];
                 const uniqueSubcategories = [...new Set(combinedMaterialList.map(item => item.subcategory))];
                 const uniqueQuantity = [...new Set(combinedMaterialList.map(item => item.quantity))];
-                
+
                 console.log("All categories for this customer:", uniqueCategories);
                 console.log("All subcategories for this customer:", uniqueSubcategories);
                 console.log("Combined quantities for this customer:", uniqueQuantity);
-                
+
                 // Update states
                 setCategories(uniqueCategories);
                 setSubcategories(uniqueSubcategories);
@@ -202,6 +210,7 @@ const In = () => {
         setSubcategories([]);
     }
 };
+
 
   useEffect(() => {
     console.log('materialInfoList state: ', materialInfoList);
