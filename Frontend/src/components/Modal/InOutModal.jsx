@@ -66,90 +66,93 @@ const InOutModal = ({
   // Handler for cart form field changes
   const handleCartFieldChange = (e, fieldName) => {
     const { value } = e.target;
-    console.log(`fieldName: ${fieldName} \nvalue: ${value} `);
+    // console.log(`fieldName: ${fieldName} \nvalue: ${value} `);
     setCartForm((prev) => ({ ...prev, [fieldName]: value }));
     if (fieldName === 'category' && onCategoryChange) {
       onCategoryChange(value);
       // Reset subcategory when category changes
       setCartForm(prev => ({ ...prev, subcategory: '' }));
     }
-    console.log(`cartForm: ${cartForm}`);
+    // console.log(`cartForm: ${cartForm}`);
   };
 
-  // on selecting the customer the material info will shown in table for mode = in
-    // useEffect(() => {
-    //   if (mode === 'in' && onCustomerChange) {
-    //     const newMaterialData = materialDataOfCustomer.map((item) => ({
-    //       ...item,
-    //       invoice: item.invoice || '',
-    //       returnQuantity: item.quantity || '',
-    //       returnDate: item.date.split("T")[0] || '',
-    //       totalAmount : item.amount || '',
-    //     }));
-    //     setCartItems(newMaterialData);
-    //   }
-    // }, [mode, onCustomerChange, setCartItems, materialDataOfCustomer]);
 
   const handleCalculations = async () => {
     try {
-      // Fetch the rate asynchronously
-      const depositRate = getDepositRate ? await getDepositRate(cartForm.category, cartForm.subcategory) : 0;
-      console.log('depositRate', depositRate);
-      
-      const rentRate = getRentRate ? await getRentRate(cartForm.category, cartForm.subcategory) : 0;
-      console.log('rentRate',rentRate);
+        // Fetch the rate asynchronously
+        const depositRate = getDepositRate ? await getDepositRate(cartForm.category, cartForm.subcategory) : 0;
+        console.log('depositRate', depositRate);
 
-      console.log('materialDataOfCustomer',materialDataOfCustomer);
+        const rentRate = getRentRate ? await getRentRate(cartForm.category, cartForm.subcategory) : 0;
+        console.log('rentRate', rentRate);
 
-      const totalDays = 5; //calculate total days
-      console.log('totalDays',totalDays);
-      
+        console.log('materialDataOfCustomer', materialDataOfCustomer);
 
-      // Perform calculations
-      const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
-      const quantity = Number(cartForm[quantityField]) || 1;
-     
-      const rent = rentRate * quantity;
-      const totalAmount = rent * totalDays;
-      const deposit = depositRate * quantity; 
-      const depositReturn = deposit - totalAmount;
+        let totalDays = 0;
 
-      if(mode==='out'){
-        const todaysDate = new Date();
-        console.log('todaysDate',todaysDate);
-      
-        const returnDateString = cartForm.date; // Assuming this is a string like "2025-04-16"
-        const returnDate = new Date(returnDateString);
-        console.log('cartForm return date', returnDate);
+        if (mode === 'in') {
+            // Find the correct material data entry
+            const materialEntry = materialDataOfCustomer.find(
+                entry => entry.category === cartForm.category && entry.subcategory === cartForm.subcategory
+            );
 
-        const timeDifference = returnDate - todaysDate;
+            if (materialEntry && materialEntry.created_at && cartForm.returnDate) {
+                const startDate = new Date(materialEntry.created_at);
+                const returnDate = new Date(cartForm.returnDate);
+                const timeDifference = returnDate - startDate;
+                totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+            }
+        } else if (mode === 'out' && cartForm.date) {
+            const todaysDate = new Date();
+            console.log('todaysDate', todaysDate);
 
-        const totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-        const depositOut = depositRate * totalDays;
-        console.log('depositOut',depositOut);
-        setMainForm((prevForm) => ({
-          ...prevForm,
-          deposit: depositOut
-        }));
-      }
-      
-      // Create a new cart item with the calculated values
-      const newCartItem = {
-        ...cartForm,
-        totalDays,
-        rent,
-        totalAmount,
-        deposit,
-        depositReturn
-      };
-  
-      // Update the cart items state
-      setCartItems((prev) => [...prev, newCartItem]);
-      setCartForm(initialCartState);
+            const returnDateString = cartForm.date; // Assuming this is a string like "2025-04-16"
+            const returnDate = new Date(returnDateString);
+            console.log('cartForm return date', returnDate);
+
+            const timeDifference = returnDate - todaysDate;
+            totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+        }
+
+        console.log('totalDays', totalDays);
+
+        // Perform calculations
+        const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
+        const quantity = Number(cartForm[quantityField]) || 1;
+
+        const rent = rentRate * quantity;
+        const totalAmount = rent * totalDays;
+        const deposit = depositRate * quantity;
+        const depositReturn = deposit - totalAmount;
+
+        if (mode === 'out') {
+            const depositOut = depositRate * totalDays;
+            console.log('depositOut', depositOut);
+            setMainForm((prevForm) => ({
+                ...prevForm,
+                deposit: depositOut
+            }));
+        }
+
+        // Create a new cart item with the calculated values
+        const newCartItem = {
+            ...cartForm,
+            totalDays,
+            rent,
+            totalAmount,
+            deposit,
+            depositReturn
+        };
+
+        // Update the cart items state
+        setCartItems((prev) => [...prev, newCartItem]);
+        setCartForm(initialCartState);
     } catch (error) {
-      console.error('Error calculating rate:', error);
+        console.error('Error calculating rate:', error);
     }
-  };
+};
+
+  
   
   // Handler to add a cart item
 
@@ -201,7 +204,7 @@ const InOutModal = ({
         { label: '#', key: 'index', priorityMobile: true },
         { label: 'Category', key: 'category', priorityMobile: true },
         { label: 'Subcategory', key: 'subcategory', priorityMobile: true },
-        { label: 'Invoice', key: 'invoice', priorityMobile: false },
+        { label: 'Total Quantity', key: 'invoice', priorityMobile: false },
         { label: 'Return Qty', key: 'returnQuantity', priorityMobile: true },
         { label: 'Return Date', key: 'returnDate', priorityMobile: false },
         { label: 'Days', key: 'totalDays', priorityMobile: false },
@@ -284,38 +287,34 @@ const InOutModal = ({
                       <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
                       {field.type === 'select' ? (
                         <Form.Select
-                          value={cartForm[field.name]} 
-                          onChange={(e) => handleCartFieldChange(e, field.name)}
-                          className="rounded-2"
-                          disabled={mode === 'in' && (
-                            !mainForm.customer || 
-                            (field.name === 'subcategory' && !cartForm.category) ||
-                            (field.name === 'invoice' && (!cartForm.category || !cartForm.subcategory))
-                          )}
-                        >
-                          <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                          {field.options && (
-                            field.name === 'invoice' ? 
-                              // For invoice field, show quantity based on selected category
-                              [cartFields.find(field => 
-                                field.name === 'invoice' && 
-                                field.options
-                              )?.options?.[
-                                cartFields.find(field => 
-                                  field.name === 'category'
-                                )?.options.findIndex(cat => 
-                                  cat === cartForm.category
-                                )
-                              ] || 0].map(opt => (
-                                <option key={opt} value={opt}>{opt}</option>
+                        value={cartForm[field.name]} 
+                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        className="rounded-2"
+                        disabled={mode === 'in' && (
+                          !mainForm.customer || 
+                          (field.name === 'subcategory' && !cartForm.category) ||
+                          (field.name === 'invoice' && (!cartForm.category || !cartForm.subcategory))
+                        )}
+                      >
+                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                        {field.options && (
+                          field.name === 'invoice' ? 
+                            materialDataOfCustomer
+                              .filter(item => 
+                                item.category === cartForm.category && 
+                                item.subcategory === cartForm.subcategory
+                              )
+                              .map(item => (
+                                <option key={item.invoice} value={item.quantity}>
+                                  {item.quantity}
+                                </option>
                               ))
-                            : 
-                              // For other fields, show all options
-                              field.options.map((opt) => (
-                                <option key={opt} value={opt}>{opt}</option>
-                              ))
-                          )}
-                        </Form.Select>
+                          : 
+                            field.options.map((opt) => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))
+                        )}
+                      </Form.Select>
                       ) : (
                         <Form.Control
                           type={field.type}
