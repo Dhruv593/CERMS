@@ -23,8 +23,8 @@ const InOutModal = ({
   // Build initial state for the main form
   const initialMainState = {
     ...mainFields.reduce((acc, field) => {
-      acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
-      return acc;
+    acc[field.name] = safeInitialData[field.name] || field.initialValue || '';
+    return acc;
     }, {}),
     customer: safeInitialData.customer || '', // Ensure customer is included
   };  
@@ -55,7 +55,7 @@ const InOutModal = ({
     }));
     if (fieldName === 'customer') {
       if (mode === 'in' && onCustomerChange) {
-        onCustomerChange(value);
+      onCustomerChange(value);
         // Reset cart form when customer changes
         setCartForm(initialCartState);
       }
@@ -89,71 +89,246 @@ const InOutModal = ({
         console.log('materialDataOfCustomer', materialDataOfCustomer);
 
         let totalDays = 0;
+        let originalDeposit = 0;
+        let originalQuantity = 0;
+        let returnQuantity = 0;
+        let originalRentDate = null;
+        let originalOutId = null;
 
         if (mode === 'in') {
-            // Find the correct material data entry
-            const materialEntry = materialDataOfCustomer.find(
-                entry => entry.category === cartForm.category && entry.subcategory === cartForm.subcategory
-            );
+            console.log('Processing IN mode calculation');
+            console.log('Cart form values:', cartForm);
+            
+            // The invoice field in IN mode contains the formatted string like "8 (OUT-12345 - date)"
+            // We need to extract the outId from this string
+            const invoiceValue = cartForm.invoice || '';
+            console.log('Selected invoice/quantity value:', invoiceValue);
+            
+            // Try to extract the OUT ID from the format "quantity (OUT-id - date)"
+            const outIdMatch = invoiceValue.match(/\(OUT-(\d+)/);
+            if (outIdMatch && outIdMatch[1]) {
+                originalOutId = outIdMatch[1];
+                console.log('Extracted OUT ID:', originalOutId);
+            }
 
-            if (materialEntry && materialEntry.created_at && cartForm.returnDate) {
-                const startDate = new Date(materialEntry.created_at);
+            // First try to find the exact rental entry by matching outId
+            let materialEntry = null;
+            if (originalOutId) {
+                materialEntry = materialDataOfCustomer.find(
+                    entry => entry.category === cartForm.category && 
+                            entry.subcategory === cartForm.subcategory &&
+                            entry.outId == originalOutId
+                );
+                console.log('Found entry by outId:', materialEntry);
+            }
+            
+            // If not found by outId, try finding by quantity as fallback
+            if (!materialEntry) {
+                // Extract just the quantity number from the invoice value
+                const quantityMatch = invoiceValue.match(/^(\d+)/);
+                const originalQty = quantityMatch ? quantityMatch[1] : null;
+                
+                if (originalQty) {
+                    materialEntry = materialDataOfCustomer.find(
+                        entry => entry.category === cartForm.category && 
+                                entry.subcategory === cartForm.subcategory &&
+                                entry.quantity == originalQty
+                    );
+                    console.log('Found entry by quantity:', materialEntry);
+                }
+            }
+            
+            // If still not found, log the error
+            if (!materialEntry) {
+                console.error('Could not find matching material entry for return. Available entries:', 
+                    materialDataOfCustomer.filter(entry => 
+                        entry.category === cartForm.category && entry.subcategory === cartForm.subcategory
+                    )
+                );
+                alert('Error: Could not find the original rental entry. Please try again.');
+                return;
+            }
+
+            // Get the original rental date (might be named created_at, date, etc.)
+            originalRentDate = materialEntry.created_at || materialEntry.date || materialEntry.outDate;
+            console.log('Original rent date:', originalRentDate);
+            
+            if (!originalRentDate) {
+                console.error('Original rent date not found in entry:', materialEntry);
+                // Try to extract date from the invoice value as fallback
+                const dateMatch = invoiceValue.match(/- ([^)]+)\)/);
+                if (dateMatch && dateMatch[1]) {
+                    originalRentDate = new Date(dateMatch[1]);
+                    console.log('Using date extracted from invoice string:', originalRentDate);
+                } else {
+                    // If still no date, use a fallback
+                    console.warn('Using current date minus 1 day as fallback for missing rent date');
+                    const fallbackDate = new Date();
+                    fallbackDate.setDate(fallbackDate.getDate() - 1);
+                    originalRentDate = fallbackDate;
+                }
+            }
+            
+            if (originalRentDate && cartForm.returnDate) {
+                const startDate = new Date(originalRentDate);
                 const returnDate = new Date(cartForm.returnDate);
+                
+                console.log('Start date for calculation:', startDate);
+                console.log('Return date for calculation:', returnDate);
+                
+                if (isNaN(startDate.getTime())) {
+                    console.error('Invalid start date:', originalRentDate);
+                    alert('Error: Invalid rental date. Using today as fallback.');
+                    // Use fallback
+                    const fallbackDate = new Date();
+                    fallbackDate.setDate(fallbackDate.getDate() - 1);
+                    startDate = fallbackDate;
+                }
+                
                 const timeDifference = returnDate - startDate;
                 totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+                totalDays = Math.max(1, totalDays); // Minimum 1 day
+                
+                console.log(`Days calculation: From ${startDate.toLocaleDateString()} to ${returnDate.toLocaleDateString()} = ${totalDays} days`);
+            } else {
+                console.error('Missing originalRentDate or returnDate for days calculation');
+                totalDays = 1; // Use minimum 1 day as fallback
+            }
+            
+            // Get original deposit and quantity, with better error handling
+            if (materialEntry.deposit !== undefined) {
+                originalDeposit = parseFloat(materialEntry.deposit) || 0;
+            } else if (materialEntry.calculatedDeposit !== undefined) {
+                originalDeposit = parseFloat(materialEntry.calculatedDeposit) || 0;
+            } else {
+                // If no deposit found in the entry, try to calculate it
+                console.warn('No deposit found in material entry, calculating based on deposit rate');
+                const originalQty = parseInt(materialEntry.quantity) || 0;
+                const originalDays = parseInt(materialEntry.totalDays) || 1;
+                originalDeposit = depositRate * originalQty * originalDays;
+            }
+            
+            // Get the original quantity
+            originalQuantity = parseInt(materialEntry.quantity) || 0;
+            
+            console.log(`Original rental: Deposit=${originalDeposit}, Quantity=${originalQuantity}, OutId=${originalOutId}`);
+            
+            // Get return quantity from form
+            returnQuantity = parseInt(cartForm.returnQuantity) || 0;
+            
+            if (returnQuantity > originalQuantity) {
+                alert(`Return quantity (${returnQuantity}) cannot exceed original quantity (${originalQuantity})`);
+                return;
             }
         } else if (mode === 'out' && cartForm.date) {
+            // Existing OUT mode calculation
             const todaysDate = new Date();
             console.log('todaysDate', todaysDate);
 
-            const returnDateString = cartForm.date; // Assuming this is a string like "2025-04-16"
+            const returnDateString = cartForm.date;
             const returnDate = new Date(returnDateString);
             console.log('cartForm return date', returnDate);
 
             const timeDifference = returnDate - todaysDate;
             totalDays = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+            totalDays = Math.max(1, totalDays); // Minimum 1 day
         }
 
         console.log('totalDays', totalDays);
 
-        // Perform calculations
-        const quantityField = mode === 'in' ? 'returnQuantity' : 'quantity';
-        const quantity = Number(cartForm[quantityField]) || 1;
+        // Perform calculations based on mode
+        if (mode === 'in') {
+            // For IN mode, calculate based on return quantity and original deposit
+            
+            // Calculate proportionate deposit (if returning partial quantity)
+            const proportionReturned = returnQuantity / originalQuantity;
+            const applicableDeposit = originalDeposit * proportionReturned;
+            
+            // Calculate rent for the returned items
+            const rent = rentRate * returnQuantity;
+            const totalAmount = rent * totalDays;
+            
+            // Calculate deposit return
+            const depositReturn = applicableDeposit - totalAmount;
+            
+            console.log(`IN calculation details:
+                Return quantity: ${returnQuantity}
+                Original quantity: ${originalQuantity}
+                Proportion returned: ${proportionReturned.toFixed(2)}
+                Applicable deposit: ${applicableDeposit.toFixed(2)}
+                Rent rate: ${rentRate} per item per day
+                Total days: ${totalDays}
+                Total amount: ${rent} × ${totalDays} days = ${totalAmount.toFixed(2)}
+                Deposit return: ${applicableDeposit.toFixed(2)} - ${totalAmount.toFixed(2)} = ${depositReturn.toFixed(2)}
+            `);
+            
+            // Create a new cart item with the calculated values
+            const newCartItem = {
+                ...cartForm,
+                totalDays,
+                rent,
+                totalAmount,
+                deposit: applicableDeposit,
+                depositReturn,
+                originalOutId,
+                originalRentDate: originalRentDate ? new Date(originalRentDate).toLocaleDateString() : 'Unknown'
+            };
 
-        const rent = rentRate * quantity;
-        const totalAmount = rent * totalDays;
-        const deposit = depositRate * quantity;
-        const depositReturn = deposit - totalAmount;
+            console.log('New IN cart item with calculations:', newCartItem);
 
-        if (mode === 'out') {
-            const depositOut = depositRate * totalDays;
-            console.log('depositOut', depositOut);
+            // Update the cart items state
+            setCartItems((prev) => [...prev, newCartItem]);
+            setCartForm(initialCartState);
+            
+        } else {
+            // Existing OUT mode calculation
+            const quantityField = 'quantity';
+            const quantity = Number(cartForm[quantityField]) || 1;
+            console.log('quantity', quantity);
+
+            const rent = rentRate * quantity;
+            const totalAmount = rent * totalDays;
+            
+            // For OUT mode, deposit should be: deposit_rate × days × quantity
+            const depositOut = depositRate * totalDays * quantity;
+            console.log('depositOut (rate × days × quantity):', `${depositRate} × ${totalDays} × ${quantity} = ${depositOut}`);
+            
+            // Calculate the total deposit by adding new item's deposit to existing items' total
+            const existingItemsDeposit = cartItems.reduce((sum, item) => sum + (Number(item.deposit) || 0), 0);
+            const newTotalDeposit = existingItemsDeposit + depositOut;
+            
+            console.log('Previous items total deposit:', existingItemsDeposit);
+            console.log('New total deposit after adding this item:', newTotalDeposit);
+            
             setMainForm((prevForm) => ({
                 ...prevForm,
-                deposit: depositOut
+                deposit: newTotalDeposit
             }));
+            
+            // Create a new cart item with the calculated values
+            const newCartItem = {
+                ...cartForm,
+                totalDays,
+                rent,
+                totalAmount,
+                deposit: depositOut,
+                depositReturn: depositOut - totalAmount,
+                calculatedDeposit: depositOut
+            };
+
+            console.log('New OUT cart item with calculations:', newCartItem);
+
+            // Update the cart items state
+            setCartItems((prev) => [...prev, newCartItem]);
+            setCartForm(initialCartState);
         }
-
-        // Create a new cart item with the calculated values
-        const newCartItem = {
-            ...cartForm,
-            totalDays,
-            rent,
-            totalAmount,
-            deposit,
-            depositReturn
-        };
-
-        // Update the cart items state
-        setCartItems((prev) => [...prev, newCartItem]);
-        setCartForm(initialCartState);
     } catch (error) {
         console.error('Error calculating rate:', error);
     }
 };
 
   
-  
+
   // Handler to add a cart item
 
   const handleAddCartItem = async () => {
@@ -166,8 +341,27 @@ const InOutModal = ({
     await handleCalculations();
   };
 
-  // Handler to delete a cart item by its index
+  // Handle deletion of a cart item - need to update the total deposit when an item is removed
   const handleDeleteCartItem = (index) => {
+    if (mode === 'out') {
+        const itemToDelete = cartItems[index];
+        if (itemToDelete) {
+            const itemDeposit = Number(itemToDelete.deposit) || 0;
+            const currentTotalDeposit = Number(mainForm.deposit) || 0;
+            const newTotalDeposit = Math.max(0, currentTotalDeposit - itemDeposit);
+            
+            console.log(`Removing item deposit: ${itemDeposit} from total: ${currentTotalDeposit}`);
+            console.log(`New total deposit: ${newTotalDeposit}`);
+            
+            // Update main form with new total deposit
+            setMainForm(prev => ({
+                ...prev,
+                deposit: newTotalDeposit
+            }));
+        }
+    }
+    
+    // Remove the item from the cart
     setCartItems((prev) => prev.filter((_, i) => i !== index));
   };
 
@@ -252,24 +446,24 @@ const InOutModal = ({
         <Form>
           {/* Customer Selection Section */}
           <div className="bg-white rounded shadow-sm p-4 mb-4">
-            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Select Customer</h5>
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group controlId="customer">
-                  <Form.Label>Select Customer</Form.Label>
-                  <Form.Select
+          <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Select Customer</h5>
+          <Row className="mb-3">
+            <Col md={6}>
+              <Form.Group controlId="customer">
+                <Form.Label>Select Customer</Form.Label>
+                <Form.Select
                     value={mainForm.customer}
-                    onChange={(e) => handleMainFieldChange(e, 'customer')}
+                  onChange={(e) => handleMainFieldChange(e, 'customer')}
                     className="rounded-2"
-                  >
-                    <option value="">Select Customer</option>
-                    {customer.map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </Form.Select>
-                </Form.Group>
-              </Col>
-            </Row>
+                >
+                  <option value="">Select Customer</option>
+                  {customer.map(c => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Form.Select>
+              </Form.Group>
+            </Col>
+          </Row>
           </div>
           
           {/* Material Information Section */}
@@ -280,13 +474,13 @@ const InOutModal = ({
                 Please select a customer first to view available categories and subcategories.
               </div>
             ) : (
-              <Row className="g-3">
-                {cartFields.map((field) => (
-                  <Col xs={12} md={field.width || 3} key={field.name}>
-                    <Form.Group controlId={`cart_${field.name}`}>
-                      <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
-                      {field.type === 'select' ? (
-                        <Form.Select
+            <Row className="g-3">
+              {cartFields.map((field) => (
+                <Col xs={12} md={field.width || 3} key={field.name}>
+                  <Form.Group controlId={`cart_${field.name}`}>
+                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                    {field.type === 'select' ? (
+                      <Form.Select
                         value={cartForm[field.name]} 
                         onChange={(e) => handleCartFieldChange(e, field.name)}
                         className="rounded-2"
@@ -310,40 +504,40 @@ const InOutModal = ({
                                 </option>
                               ))
                           : 
-                            field.options.map((opt) => (
+                          field.options.map((opt) => (
                               <option key={opt} value={opt}>{opt}</option>
                             ))
                         )}
                       </Form.Select>
-                      ) : (
-                        <Form.Control
-                          type={field.type}
-                          value={cartForm[field.name]}
-                          onChange={(e) => handleCartFieldChange(e, field.name)}
-                          placeholder={field.placeholder || ''}
-                          className="rounded-2"
+                    ) : (
+                      <Form.Control
+                        type={field.type}
+                        value={cartForm[field.name]}
+                        onChange={(e) => handleCartFieldChange(e, field.name)}
+                        placeholder={field.placeholder || ''}
+                        className="rounded-2"
                           min={field.type === 'date' ? today : undefined}
                           disabled={mode === 'in' && !mainForm.customer}
-                        />
-                      )}
-                    </Form.Group>
-                  </Col>
-                ))}
-                <Col xs={12} md={2} className="d-flex align-items-end">
-                  <Button 
-                    variant="primary" 
-                    onClick={handleAddCartItem} 
-                    className="w-100 mt-2 mt-md-0 rounded-2"
-                    disabled={mode === 'in' && !mainForm.customer}
-                  >
-                    Add Item
-                  </Button>
+                      />
+                    )}
+                  </Form.Group>
                 </Col>
-              </Row>
+              ))}
+              <Col xs={12} md={2} className="d-flex align-items-end">
+                <Button 
+                  variant="primary" 
+                  onClick={handleAddCartItem} 
+                  className="w-100 mt-2 mt-md-0 rounded-2"
+                    disabled={mode === 'in' && !mainForm.customer}
+                >
+                  Add Item
+                </Button>
+              </Col>
+            </Row>
             )}
           </div>
           
-          
+
           {/* Card Rendering for IN Mode */}
           {mode === 'in' && cartForm.category && cartForm.subcategory && (
             <Card className="mb-3 shadow-sm border">
