@@ -33,6 +33,7 @@ const InOutModal = ({
   // Cart items state
   const [cartItems, setCartItems] = useState(safeInitialData.cartItems || []);
 
+  const [returnedQuantities, setReturnedQuantities] = useState(new Map());
   const today = new Date().toISOString().split('T')[0];
 
   // Build initial state for cart form
@@ -45,6 +46,16 @@ const InOutModal = ({
     }
   });
   const [cartForm, setCartForm] = useState(initialCartState);
+
+  useEffect(() => {
+    const newReturnedQuantities = new Map();
+    cartItems.forEach(item => {
+      const key = `${item.category}-${item.subcategory}-${item.invoice}`;
+      const currentReturned = newReturnedQuantities.get(key) || 0;
+      newReturnedQuantities.set(key, currentReturned + Number(item.returnQuantity || 0));
+    });
+    setReturnedQuantities(newReturnedQuantities);
+  }, [cartItems]);
 
   // Handler for main form field changes
   const handleMainFieldChange = (e, fieldName) => {
@@ -66,15 +77,32 @@ const InOutModal = ({
   // Handler for cart form field changes
   const handleCartFieldChange = (e, fieldName) => {
     const { value } = e.target;
-    // console.log(`fieldName: ${fieldName} \nvalue: ${value} `);
+    
+    if (fieldName === 'returnQuantity') {
+        const selectedMaterial = materialDataOfCustomer.find(item => 
+            item.category === cartForm.category && 
+            item.subcategory === cartForm.subcategory &&
+            item.quantity === cartForm.invoice
+        );
+        
+        if (selectedMaterial) {
+            const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+            const returnedQty = returnedQuantities.get(key) || 0;
+            const availableQty = Number(selectedMaterial.quantity) - returnedQty;
+            
+            if (Number(value) > availableQty) {
+                alert(`Return quantity cannot exceed available quantity (${availableQty})`);
+                return;
+            }
+        }
+    }
+    
     setCartForm((prev) => ({ ...prev, [fieldName]: value }));
     if (fieldName === 'category' && onCategoryChange) {
-      onCategoryChange(value);
-      // Reset subcategory when category changes
-      setCartForm(prev => ({ ...prev, subcategory: '' }));
+        onCategoryChange(value);
+        setCartForm(prev => ({ ...prev, subcategory: '', invoice: '' }));
     }
-    // console.log(`cartForm: ${cartForm}`);
-  };
+};
 
 
   const handleCalculations = async () => {
@@ -343,6 +371,23 @@ const InOutModal = ({
 
   // Handle deletion of a cart item - need to update the total deposit when an item is removed
   const handleDeleteCartItem = (index) => {
+    const itemToDelete = cartItems[index];
+    
+    if (itemToDelete) {
+        const key = `${itemToDelete.category}-${itemToDelete.subcategory}-${itemToDelete.invoice}`;
+        setReturnedQuantities(prev => {
+            const newMap = new Map(prev);
+            const currentQty = newMap.get(key) || 0;
+            const newQty = currentQty - Number(itemToDelete.returnQuantity);
+            if (newQty <= 0) {
+                newMap.delete(key);
+            } else {
+                newMap.set(key, newQty);
+            }
+            return newMap;
+        });
+    }
+    
     if (mode === 'out') {
         const itemToDelete = cartItems[index];
         if (itemToDelete) {
@@ -539,27 +584,34 @@ const InOutModal = ({
           
 
           {/* Card Rendering for IN Mode */}
-          {mode === 'in' && cartForm.category && cartForm.subcategory && (
-            <Card className="mb-3 shadow-sm border">
-              <Card.Body className="p-3">
-                <Card.Title className="fs-6 fw-semibold">{cartForm.subcategory}</Card.Title>
-                <Card.Text className="small text-secondary mb-0">
-                  Pending: <span className="fw-semibold text-primary">
-                    {cartFields.find(field => 
-                      field.name === 'invoice' && 
-                      field.options
-                    )?.options?.[
-                      cartFields.find(field => 
-                        field.name === 'category'
-                      )?.options.findIndex(cat => 
-                        cat === cartForm.category
-                      )
-                    ] || 0}
-                  </span>
-                </Card.Text>
-              </Card.Body>
-            </Card>
-          )}
+{mode === 'in' && cartForm.category && cartForm.subcategory && (
+    <Card className="mb-3 shadow-sm border">
+        <Card.Body className="p-3">
+            <Card.Title className="fs-6 fw-semibold">{cartForm.subcategory}</Card.Title>
+            <Card.Text className="small text-secondary mb-0">
+                Selected Quantity: <span className="fw-semibold text-primary">
+                    {cartForm.invoice || 0}
+                </span>
+            </Card.Text>
+            <Card.Text className="small text-secondary mb-0">
+                Available for Return: <span className="fw-semibold text-success">
+                    {(() => {
+                        const selectedMaterial = materialDataOfCustomer.find(item => 
+                            item.category === cartForm.category && 
+                            item.subcategory === cartForm.subcategory &&
+                            item.quantity === cartForm.invoice
+                        );
+                        if (!selectedMaterial) return 0;
+                        
+                        const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                        const returnedQty = returnedQuantities.get(key) || 0;
+                        return Math.max(0, Number(selectedMaterial.quantity) - returnedQty);
+                    })()}
+                </span>
+            </Card.Text>
+        </Card.Body>
+    </Card>
+)}
 
           
 
