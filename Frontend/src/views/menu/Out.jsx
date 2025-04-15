@@ -257,7 +257,7 @@ const Out = () => {
           customer={customersList}
           getDepositRate={handleDepositRate}
           // getDepositRate={(cat, sub) => 10} 
-          onCategoryChange={handleCategoryChange}
+          onCategoryChange={handleCategoryChange} 
         />
       )}
       {isLoading && <p>Loading...</p>} {/* Optional loading indicator */}

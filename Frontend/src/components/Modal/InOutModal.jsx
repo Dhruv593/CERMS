@@ -523,7 +523,9 @@ const InOutModal = ({
               {cartFields.map((field) => (
                 <Col xs={12} md={field.width || 3} key={field.name}>
                   <Form.Group controlId={`cart_${field.name}`}>
-                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+                    <Form.Label className="fw-medium text-secondary small mb-1">
+                      {field.name === 'invoice' ? 'Invoice' : field.label}
+                    </Form.Label>
                     {field.type === 'select' ? (
                       <Form.Select
                         value={cartForm[field.name]} 
@@ -535,7 +537,7 @@ const InOutModal = ({
                           (field.name === 'invoice' && (!cartForm.category || !cartForm.subcategory))
                         )}
                       >
-                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
+                        <option value="">{field.name === 'invoice' ? 'Select Invoice' : (field.placeholder || `Select ${field.label}`)}</option>
                         {field.options && (
                           field.name === 'invoice' ? 
                             materialDataOfCustomer
@@ -585,30 +587,201 @@ const InOutModal = ({
 
           {/* Card Rendering for IN Mode */}
 {mode === 'in' && cartForm.category && cartForm.subcategory && (
-    <Card className="mb-3 shadow-sm border">
-        <Card.Body className="p-3">
-            <Card.Title className="fs-6 fw-semibold">{cartForm.subcategory}</Card.Title>
-            <Card.Text className="small text-secondary mb-0">
-                Selected Quantity: <span className="fw-semibold text-primary">
-                    {cartForm.invoice || 0}
-                </span>
-            </Card.Text>
-            <Card.Text className="small text-secondary mb-0">
-                Available for Return: <span className="fw-semibold text-success">
-                    {(() => {
-                        const selectedMaterial = materialDataOfCustomer.find(item => 
-                            item.category === cartForm.category && 
-                            item.subcategory === cartForm.subcategory &&
-                            item.quantity === cartForm.invoice
-                        );
-                        if (!selectedMaterial) return 0;
-                        
-                        const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
-                        const returnedQty = returnedQuantities.get(key) || 0;
-                        return Math.max(0, Number(selectedMaterial.quantity) - returnedQty);
-                    })()}
-                </span>
-            </Card.Text>
+    <Card className="mb-3 border-0 overflow-hidden" 
+        style={{ 
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #f8f9fa 0%, #e2f1ff 100%)'
+        }}>
+        <div className="position-absolute" style={{
+            top: 0, right: 0, width: '150px', height: '150px',
+            background: 'radial-gradient(circle at center, rgba(13, 110, 253, 0.1) 0%, rgba(13, 110, 253, 0) 70%)',
+            borderRadius: '0 0 0 100%',
+            transform: 'translate(30%, -30%)',
+            zIndex: 0
+        }}></div>
+        
+        <Card.Body className="p-4 position-relative">
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <Card.Title className="fs-5 fw-bold text-dark mb-0 d-flex align-items-center">
+                        <i className="feather icon-package text-primary me-2" style={{ fontSize: '1.3rem' }}></i>
+                        {cartForm.subcategory}
+                    </Card.Title>
+                    <small className="text-muted d-flex align-items-center mt-1">
+                        <i className="feather icon-tag text-secondary me-1" style={{ fontSize: '0.85rem' }}></i>
+                        {cartForm.category}
+                    </small>
+                </div>
+                <div className="rounded-circle d-flex align-items-center justify-content-center" 
+                    style={{ 
+                        width: '48px', 
+                        height: '48px', 
+                        background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)',
+                        boxShadow: '0 4px 10px rgba(13, 110, 253, 0.25)'
+                    }}>
+                    <i className="feather icon-box text-white" style={{ fontSize: '1.4rem' }}></i>
+                </div>
+            </div>
+            
+            <hr className="my-3" style={{ opacity: 0.15, borderColor: '#0d6efd' }} />
+            
+            <div className="row g-3 mt-1">
+                <div className="col-6">
+                    <div className="p-3 rounded-3 bg-white h-100" 
+                        style={{ 
+                            borderLeft: '4px solid #0d6efd',
+                            cursor: 'default'
+                        }}
+                    >
+                        <div className="d-flex align-items-center">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                style={{ 
+                                    width: '36px', 
+                                    height: '36px', 
+                                    background: 'linear-gradient(135deg, rgba(13, 110, 253, 0.15) 0%, rgba(13, 110, 253, 0.05) 100%)'
+                                }}>
+                                <i className="feather icon-file-text text-primary" style={{ fontSize: '1rem' }}></i>
+                            </div>
+                            <div>
+                                <div className="small text-muted">Selected Invoice</div>
+                                <div className="fw-bold fs-5 text-primary">
+                                    {cartForm.invoice || 0}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-6">
+                    <div className="p-3 rounded-3 bg-white h-100" 
+                        style={{ 
+                            borderLeft: '4px solid #198754',
+                            cursor: 'default'
+                        }}
+                    >
+                        <div className="d-flex align-items-center">
+                            <div className="rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                style={{ 
+                                    width: '36px', 
+                                    height: '36px', 
+                                    background: 'linear-gradient(135deg, rgba(25, 135, 84, 0.15) 0%, rgba(25, 135, 84, 0.05) 100%)'
+                                }}>
+                                <i className="feather icon-refresh-cw text-success" style={{ fontSize: '1rem' }}></i>
+                            </div>
+                            <div>
+                                <div className="small text-muted">Available to Return</div>
+                                <div className="fw-bold fs-5 text-success">
+                                    {(() => {
+                                        const selectedMaterial = materialDataOfCustomer.find(item => 
+                                            item.category === cartForm.category && 
+                                            item.subcategory === cartForm.subcategory &&
+                                            item.quantity === cartForm.invoice
+                                        );
+                                        if (!selectedMaterial) return 0;
+                                        
+                                        const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                                        const returnedQty = returnedQuantities.get(key) || 0;
+                                        return Math.max(0, Number(selectedMaterial.quantity) - returnedQty);
+                                    })()}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Progress bar showing return status */}
+            {cartForm.invoice && (
+                <div className="mt-3 p-3 rounded-3 bg-white">
+                    <div className="d-flex justify-content-between align-items-center small mb-2">
+                        <span className="d-flex align-items-center text-secondary">
+                            <i className="feather icon-bar-chart-2 me-1"></i>
+                            Return Progress
+                        </span>
+                        <span className="badge" style={{ 
+                            background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)',
+                            padding: '5px 10px',
+                            borderRadius: '20px',
+                            color: 'white',
+                            fontWeight: '600',
+                            fontSize: '0.85rem'
+                        }}>{(() => {
+                            const selectedMaterial = materialDataOfCustomer.find(item => 
+                                item.category === cartForm.category && 
+                                item.subcategory === cartForm.subcategory &&
+                                item.quantity === cartForm.invoice
+                            );
+                            if (!selectedMaterial) return '0%';
+                            
+                            const original = Number(selectedMaterial.quantity) || 0;
+                            const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                            const returnedQty = returnedQuantities.get(key) || 0;
+                            const percentage = Math.min(100, Math.round((returnedQty / original) * 100)) || 0;
+                            return `${percentage}%`;
+                        })()}</span>
+                    </div>
+                    <div className="progress" style={{ height: '10px', borderRadius: '5px', backgroundColor: '#e9ecef' }}>
+                        <div 
+                            className="progress-bar" 
+                            role="progressbar" 
+                            style={{ 
+                                width: (() => {
+                                    const selectedMaterial = materialDataOfCustomer.find(item => 
+                                        item.category === cartForm.category && 
+                                        item.subcategory === cartForm.subcategory &&
+                                        item.quantity === cartForm.invoice
+                                    );
+                                    if (!selectedMaterial) return '0%';
+                                    
+                                    const original = Number(selectedMaterial.quantity) || 0;
+                                    const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                                    const returnedQty = returnedQuantities.get(key) || 0;
+                                    const percentage = Math.min(100, Math.round((returnedQty / original) * 100)) || 0;
+                                    return `${percentage}%`;
+                                })(),
+                                background: 'linear-gradient(90deg, #0d6efd 0%, #0a58ca 100%)',
+                                borderRadius: '5px',
+                                transition: 'width 0.5s ease'
+                            }}
+                            aria-valuenow={(() => {
+                                const selectedMaterial = materialDataOfCustomer.find(item => 
+                                    item.category === cartForm.category && 
+                                    item.subcategory === cartForm.subcategory &&
+                                    item.quantity === cartForm.invoice
+                                );
+                                if (!selectedMaterial) return 0;
+                                
+                                const original = Number(selectedMaterial.quantity) || 0;
+                                const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                                const returnedQty = returnedQuantities.get(key) || 0;
+                                return Math.min(100, Math.round((returnedQty / original) * 100)) || 0;
+                            })()} 
+                            aria-valuemin="0" 
+                            aria-valuemax="100"
+                        ></div>
+                    </div>
+                    
+                    <div className="d-flex justify-content-between align-items-center small text-muted mt-2">
+                        <span>
+                            <i className="feather icon-check-circle text-success me-1"></i>
+                            Returned: {(() => {
+                                const key = `${cartForm.category}-${cartForm.subcategory}-${cartForm.invoice}`;
+                                return returnedQuantities.get(key) || 0;
+                            })()}
+                        </span>
+                        <span>
+                            <i className="feather icon-archive text-primary me-1"></i>
+                            Total: {(() => {
+                                const selectedMaterial = materialDataOfCustomer.find(item => 
+                                    item.category === cartForm.category && 
+                                    item.subcategory === cartForm.subcategory &&
+                                    item.quantity === cartForm.invoice
+                                );
+                                return selectedMaterial ? selectedMaterial.quantity : 0;
+                            })()}
+                        </span>
+                    </div>
+                </div>
+            )}
         </Card.Body>
     </Card>
 )}
