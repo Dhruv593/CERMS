@@ -123,91 +123,74 @@ const In = () => {
 
 
   const handleCustomerChange = async (selectedCustomer) => {
-    console.log('Selected Customer:', selectedCustomer);
     try {
         const outData = await getOutData();
-        console.log('outdata from API in handleCustomerChange: ', outData);
+        const inData = await getInData(); // Add this to get all IN records
 
-        // Find ALL material_info entries for the selected customer
+        // Filter and map material info entries
         const materialInfoEntries = outData
             .filter(entry => entry.customer.toLowerCase() === selectedCustomer.toLowerCase())
             .map(entry => ({
                 material_info_id: entry.material_info,
-                created_at: entry.created_at
+                created_at: entry.created_at,
+                outId: entry.in_out_id // Store the OUT ID
             }));
 
         if (materialInfoEntries.length > 0) {
-            console.log(`Material Info Entries for ${selectedCustomer}:`, materialInfoEntries);
             try {
-                // Fetch material info for all IDs and combine the results
+                // Fetch all material info
                 const allMaterialLists = await Promise.all(
                     materialInfoEntries.map(async entry => {
                         const materialInfo = await getMaterialInfoForCustomer(entry.material_info_id);
-                        return materialInfo.map(info => ({ ...info, created_at: entry.created_at }));
+                        return materialInfo.map(info => ({ 
+                            ...info, 
+                            created_at: entry.created_at,
+                            outId: entry.outId
+                        }));
                     })
                 );
 
-                // Flatten the array of arrays into a single array
                 const materialList = allMaterialLists.flat();
-                console.log('materialList Before addition', materialList);
-                setMaterialInfoList(materialList);
 
-                // Create a map to store combined quantities for each category-subcategory pair
-                const combinedMaterials = new Map();
-
-                materialList.forEach(item => {
-                    const key = `${item.category}-${item.subcategory}`;
-                    if (combinedMaterials.has(key)) {
-                        const existingItem = combinedMaterials.get(key);
-                        // Add quantities together
-                        existingItem.quantity = (parseInt(existingItem.quantity) + parseInt(item.quantity)).toString();
-                        // Update other fields if needed (keeping the most recent values)
-                        existingItem.invoice = item.invoice;
-                        existingItem.return_date = item.return_date;
-                        existingItem.amount = item.amount;
-                        existingItem.created_at = item.created_at; // Update created_at
-                    } else {
-                        combinedMaterials.set(key, { ...item });
+                // Track returned quantities
+                const returnedQuantities = new Map();
+                inData.forEach(inRecord => {
+                    if (inRecord.customer.toLowerCase() === selectedCustomer.toLowerCase()) {
+                        const materialInfos = inRecord.material_info.split(',');
+                        materialInfos.forEach(async materialInfoId => {
+                            const returnedItems = await getMaterialInfoById(materialInfoId);
+                            returnedItems.forEach(item => {
+                                const key = `${item.category}-${item.subcategory}-${item.outId}`;
+                                returnedQuantities.set(key, (returnedQuantities.get(key) || 0) + parseInt(item.return_quantity || 0));
+                            });
+                        });
                     }
                 });
 
-                // Convert the map back to an array
-                const combinedMaterialList = Array.from(combinedMaterials.values());
+                // Add available quantity information to material list
+                const materialListWithAvailable = materialList.map(item => {
+                    const key = `${item.category}-${item.subcategory}-${item.outId}`;
+                    const returnedQty = returnedQuantities.get(key) || 0;
+                    const availableQty = parseInt(item.quantity) - returnedQty;
+                    return {
+                        ...item,
+                        availableQuantity: availableQty,
+                        originalQuantity: item.quantity
+                    };
+                });
 
-                console.log("Combined materialList with summed quantities: ", combinedMaterialList);
-
-                // Extract unique categories and subcategories from combined list
-                const uniqueCategories = [...new Set(combinedMaterialList.map(item => item.category))];
-                const uniqueSubcategories = [...new Set(combinedMaterialList.map(item => item.subcategory))];
-                const uniqueQuantity = [...new Set(combinedMaterialList.map(item => item.quantity))];
-
-                console.log("All categories for this customer:", uniqueCategories);
-                console.log("All subcategories for this customer:", uniqueSubcategories);
-                console.log("Combined quantities for this customer:", uniqueQuantity);
-
-                // Update states
+                setMaterialInfoList(materialListWithAvailable);
+                
+                // Rest of your existing code...
+                const uniqueCategories = [...new Set(materialListWithAvailable.map(item => item.category))];
                 setCategories(uniqueCategories);
-                setSubcategories(uniqueSubcategories);
-                setQuantity(uniqueQuantity);
+                
             } catch (error) {
-                console.error('Error fetching Customer Material Info by Id:', error);
-                setMaterialInfoList([]);
-                setCategories([]);
-                setSubcategories([]);
-                setQuantity([]);
+                console.error('Error processing material info:', error);
             }
-        } else {
-            console.log(`No material info found for ${selectedCustomer}`);
-            setMaterialInfoList([]);
-            setCategories([]);
-            setSubcategories([]);
-            setQuantity([]);
         }
     } catch (error) {
-        console.error('Error fetching Customer Material Info:', error);
-        setMaterialInfoList([]);
-        setCategories([]);
-        setSubcategories([]);
+        console.error('Error in handleCustomerChange:', error);
     }
 };
 
