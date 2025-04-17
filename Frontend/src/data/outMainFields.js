@@ -9,12 +9,14 @@ export const outMainFields = (customers, payModes) => [
   {
     name: 'aadharPhoto',
     label: 'Aadhar Photo',
+    accept: 'image/jpeg,image/jpg,image/png',
     type: 'file',
     width: 4,
   },
   {
     name: 'other_proof',
     label: 'Other Proof',
+    accept: 'image/jpeg,image/jpg,image/png',
     type: 'file',
     width: 4,
   },

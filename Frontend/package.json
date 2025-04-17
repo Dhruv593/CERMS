@@ -40,8 +40,8 @@
     "react-perfect-scrollbar": "^1.5.8",
     "react-router-dom": "^6.23.0",
     "styled-components": "^6.1.15",
-    "sweetalert2": "^11.17.2",
-    "vite": "^5.2.11",
+    "sweetalert2": "^11.6.13",
+    "vite": "^6.3.1",
     "vite-jsconfig-paths": "^2.0.1",
     "web-vitals": "^3.5.2",
     "yup": "^1.4.0"

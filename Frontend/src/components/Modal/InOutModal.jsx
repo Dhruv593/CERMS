@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form, Row, Col, Card, Table } from 'react-bootstrap';
-
+import { toast } from 'react-hot-toast';
 const InOutModal = ({
   show,
   onClose,
@@ -57,22 +57,56 @@ const InOutModal = ({
     setReturnedQuantities(newReturnedQuantities);
   }, [cartItems]);
 
-  // Handler for main form field changes
-  const handleMainFieldChange = (e, fieldName) => {
-    const { value, files } = e.target;
-    setMainForm((prev) => ({
-      ...prev,
-      [fieldName]: files ? files[0] : value
-    }));
-    if (fieldName === 'customer') {
-      if (mode === 'in' && onCustomerChange) {
-      onCustomerChange(value);
-        // Reset cart form when customer changes
-        setCartForm(initialCartState);
-      }
-      console.log('Customer selected:', value);
+  // Add this validation function at the top of the component
+  const isValidImageFile = (file) => {
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    const maxSize = 1024 * 1024; // 1MB in bytes
+  
+    if (!file) return false;
+    
+    // Check file type
+    if (!validTypes.includes(file.type)) {
+      // alert('Please upload only JPG or PNG image files');
+      toast.error("Please upload only JPG or PNG image files")
+      return false;
     }
+    
+    // Check file size
+    if (file.size > maxSize) {
+      // alert('File size must be less than 1MB');
+      toast.error("File size must be less than 1MB")
+      return false;
+    }
+  
+    return true;
   };
+
+// Modify the handleMainFieldChange function
+const handleMainFieldChange = (e, fieldName) => {
+  const { value, files } = e.target;
+  
+  // Handle file uploads for aadharPhoto and other_proof
+  if (files && (fieldName === 'aadharPhoto' || fieldName === 'other_proof')) {
+    const file = files[0];
+    if (!isValidImageFile(file)) {
+      e.target.value = ''; // Reset the file input
+      return;
+    }
+  }
+
+  setMainForm((prev) => ({
+    ...prev,
+    [fieldName]: files ? files[0] : value
+  }));
+
+  if (fieldName === 'customer') {
+    if (mode === 'in' && onCustomerChange) {
+      onCustomerChange(value);
+      setCartForm(initialCartState);
+    }
+    console.log('Customer selected:', value);
+  }
+};
 
   // Handler for cart form field changes
   const handleCartFieldChange = (e, fieldName) => {
@@ -362,7 +396,8 @@ const InOutModal = ({
   const handleAddCartItem = async () => {
     for (const field of cartFields) {
       if (!cartForm[field.name]) {
-        alert(`Please fill "${field.label}"`);
+        // alert(`Please fill "${field.label}"`);
+        toast.error(`Please fill "${field.label}"`)
         return;
       }
     }
@@ -928,53 +963,65 @@ const InOutModal = ({
           )}
 
           {/* Main Details Section */}
-          <div className="bg-white rounded shadow-sm p-4 mb-4">
-            <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
-            <Row className="g-3">
-              {mainFields.map((field) => (
-                <Col xs={12} md={field.width || 4} key={field.name}>
-                  <Form.Group controlId={`main_${field.name}`}>
-                    <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
-                    {field.type === 'select' ? (
-                      <Form.Select
-                        value={mainForm[field.name]} 
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        className="rounded-2"
-                      >
-                        <option value="">{field.placeholder || `Select ${field.label}`}</option>
-                        {field.options &&
-                          field.options.map((opt) => (
-                            <option key={opt} value={opt}>
-                              {opt}
-                            </option>
-                          ))}
-                      </Form.Select>
-                    ) : field.type === 'textarea' ? (
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        value={mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    ) : (
-                      <Form.Control
-                        type={field.type}
-                        value={field.type === 'file' ? undefined : mainForm[field.name]}
-                        onChange={(e) => handleMainFieldChange(e, field.name)}
-                        placeholder={field.placeholder || ''}
-                        readOnly={field.readOnly || false}
-                        accept={field.accept || undefined}
-                        className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
-                      />
-                    )}
-                  </Form.Group>
-                </Col>
-              ))}
-            </Row>
-          </div>
+<div className="bg-white rounded shadow-sm p-4 mb-4">
+  <h5 className="fw-semibold text-secondary border-bottom pb-2 mb-3">Client & Payment Details</h5>
+  <Row className="g-3">
+    {mainFields.map((field) => (
+      <Col xs={12} md={field.width || 4} key={field.name}>
+        <Form.Group controlId={`main_${field.name}`}>
+          <Form.Label className="fw-medium text-secondary small mb-1">{field.label}</Form.Label>
+          {field.type === 'select' ? (
+            <Form.Select
+              value={mainForm[field.name]} 
+              onChange={(e) => handleMainFieldChange(e, field.name)}
+              className="rounded-2"
+            >
+              <option value="">{field.placeholder || `Select ${field.label}`}</option>
+              {field.options &&
+                field.options.map((opt) => (
+                  <option key={opt} value={opt}>
+                    {opt}
+                  </option>
+                ))}
+            </Form.Select>
+          ) : field.type === 'textarea' ? (
+            <Form.Control
+              as="textarea"
+              rows={3}
+              value={mainForm[field.name]}
+              onChange={(e) => handleMainFieldChange(e, field.name)}
+              placeholder={field.placeholder || ''}
+              readOnly={field.readOnly || false}
+              className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+            />
+          ) : field.type === 'file' ? (
+            <>
+              <Form.Control
+                type="file"
+                onChange={(e) => handleMainFieldChange(e, field.name)}
+                accept={field.accept || 'image/jpeg,image/png'}
+                className="rounded-2"
+              />
+              <Form.Text className="text-muted">
+              Only JPG and PNG images up to <span className="fw-bold">1 MB</span> are accepted
+              </Form.Text>
+            </>
+          ) : (
+            <Form.Control
+              type={field.type}
+              value={mainForm[field.name]}
+              onChange={(e) => handleMainFieldChange(e, field.name)}
+              placeholder={field.placeholder || ''}
+              readOnly={field.readOnly || false}
+              className={`rounded-2 ${field.readOnly ? 'bg-light' : ''}`}
+            />
+          )}
+        </Form.Group>
+      </Col>
+    ))}
+  </Row>
+</div>
+
         </Form>
       </Modal.Body>
       <Modal.Footer className="border-top p-3">
