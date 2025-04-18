@@ -11,6 +11,7 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const customerRoutes = require('./routes/customer.routes');
 const outDataRoutes = require('./routes/out.routes');
 const inDataRoutes = require('./routes/in.routes');
+const invoiceRoutes = require('./routes/invoice.routes');
 const db = require('./config/db');
 const path = require('path');
   
@@ -47,6 +48,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/customers", customerRoutes);
 app.use("/api/outdata", outDataRoutes);
 app.use("/api/indata", inDataRoutes);
+app.use('/api/invoice', invoiceRoutes);
 
 const PORT = process.env.PORT || 5000;
 

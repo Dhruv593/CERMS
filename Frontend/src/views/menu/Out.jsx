@@ -12,6 +12,14 @@ import { getSubcategoriesByCategory } from '@/api/subcategoryAPI';
 import { getOutData, addOutData, getMaterialInfoById, deleteOutData, updateOutData } from '@/api/outApi';
 import { getDeposits } from 'api/depositAPI';
 import { showErrorAlert, showSuccessAlert } from '@/utils/AlertService';
+import { generateInvoice, getInvoice } from '@/api/invoiceApi';
+
+
+// Different modal for Invoice 
+import InvoiceModal from '@/components/Modal/InvoiceModal';
+
+
+
 
 const Out = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -202,8 +210,23 @@ const Out = () => {
     }
   };
 
+  const handleViewInvoice = async (outId) => {
+    try {
+      const invoiceBlob = await getInvoice(outId);
+      // Create a URL for the blob
+      const url = window.URL.createObjectURL(invoiceBlob);
+      // Open in new window
+      window.open(url, '_blank');
+      // Clean up
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error viewing invoice:', error);
+      showErrorAlert('Error viewing invoice');
+    }
+  };
+
   const payModes = ['Cash', 'Card', 'Online'];
-  const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark'];
+  const tableHeaders = ['Customer', 'Material Info', 'Receiver Name', 'Payment Mode', 'Deposit', 'Aadhar Photo', 'Other Proof', 'Remark', 'Invoice'];
 
   // Map outData to table format with safety checks for undefined values
   const tableData = outData.map((record) => {
@@ -224,7 +247,15 @@ const Out = () => {
       deposit: record.deposit || 0,
       aadhar_photo: record.aadharPhoto ? `${IMG_URL}/${record.aadharPhoto}` : '',
       other_proof: record.other_proof ? `${IMG_URL}/${record.other_proof}` : '',
-      remark: record.remark || ''
+      remark: record.remark || '',
+      invoice: (
+        <button 
+          onClick={() => handleViewInvoice(record.in_out_id)}
+          className="btn btn-outline-primary btn-sm"
+        >
+          Invoice
+        </button>
+      )
     };
   });
 
