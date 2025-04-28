@@ -13,16 +13,44 @@ import {
   MDBTableBody,
 } from "mdb-react-ui-kit";
 
-export default function InvoiceModal() {
+export default function InvoiceModal({ invoiceData, onClose }) {
+  if (!invoiceData) return null;
+
+  const {
+    customer,
+    receiver,
+    payMode,
+    deposit,
+    cartItems = [],
+    in_out_id,
+    created_at,
+    status
+  } = invoiceData;
+
+  const calculateTotal = () => {
+    return cartItems.reduce((total, item) => total + (item.totalAmount || 0), 0);
+  };
+
+  const totalAmount = calculateTotal();
+
+  const handlePrint = () => {
+    const printContents = document.getElementById('invoice-content').innerHTML;
+    const originalContents = document.body.innerHTML;
+    document.body.innerHTML = printContents;
+    window.print();
+    document.body.innerHTML = originalContents;
+    window.location.reload();
+  };
+
   return (
     <MDBContainer className="py-5">
       <MDBCard className="p-4">
-        <MDBCardBody>
+        <MDBCardBody id="invoice-content">
           <MDBContainer className="mb-2 mt-3">
             <MDBRow className="d-flex align-items-baseline">
               <MDBCol xl="9">
                 <p style={{ color: "#7e8d9f", fontSize: "20px" }}>
-                  Invoice &gt; &gt; <strong>ID: #123-123</strong>
+                  Invoice &gt; &gt; <strong>ID: #{in_out_id}</strong>
                 </p>
               </MDBCol>
               <MDBCol xl="3" className="float-end">
@@ -30,6 +58,7 @@ export default function InvoiceModal() {
                   color="light"
                   ripple="dark"
                   className="text-capitalize border-0"
+                  onClick={handlePrint}
                 >
                   <MDBIcon fas icon="print" color="primary" className="me-1" />
                   Print
@@ -51,28 +80,16 @@ export default function InvoiceModal() {
               </MDBCol>
             </MDBRow>
           </MDBContainer>
-          <MDBContainer>
-            <MDBCol md="12" className="text-center">
-              <MDBIcon
-                fab
-                icon="mdb"
-                size="4x"
-                className="ms-0 "
-                style={{ color: "#5d9fc5" }}
-              />
-              <p className="pt-0">MDBootstrap.com</p>
-            </MDBCol>
-          </MDBContainer>
           <MDBRow>
             <MDBCol xl="8">
               <MDBTypography listUnStyled>
                 <li className="text-muted">
-                  To: <span style={{ color: "#5d9fc5" }}>John Lorem</span>
+                  To: <span style={{ color: "#5d9fc5" }}>{customer}</span>
                 </li>
-                <li className="text-muted">Street, City</li>
-                <li className="text-muted">State, Country</li>
+                <li className="text-muted">Receiver: {receiver}</li>
+                <li className="text-muted">Payment Mode: {payMode}</li>
                 <li className="text-muted">
-                  <MDBIcon fas icon="phone-alt" /> 123-456-789
+                  Deposit: ₹{deposit}
                 </li>
               </MDBTypography>
             </MDBCol>
@@ -81,18 +98,18 @@ export default function InvoiceModal() {
               <MDBTypography listUnStyled>
                 <li className="text-muted">
                   <MDBIcon fas icon="circle" style={{ color: "#84B0CA" }} />
-                  <span className="fw-bold ms-1">ID:</span>#123-456
+                  <span className="fw-bold ms-1">ID:</span>#{in_out_id}
                 </li>
                 <li className="text-muted">
                   <MDBIcon fas icon="circle" style={{ color: "#84B0CA" }} />
-                  <span className="fw-bold ms-1">Creation Date: </span>Jun
-                  23,2021
+                  <span className="fw-bold ms-1">Creation Date: </span>
+                  {new Date(created_at).toLocaleDateString()}
                 </li>
                 <li className="text-muted">
                   <MDBIcon fas icon="circle" style={{ color: "#84B0CA" }} />
                   <span className="fw-bold ms-1">Status:</span>
-                  <span className="badge bg-warning text-black fw-bold ms-1">
-                    Unpaid
+                  <span className={`badge ${status === 'paid' ? 'bg-success' : 'bg-warning'} text-black fw-bold ms-1`}>
+                    {status || 'Unpaid'}
                   </span>
                 </li>
               </MDBTypography>
@@ -106,62 +123,50 @@ export default function InvoiceModal() {
               >
                 <tr>
                   <th scope="col">#</th>
-                  <th scope="col">Description</th>
-                  <th scope="col">Qty</th>
-                  <th scope="col">Unit Price</th>
-                  <th scope="col">Amount</th>
+                  <th scope="col">Category</th>
+                  <th scope="col">Subcategory</th>
+                  <th scope="col">Quantity</th>
+                  <th scope="col">Return Date</th>
                 </tr>
               </MDBTableHead>
               <MDBTableBody>
-                <tr>
-                  <th scope="row">1</th>
-                  <td>Pro Package</td>
-                  <td>4</td>
-                  <td>$200</td>
-                  <td>$800</td>
-                </tr>
-                <tr>
-                  <th scope="row">2</th>
-                  <td>Web hosting</td>
-                  <td>1</td>
-                  <td>$10</td>
-                  <td>$10</td>
-                </tr>
-                <tr>
-                  <th scope="row">3</th>
-                  <td>Consulting</td>
-                  <td>1 year</td>
-                  <td>$300</td>
-                  <td>$300</td>
-                </tr>
+                {cartItems.map((item, index) => (
+                  <tr key={index}>
+                    <th scope="row">{index + 1}</th>
+                    <td>{item.category}</td>
+                    <td>{item.subcategory}</td>
+                    <td>{item.quantity}</td>
+                    <td>{item.returnDate}</td>
+                  </tr>
+                ))}
               </MDBTableBody>
             </MDBTable>
           </MDBRow>
           <MDBRow>
             <MDBCol xl="8">
               <p className="ms-3">
-                Add additional notes and payment information
+                Thank you for your business
               </p>
             </MDBCol>
             <MDBCol xl="3">
               <MDBTypography listUnStyled>
                 <li className="text-muted ms-3">
-                  <span class="text-black me-4">SubTotal</span>$1110
+                  <span className="text-black me-4">Total Amount</span>₹{totalAmount}
                 </li>
                 <li className="text-muted ms-3 mt-2">
-                  <span class="text-black me-4">Tax(15%)</span>$111
+                  <span className="text-black me-4">Deposit</span>₹{deposit}
                 </li>
               </MDBTypography>
               <p className="text-black float-start">
-                <span className="text-black me-3"> Total Amount</span>
-                <span style={{ fontSize: "25px" }}>$1221</span>
+                <span className="text-black me-3"> Final Amount</span>
+                <span style={{ fontSize: "25px" }}>₹{totalAmount - deposit}</span>
               </p>
             </MDBCol>
           </MDBRow>
           <hr />
           <MDBRow>
             <MDBCol xl="10">
-              <p>Thank you for your purchase</p>
+              <p>Thank you for your business</p>
             </MDBCol>
             <MDBCol xl="2">
               <MDBBtn

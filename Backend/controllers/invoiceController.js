@@ -17,7 +17,7 @@ const drawTableHeader = (doc, y) => {
        .text('Category', 200, y)
        .text('Subcategory', 300, y)
        .text('Quantity', 400, y)
-       .text('Amount', 480, y);
+       .text('Return Date', 480, y);
     
     drawHorizontalLine(doc, y + 20);
 };
@@ -109,7 +109,11 @@ exports.generateInvoice = async (req, res) => {
                        .text(item.category, 200, yPosition)
                        .text(item.subcategory, 300, yPosition)
                        .text(item.quantity.toString(), 400, yPosition)
-                       .text(formatCurrency(item.amount || 0), 480, yPosition);
+                       .text(item.date ? new Date(item.date).toLocaleDateString('en-IN', {
+                           day: '2-digit',
+                           month: '2-digit', 
+                           year: 'numeric'
+                       }) : 'N/A', 480, yPosition);
                     
                     yPosition += 20;
                 });

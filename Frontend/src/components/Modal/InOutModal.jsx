@@ -559,7 +559,7 @@ const handleMainFieldChange = (e, fieldName) => {
                 <Col xs={12} md={field.width || 3} key={field.name}>
                   <Form.Group controlId={`cart_${field.name}`}>
                     <Form.Label className="fw-medium text-secondary small mb-1">
-                      {field.name === 'invoice' ? 'Invoice' : field.label}
+                      {field.name === 'invoice' ? field.label : 'Quantity' }
                     </Form.Label>
                     {field.type === 'select' ? (
                       <Form.Select
@@ -572,7 +572,7 @@ const handleMainFieldChange = (e, fieldName) => {
                           (field.name === 'invoice' && (!cartForm.category || !cartForm.subcategory))
                         )}
                       >
-                        <option value="">{field.name === 'invoice' ? 'Select Invoice' : (field.placeholder || `Select ${field.label}`)}</option>
+                        <option value="">{field.name === 'invoice' ? 'Select Quantity' : (field.placeholder || `Select ${field.label}`)}</option>
                         {field.options && (
                           field.name === 'invoice' ? 
                             materialDataOfCustomer
@@ -678,7 +678,7 @@ const handleMainFieldChange = (e, fieldName) => {
                                 <i className="feather icon-file-text text-primary" style={{ fontSize: '1rem' }}></i>
                             </div>
                             <div>
-                                <div className="small text-muted">Selected Invoice</div>
+                                <div className="small text-muted">Selected Quantity</div>
                                 <div className="fw-bold fs-5 text-primary">
                                     {cartForm.invoice || 0}
                                 </div>
